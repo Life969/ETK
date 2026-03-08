@@ -27,4 +27,7 @@ public class EmployeesService {
     public void deleteById(Long id){
         listEmployeesRepository.deleteById(id);
     }
+    public void deleteAll(){
+        listEmployeesRepository.deleteAll();
+    }
 }
