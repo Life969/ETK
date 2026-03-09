@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.controllers;
+package ProjectForJob.example.Job.RESTcontrollers;
 
 import ProjectForJob.example.Job.DataTransferObject.EmployeeCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.EmployeeResponseDto;
@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/employees")
+@RequestMapping("/api/employees")
 public class EmployeesController {
     private static final Logger log = LoggerFactory.getLogger(EmployeesController.class);
     private final EmployeesService employeesService;

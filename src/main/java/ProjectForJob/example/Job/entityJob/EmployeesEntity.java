@@ -1,6 +1,7 @@
 package ProjectForJob.example.Job.entityJob;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class EmployeesEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // если ID автоинкремент
     private Long id;
 
+    @NotBlank
     @Column(name = "name")
     private String name;
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- Обязательно подключаем пространство имен Thymeleaf -->
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список сотрудников</title>
+</head>
+<body>
+<h1>Сотрудники</h1>
+
+<!-- Проверяем, пуст ли список -->
+<div th:if="${employees.isEmpty()}">
+    <p>Список сотрудников пуст.</p>
+</div>
+
+<!-- Если список не пуст, отображаем таблицу -->
+<table th:unless="${employees.isEmpty()}" border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- th:each - это цикл по списку employees.
+         Каждый элемент списка становится переменной 'emp' -->
+    <tr th:each="emp : ${employees}">
+        <td th:text="${emp.id}">2</td>
+        <td th:text="${emp.name}">Иван Иванов</td>
+        <td>
+            <a th:href="@{/employees/edit/{id}(id=${emp.id})}">Редактировать</a>
+            <form th:action="@{/employees/delete/{id}(id=${emp.id})}" method="post" style="display:inline;">
+                <button type="submit" onclick="return confirm('Точно удалить?')">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<!-- Кнопка для добавления нового сотрудника -->
+<a href="/employees/new">Добавить сотрудника</a>
+</body>
+</html>
