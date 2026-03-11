@@ -1,0 +1,42 @@
+/* Общие стили для всего сайта */
+body {
+    background-color: #f8f9fa;  /* Светло-серый фон (Bootstrap по умолчанию часто белый) */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Стили для заголовка h1 */
+h1 {
+    color: #0056b3;             /* Тёмно-синий */
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Можно добавить свой класс, например, для кнопок */
+.my-custom-button {
+    border-radius: 20px;        /* Более скруглённые углы */
+    text-transform: uppercase;  /* Заглавные буквы */
+    font-weight: bold;
+}
+
+/* Переопределим стиль Bootstrap для кнопки "Добавить сотрудника" (btn-success) */
+.btn-success {
+    background-color: #28a745;  /* Оставим как есть, но можем изменить */
+    border-color: #28a745;
+}
+/* Если хотим другой оттенок зелёного, можем переопределить:
+.btn-success {
+    background-color: #20c997;
+    border-color: #20c997;
+}
+*/
+
+/* Стили для таблицы: сделаем строки немного выше */
+.table td, .table th {
+    vertical-align: middle;      /* Выравнивание по центру по вертикали */
+}
+
+/* А если хотим, чтобы при наведении на строку фон был не серый, а голубой */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
