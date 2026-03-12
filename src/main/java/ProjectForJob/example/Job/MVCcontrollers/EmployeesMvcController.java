@@ -27,7 +27,7 @@ public class EmployeesMvcController {
     // Метод для отображения списка всех сотрудников
     @GetMapping
     public String listAllEmployees(Model model) {
-        log.info("Запрос на отображение всех сотрудников в веб-интерфейсе");
+        log.info("getAllEmployees getMapping");
 
         // 1. Получаем данные через существующий сервис
         List<EmployeesEntity> employees = employeesService.findAll();
@@ -41,7 +41,7 @@ public class EmployeesMvcController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        log.info("Запрос формы создания нового сотрудника");
+        log.info("called showCreateForm");
         // Создаём пустой объект, чтобы форма могла к нему привязаться
         model.addAttribute("employee", new EmployeesEntity());
         return "employees/form";
@@ -64,7 +64,7 @@ public class EmployeesMvcController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        log.info("Запрос формы редактирования сотрудника с id = {}", id);
+        log.info("called showEditForm id = {}", id);
         EmployeesEntity employee = employeesService.findById(id);
         if (employee == null) {
             throw new NoSuchElementException("Сотрудник с id" + id + " не найдет");

@@ -11,8 +11,19 @@
 
 </head>
 <body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 <div class="container mt-4">
-<h1>Сотрудники</h1>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center">   <!-- этот див соберет заголовок и медведя в ряд -->
+            <h1>Сотрудники</h1>
+            <img th:src="@{/images/bearAxe.png}" alt="Медведь с топором"
+                 style="width: 65px; height: auto; margin-left: 15px;">
+        </div>
+        <a href="/" class="btn btn-primary">
+            <i class="bi bi-house-door"></i> На главную
+        </a>
+    </div>
     <div th:if="${message}" th:class="'alert alert-' + ${messageType}" role="alert">
         <span th:text="${message}">Сообщение</span>
     </div>
@@ -53,8 +64,5 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<div class="corner-image">
-    <img th:src="@{/images/bearAxe.png}" alt="МедведьСТопором">
-</div>
 </body>
 </html>

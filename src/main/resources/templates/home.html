@@ -8,9 +8,16 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 <div class="container mt-4">
     <h1>Добро пожаловать на завод!</h1>
-    <p class="lead">Здесь вы можете управлять сотрудниками металлообрабатывающего завода.</p>
+
+
+    <p class="lead">Здесь живут медведи и пытаются работать в отличие от некоторых.
+        <img th:src="@{/images/threeBears.png}" alt="Три Медведя"
+             style="width: 100px; height: auto; margin-left: 15px;">
+    </p>
+
 
     <!-- Кнопка для перехода к списку сотрудников -->
     <a href="/employees" class="btn btn-primary btn-lg">

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping({"/","/home"})
+@RequestMapping({"/", "/home"})
 public class HomeMvcController {
     private static final Logger log = LoggerFactory.getLogger(HomeMvcController.class);
 
@@ -16,4 +16,5 @@ public class HomeMvcController {
         log.info("mapping home");
         return "home";
     }
+
 }
