@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -48,12 +50,15 @@ public class EmployeesMvcController {
     @PostMapping("/save")
     public String saveEmployee(@Valid @ModelAttribute("employee")
                                     EmployeesEntity employee,
-                                    BindingResult bindingResult, Model model) {
+                               BindingResult bindingResult, Model model,
+                               RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "employees/form";
         } // Реализовать в REST! тоже.
-        log.info("Сохранение сотрудника: {}", employee);
+        log.info("method save called: {}", employee);
         employeesService.save(employee);
+        redirectAttributes.addFlashAttribute("message", "Сотрудник успешно сохранен");
+        redirectAttributes.addFlashAttribute("messageType", "success");
         return "redirect:/employees";
     }
 
@@ -69,9 +74,11 @@ public class EmployeesMvcController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteEmployee(@PathVariable Long id) {
+    public String deleteEmployee(@PathVariable Long id,RedirectAttributes redirectAttributes) {
         log.info("deleteEmployee id = {}", id);
         employeesService.deleteById(id);
+        redirectAttributes.addFlashAttribute("message", "Сотрудник удалён.");
+        redirectAttributes.addFlashAttribute("messageType", "danger");
         return "redirect:/employees";
     }
 

@@ -1,42 +1,132 @@
-/* Общие стили для всего сайта */
+:root {
+    /* Основные цвета */
+    --bs-body-bg: #2C3E50;
+    --bs-body-color: #ECF0F1;
+    --bs-primary: #E67E22;
+    --bs-primary-rgb: 230, 126, 34;
+    --bs-link-color: #E67E22;
+    --bs-link-hover-color: #d35400;
+
+    /* Цвета обратной связи (можно оставить стандартные) */
+    --bs-success: #2ecc71;
+    --bs-success-rgb: 46, 204, 113;
+    --bs-danger: #e74c3c;
+    --bs-danger-rgb: 231, 76, 60;
+    --bs-warning: #f39c12;
+    --bs-info: #3498db;
+}
+
+/* Фон страницы и текста уже применены через переменные,
+   но можем явно задать для body */
 body {
-    background-color: #f8f9fa;  /* Светло-серый фон (Bootstrap по умолчанию часто белый) */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
 }
 
-/* Стили для заголовка h1 */
-h1 {
-    color: #0056b3;             /* Тёмно-синий */
-    border-bottom: 2px solid #dee2e6;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+/* Блоки (карточки, модалки, выпадающие списки) */
+.card, .modal-content, .dropdown-menu, .list-group-item {
+    background-color: #34495e;
+    color: #ECF0F1;
+    border-color: #E67E22;
 }
 
-/* Можно добавить свой класс, например, для кнопок */
-.my-custom-button {
-    border-radius: 20px;        /* Более скруглённые углы */
-    text-transform: uppercase;  /* Заглавные буквы */
-    font-weight: bold;
+/* Таблицы */
+.table {
+    --bs-table-color: #ECF0F1;
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+    --bs-table-hover-bg: rgba(230, 126, 34, 0.15);
+    --bs-table-border-color: #E67E22;
+}
+.table td,
+.table th {
+    color: inherit; /* наследуем от родителя .table */
+}
+.table thead {
+    --bs-table-bg: #1e2b38;
+    color: #E67E22;
+}
+.table thead th {
+    color: #E67E22; /* оранжевый */
+    /* можно также использовать переменную --bs-primary */
 }
 
-/* Переопределим стиль Bootstrap для кнопки "Добавить сотрудника" (btn-success) */
-.btn-success {
-    background-color: #28a745;  /* Оставим как есть, но можем изменить */
-    border-color: #28a745;
+/* Кнопки */
+.btn-primary {
+    background-color: #E67E22;
+    border-color: #E67E22;
 }
-/* Если хотим другой оттенок зелёного, можем переопределить:
-.btn-success {
-    background-color: #20c997;
-    border-color: #20c997;
+.btn-primary:hover {
+    background-color: #d35400;
+    border-color: #d35400;
 }
-*/
+.btn-outline-primary {
+    color: #E67E22;
+    border-color: #E67E22;
+}
+.btn-outline-primary:hover {
+    background-color: #E67E22;
+    color: #fff;
+}
 
-/* Стили для таблицы: сделаем строки немного выше */
-.table td, .table th {
-    vertical-align: middle;      /* Выравнивание по центру по вертикали */
+/* Поля ввода */
+.form-control, .form-select, .input-group-text {
+    background-color: #34495e;
+    border-color: #E67E22;
+    color: #ECF0F1;
+}
+.form-control:focus, .form-select:focus {
+    background-color: #3d566e;
+    border-color: #E67E22;
+    box-shadow: 0 0 0 0.25rem rgba(230, 126, 34, 0.25);
+}
+.form-control::placeholder {
+    color: #95a5a6;
 }
 
-/* А если хотим, чтобы при наведении на строку фон был не серый, а голубой */
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.1);
+/* Алерты */
+.alert-success {
+    background-color: #2ecc71;
+    color: #1e2b38;
+    border-color: #27ae60;
+}
+.alert-danger {
+    background-color: #e74c3c;
+    color: #1e2b38;
+    border-color: #c0392b;
+}
+.alert-warning {
+    background-color: #f39c12;
+    color: #1e2b38;
+    border-color: #e67e22;
+}
+.alert-info {
+    background-color: #3498db;
+    color: #1e2b38;
+    border-color: #2980b9;
+}
+
+/* Ссылки */
+a:not(.btn) {
+    color: #E67E22;
+}
+a:not(.btn):hover {
+    color: #d35400;
+}
+
+.corner-image {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;   /* или любой размер */
+    height: auto;
+    opacity: 0.9;   /* можно сделать полупрозрачным, чтобы не отвлекал */
+    z-index: 100;   /* чтобы был поверх других элементов, если надо */
+    pointer-events: none; /* чтобы картинка не мешала кликать по кнопкам под ней */
+}
+
+.corner-image img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
