@@ -27,6 +27,12 @@
                            th:classappend="${currentUri.startsWith('/employees')} ? 'active' : ''"
                            href="/employees">Сотрудники</a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           th:classappend="${currentUri.startsWith('/machines')} ? 'active' : ''"
+                           href="/machines">Станочечки</a>
+                    </li>
                     <!-- Здесь можно добавить другие пункты меню -->
                 </ul>
             </div>
