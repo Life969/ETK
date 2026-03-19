@@ -31,7 +31,13 @@
                     <li class="nav-item">
                         <a class="nav-link"
                            th:classappend="${currentUri.startsWith('/machines')} ? 'active' : ''"
-                           href="/machines">Станочечки</a>
+                           href="/machines">Станки</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           th:classappend="${currentUri.startsWith('/couplings')} ? 'active' : ''"
+                           href="/couplings">Справочник муфт</a>
                     </li>
                     <!-- Здесь можно добавить другие пункты меню -->
                 </ul>
