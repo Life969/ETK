@@ -14,7 +14,7 @@
     <h1 th:if="${coupling.id == null}">Новая муфта</h1>
     <h1 th:unless="${coupling.id == null}">Редактирование муфты</h1>
 
-    <form action="#" th:action="@{/couplings/save}" th:object="${coupling}" method="post" class="mt-3">
+    <form action="#" th:action="@{/couplings/save}" th:object="${coupling}" method="post"  class="mt-3">
         <!-- Скрытое поле для id (при редактировании) -->
         <input type="hidden" th:field="*{id}" />
 
