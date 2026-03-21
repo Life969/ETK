@@ -19,6 +19,67 @@
         </a>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-funnel"></i> Фильтры
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <!-- Продукция -->
+                <div class="col-md-3">
+                    <label for="couplingId" class="form-label">Продукция</label>
+                    <select name="couplingId" id="couplingId" class="form-select">
+                        <option value="">Все</option>
+                        <option th:each="c : ${couplings}" th:value="${c.id}" th:text="${c.name}"
+                                th:selected="${c.id == selectedCouplingId}"></option>
+                    </select>
+                </div>
+
+                <!-- Сотрудник -->
+                <div class="col-md-3">
+                    <label for="employeeId" class="form-label">Сотрудник</label>
+                    <select name="employeeId" id="employeeId" class="form-select">
+                        <option value="">Все</option>
+                        <option th:each="e : ${employees}" th:value="${e.id}" th:text="${e.name}"
+                                th:selected="${e.id == selectedEmployeeId}"></option>
+                    </select>
+                </div>
+
+                <!-- Станок -->
+                <div class="col-md-3">
+                    <label for="machineId" class="form-label">Станок</label>
+                    <select name="machineId" id="machineId" class="form-select">
+                        <option value="">Все</option>
+                        <option th:each="m : ${machines}" th:value="${m.id}" th:text="${m.name}"
+                                th:selected="${m.id == selectedMachineId}"></option>
+                    </select>
+                </div>
+
+                <!-- Дата с -->
+                <div class="col-md-2">
+                    <label for="startDate" class="form-label">Дата с</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control"
+                           th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}" />
+                </div>
+
+                <!-- Дата по -->
+                <div class="col-md-2">
+                    <label for="endDate" class="form-label">Дата по</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control"
+                           th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}" />
+                </div>
+
+                <!-- Кнопки -->
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Применить</button>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="/production-records" class="btn btn-secondary w-100">Сбросить</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div th:if="${message}" th:class="'alert alert-' + ${messageType}" role="alert">
         <span th:text="${message}">Сообщение</span>
     </div>

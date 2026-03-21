@@ -2,7 +2,12 @@ package ProjectForJob.example.Job.services;
 
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
 import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 @Service
@@ -29,5 +34,30 @@ public class ProductionRecordService {
 
     public void deleteById(Long id) {
         repository.deleteById(id);
+    }
+
+    public List<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId, Long machineId, LocalDate startDate, LocalDate endDate) {
+        Specification<ProductionRecordEntity> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (couplingId != null) {
+                predicates.add(cb.equal(root.get("coupling").get("id"), couplingId));
+            }
+            if (employeeId != null) {
+                predicates.add(cb.equal(root.get("employee").get("id"), employeeId));
+            }
+            if (machineId != null) {
+                predicates.add(cb.equal(root.get("machine").get("id"), machineId));
+            }
+            if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("productionDate"), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("productionDate"), endDate));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return repository.findAll(spec);
     }
 }

@@ -13,12 +13,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -34,13 +36,39 @@ public class ProductionRecordMvcController {
     private final MachinesService machineService;
 
 
-    @GetMapping
+   /* @GetMapping
     public String listAll(Model model) {
         log.info("GET /production-records");
         List<ProductionRecordEntity> records = recordService.findAll();
         model.addAttribute("records", records);
         return "production-records/list";
-    }
+    }*/
+   @GetMapping
+   public String listAll(@RequestParam(required = false) Long couplingId,
+                         @RequestParam(required = false) Long employeeId,
+                         @RequestParam(required = false) Long machineId,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                         Model model) {
+       log.info("GET /production-records with filters");
+
+       List<ProductionRecordEntity> records = recordService.findAllByFilters(couplingId, employeeId, machineId, startDate, endDate);
+       model.addAttribute("records", records);
+
+       // для выпадающих списков в форме фильтрации
+       model.addAttribute("couplings", couplingService.findAll());
+       model.addAttribute("employees", employeeService.findAll());
+       model.addAttribute("machines", machineService.findAll());
+
+       // сохраняем текущие значения фильтров, чтобы они не сбрасывались после отправки
+       model.addAttribute("selectedCouplingId", couplingId);
+       model.addAttribute("selectedEmployeeId", employeeId);
+       model.addAttribute("selectedMachineId", machineId);
+       model.addAttribute("startDate", startDate);
+       model.addAttribute("endDate", endDate);
+
+       return "production-records/list";
+   }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
