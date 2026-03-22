@@ -3,6 +3,8 @@ package ProjectForJob.example.Job.services;
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
 import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,9 @@ public class ProductionRecordService {
         repository.deleteById(id);
     }
 
-    public List<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId, Long machineId, LocalDate startDate, LocalDate endDate) {
+    public Page<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId,
+                                                         Long machineId, LocalDate startDate,
+                                                         LocalDate endDate, Pageable pageable) {
         Specification<ProductionRecordEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -58,6 +62,6 @@ public class ProductionRecordService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        return repository.findAll(spec);
+        return repository.findAll(spec, pageable);
     }
 }

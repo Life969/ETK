@@ -1,6 +1,9 @@
 package ProjectForJob.example.Job.repositories;
 
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +18,7 @@ public interface ProductionRecordRepository extends JpaRepository<ProductionReco
             "JOIN FETCH pr.employee " +
             "JOIN FETCH pr.machine")
     List<ProductionRecordEntity> findAllWithDetails();
+
+    Page<ProductionRecordEntity> findAll(Pageable pageable);
+    Page<ProductionRecordEntity> findAll(Specification<ProductionRecordEntity> spec, Pageable pageable);
 }

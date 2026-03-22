@@ -13,6 +13,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,39 +39,39 @@ public class ProductionRecordMvcController {
     private final MachinesService machineService;
 
 
-   /* @GetMapping
-    public String listAll(Model model) {
-        log.info("GET /production-records");
-        List<ProductionRecordEntity> records = recordService.findAll();
-        model.addAttribute("records", records);
+    @GetMapping
+    public String listAll(@RequestParam(required = false) Long couplingId,
+                          @RequestParam(required = false) Long employeeId,
+                          @RequestParam(required = false) Long machineId,
+                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                          @RequestParam(defaultValue = "0") int page,
+                          @RequestParam(defaultValue = "20") int size,
+                          Model model) {
+        log.info("GET /production-records with filters, page={}, size={}", page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductionRecordEntity> pageResult = recordService.findAllByFilters(
+                couplingId, employeeId, machineId, startDate, endDate, pageable);
+
+        model.addAttribute("recordsPage", pageResult);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageResult.getTotalPages());
+
+        // для выпадающих списков фильтров
+        model.addAttribute("couplings", couplingService.findAll());
+        model.addAttribute("employees", employeeService.findAll());
+        model.addAttribute("machines", machineService.findAll());
+
+        // сохраняем выбранные фильтры для формы
+        model.addAttribute("selectedCouplingId", couplingId);
+        model.addAttribute("selectedEmployeeId", employeeId);
+        model.addAttribute("selectedMachineId", machineId);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
         return "production-records/list";
-    }*/
-   @GetMapping
-   public String listAll(@RequestParam(required = false) Long couplingId,
-                         @RequestParam(required = false) Long employeeId,
-                         @RequestParam(required = false) Long machineId,
-                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                         Model model) {
-       log.info("GET /production-records with filters");
-
-       List<ProductionRecordEntity> records = recordService.findAllByFilters(couplingId, employeeId, machineId, startDate, endDate);
-       model.addAttribute("records", records);
-
-       // для выпадающих списков в форме фильтрации
-       model.addAttribute("couplings", couplingService.findAll());
-       model.addAttribute("employees", employeeService.findAll());
-       model.addAttribute("machines", machineService.findAll());
-
-       // сохраняем текущие значения фильтров, чтобы они не сбрасывались после отправки
-       model.addAttribute("selectedCouplingId", couplingId);
-       model.addAttribute("selectedEmployeeId", employeeId);
-       model.addAttribute("selectedMachineId", machineId);
-       model.addAttribute("startDate", startDate);
-       model.addAttribute("endDate", endDate);
-
-       return "production-records/list";
-   }
+    }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
