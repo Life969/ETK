@@ -1,9 +1,5 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
-
-import ProjectForJob.example.Job.entityJob.CouplingEntity;
-import ProjectForJob.example.Job.entityJob.EmployeesEntity;
-import ProjectForJob.example.Job.entityJob.MachinesEntity;
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
 import ProjectForJob.example.Job.services.CouplingService;
 import ProjectForJob.example.Job.services.EmployeesService;
@@ -16,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.List;
+
 import java.util.NoSuchElementException;
 
 @Controller
@@ -50,7 +47,7 @@ public class ProductionRecordMvcController {
                           Model model) {
         log.info("GET /production-records with filters, page={}, size={}", page, size);
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ProductionRecordEntity> pageResult = recordService.findAllByFilters(
                 couplingId, employeeId, machineId, startDate, endDate, pageable);
 
@@ -59,9 +56,7 @@ public class ProductionRecordMvcController {
         model.addAttribute("totalPages", pageResult.getTotalPages());
 
         // для выпадающих списков фильтров
-        model.addAttribute("couplings", couplingService.findAll());
-        model.addAttribute("employees", employeeService.findAll());
-        model.addAttribute("machines", machineService.findAll());
+        addReferenceData(model);
 
         // сохраняем выбранные фильтры для формы
         model.addAttribute("selectedCouplingId", couplingId);
@@ -122,11 +117,12 @@ public class ProductionRecordMvcController {
     }
 
     private void prepareFormModel(Model model) {
-        List<CouplingEntity> couplings = couplingService.findAll();
-        List<EmployeesEntity> employees = employeeService.findAll();
-        List<MachinesEntity> machines = machineService.findAll();
-        model.addAttribute("couplings", couplings);
-        model.addAttribute("employees", employees);
-        model.addAttribute("machines", machines);
+        addReferenceData(model);
+    }
+
+    private void addReferenceData(Model model) {
+        model.addAttribute("couplings", couplingService.findAll());
+        model.addAttribute("employees", employeeService.findAll());
+        model.addAttribute("machines", machineService.findAll());
     }
 }
