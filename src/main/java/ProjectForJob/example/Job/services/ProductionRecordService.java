@@ -5,6 +5,7 @@ import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +39,24 @@ public class ProductionRecordService {
         repository.deleteById(id);
     }
 
-    public Page<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId,
-                                                         Long machineId, LocalDate startDate,
-                                                         LocalDate endDate, Pageable pageable) {
-        Specification<ProductionRecordEntity> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+    public Page<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId, Long machineId,
+                                                         LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return repository.findAll(buildSpecification(couplingId, employeeId, machineId, startDate, endDate), pageable);
+    }
 
+    public List<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId, Long machineId,
+                                                         LocalDate startDate, LocalDate endDate, Sort sort) {
+        return repository.findAll(buildSpecification(couplingId, employeeId, machineId, startDate, endDate), sort);
+    }
+
+
+    //Чтобы не дублировать код построения Specification, вынес его в отдельный метод
+    private Specification<ProductionRecordEntity> buildSpecification(Long couplingId, Long employeeId, Long machineId,
+                                                                     LocalDate startDate, LocalDate endDate) {
+        return (root,
+                query,
+                cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
             if (couplingId != null) {
                 predicates.add(cb.equal(root.get("coupling").get("id"), couplingId));
             }
@@ -59,9 +72,7 @@ public class ProductionRecordService {
             if (endDate != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("productionDate"), endDate));
             }
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        return repository.findAll(spec, pageable);
     }
 }

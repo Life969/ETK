@@ -34,42 +34,52 @@
     </div>
 
     <!-- Если список не пуст, отображаем таблицу -->
-    <div th:each="entry : ${groupedCouplings}">
-        <h2 th:text="${entry.key}" class="mt-4">НКТ</h2>
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Обозначение</th>
-                <th>Длина (мм)</th>
-                <th>Вес (кг)</th>
-                <th>Наруж. диаметр (мм)</th>
-                <th>Внутр. диаметр (мм)</th>
-                <th>Цена изготовления(руб)</th>
-                <th>Цена для работника(руб)</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="coupling : ${entry.value}">
-                <!-- Делаем первую ячейку ссылкой на карточку -->
-                <td>
-                    <a th:href="@{/couplings/{id}(id=${coupling.id})}"
-                       th:text="${coupling.name}">НКТ 73</a>
-                </td>
-                <td th:text="${coupling.lengthMm}">134</td>
-                <td th:text="${coupling.weightKg}">2.5</td>
-                <td th:text="${coupling.outerDiameterMm}">89.9</td>
-                <td th:text="${coupling.innerDiameterMm}">69.8</td>
-                <td th:text="${coupling.manufacturingCost}">1200</td>
-                <td th:text="${coupling.priceForEmployee}">120</td>
-                <td>
-                    <!-- Можно добавить кнопки редактирования/удаления только для админа, но пока не обязательно -->
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="accordion" id="couplingsAccordion">
+        <div th:each="entry, iter : ${groupedCouplings}" class="accordion-item">
+            <h2 class="accordion-header" th:id="'heading-' + ${iter.index}">
+                <button class="accordion-button" th:classappend="${iter.index == 0} ? '' : 'collapsed'"
+                        type="button" data-bs-toggle="collapse"
+                        th:data-bs-target="'#collapse-' + ${iter.index}"
+                        aria-expanded="true"
+                        th:aria-controls="'collapse-' + ${iter.index}">
+                    <strong th:text="${entry.key} + ' (' + ${#lists.size(entry.value)} + ')'"></strong>
+                </button>
+            </h2>
+            <div th:id="'collapse-' + ${iter.index}"
+                 class="accordion-collapse collapse"
+                 th:classappend="${iter.index == 0} ? 'show' : ''"
+                 th:aria-labelledby="'heading-' + ${iter.index}"
+                 data-bs-parent="#couplingsAccordion">
+                <div class="accordion-body">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Обозначение</th>
+                            <th>Длина (мм)</th>
+                            <th>Вес (кг)</th>
+                            <th>Наруж. диаметр (мм)</th>
+                            <th>Внутр. диаметр (мм)</th>
+                            <th>Цена изготовления(руб)</th>
+                            <th>Цена для работника(руб)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="coupling : ${entry.value}">
+                            <td><a th:href="@{/couplings/{id}(id=${coupling.id})}" th:text="${coupling.name}"></a></td>
+                            <td th:text="${coupling.lengthMm}"></td>
+                            <td th:text="${coupling.weightKg}"></td>
+                            <td th:text="${coupling.outerDiameterMm}"></td>
+                            <td th:text="${coupling.innerDiameterMm}"></td>
+                            <td th:text="${coupling.manufacturingCost}"></td>
+                            <td th:text="${coupling.priceForEmployee}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- Кнопка для добавления нового сотрудника -->
+
     <a href="/couplings/new" class="btn btn-success">Добавить муфту</a>
 </div>
 
