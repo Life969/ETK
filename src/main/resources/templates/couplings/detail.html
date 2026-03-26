@@ -79,6 +79,12 @@
                             <th>Цена изготовления (руб):</th>
                             <td th:text="${coupling.manufacturingCost}">1200</td>
                         </tr>
+
+                        <tr>
+                            <th>Цена изготовления для работника (руб):</th>
+                            <td th:text="${coupling.priceForEmployee}">120</td>
+                        </tr>
+
                         <tr th:if="${coupling.standart != null and !coupling.standart.isEmpty()}">
                             <th>ГОСТ:</th>
                             <td th:text="${coupling.standart}">633-80</td>

@@ -44,7 +44,8 @@
                 <th>Вес (кг)</th>
                 <th>Наруж. диаметр (мм)</th>
                 <th>Внутр. диаметр (мм)</th>
-                <th>Цена (руб)</th>
+                <th>Цена изготовления(руб)</th>
+                <th>Цена для работника(руб)</th>
                 <th></th>
             </tr>
             </thead>
@@ -60,6 +61,7 @@
                 <td th:text="${coupling.outerDiameterMm}">89.9</td>
                 <td th:text="${coupling.innerDiameterMm}">69.8</td>
                 <td th:text="${coupling.manufacturingCost}">1200</td>
+                <td th:text="${coupling.priceForEmployee}">120</td>
                 <td>
                     <!-- Можно добавить кнопки редактирования/удаления только для админа, но пока не обязательно -->
                 </td>

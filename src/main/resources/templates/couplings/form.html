@@ -59,6 +59,11 @@
             <label for="manufacturingCost" class="form-label">Цена изготовления (руб):</label>
             <input type="number" step="0.01" id="manufacturingCost" th:field="*{manufacturingCost}" class="form-control" required />
         </div>
+        <!-- Цена изготовления для работника (обязательное) -->
+        <div class="mb-3">
+            <label for="price_for_employee" class="form-label">Цена изготовления для работника (руб):</label>
+            <input type="number" step="0.01" id="price_for_employee" th:field="*{priceForEmployee}" class="form-control" required />
+        </div>
 
         <!-- Фото (необязательное) -->
         <div class="mb-3">

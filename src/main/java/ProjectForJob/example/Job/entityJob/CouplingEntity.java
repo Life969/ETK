@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "couplings")
+@Table(name = "couplings_data")
 public class CouplingEntity {
 
     @Id
@@ -48,6 +48,11 @@ public class CouplingEntity {
     @DecimalMin(value = "0.0", inclusive = false, message = "Цена должна быть больше 0")
     @Column(name = "manufacturing_cost", precision = 10, scale = 2)
     private BigDecimal manufacturingCost;
+
+    @NotNull(message = "Цена для работника обязательна")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Цена должна быть больше 0")
+    @Column(name = "price_for_employee", precision = 6, scale = 2)
+    private BigDecimal priceForEmployee;
 
     @Column(name = "image_path")
     private String imagePath;
