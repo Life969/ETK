@@ -39,10 +39,14 @@
                            href="/production-records">Журнал Производства</a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           th:classappend="${currentUri.startsWith('/reports')} ? 'active' : ''"
-                           href="/reports/employee">Отчёты</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-text"></i> Отчёты
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                            <li><a class="dropdown-item" href="/reports/employee">По сотруднику</a></li>
+                            <li><a class="dropdown-item" href="/reports/machine">По станку</a></li>
+                        </ul>
                     </li>
                     <!-- Здесь можно добавить другие пункты меню -->
                 </ul>

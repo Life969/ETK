@@ -1,8 +1,10 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
 import ProjectForJob.example.Job.entityJob.EmployeesEntity;
+import ProjectForJob.example.Job.entityJob.MachinesEntity;
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
 import ProjectForJob.example.Job.services.EmployeesService;
+import ProjectForJob.example.Job.services.MachinesService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ public class ReportController {
     private static final Logger log = LoggerFactory.getLogger(ReportController.class);
     private final ProductionRecordService recordService;
     private final EmployeesService employeeService;
+    private final MachinesService machinesService;
 
     @GetMapping("/employee")
     public String employeeReport(
@@ -74,5 +77,47 @@ public class ReportController {
         }
 
         return "reports/employee";
+    }
+
+    @GetMapping("/machine")
+    public String machineReport(
+            @RequestParam(required = false) Long machineId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
+
+        log.info("GET /reports/machine: machineId={}, start={}, end={}", machineId, startDate, endDate);
+
+        if (startDate == null) {
+            startDate = LocalDate.of(2025, 1, 1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+
+        List<MachinesEntity> machines = machinesService.findAll();
+        model.addAttribute("machines", machines);
+
+        if (machineId != null) {
+            MachinesEntity selectedMachine = machinesService.findById(machineId);
+            model.addAttribute("selectedMachine", selectedMachine);
+
+            List<ProductionRecordEntity> records = recordService.findAllByFilters(
+                    null, null, machineId, startDate, endDate, Sort.by(Sort.Direction.ASC, "productionDate"));
+
+            BigDecimal total = BigDecimal.ZERO;
+            for (ProductionRecordEntity rec : records) {
+                BigDecimal price = rec.getCoupling().getManufacturingCost();
+                BigDecimal sum = price.multiply(BigDecimal.valueOf(rec.getQuantity()));
+                total = total.add(sum);
+            }
+
+            model.addAttribute("records", records);
+            model.addAttribute("totalEarned", total);
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+        }
+
+        return "reports/machine";
     }
 }

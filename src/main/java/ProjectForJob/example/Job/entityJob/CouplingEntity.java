@@ -44,7 +44,7 @@ public class CouplingEntity {
     @Column(name = "inner_diameter_mm")
     private Double innerDiameterMm;
 
-    @NotNull(message = "Цена изготовления обязательна")
+    @NotNull(message = "Стоимость изготовления обязательна")
     @DecimalMin(value = "0.0", inclusive = false, message = "Цена должна быть больше 0")
     @Column(name = "manufacturing_cost", precision = 10, scale = 2)
     private BigDecimal manufacturingCost;
