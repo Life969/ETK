@@ -19,4 +19,6 @@ public class OrderDto {
     private List<String> additionalWorkNames;
     private OrderStatus status;
     private BigDecimal totalCost;
+    private Long couplingId;
+    private List<Long> additionalWorkIds;
 }

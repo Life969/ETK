@@ -3,6 +3,7 @@ package ProjectForJob.example.Job.services;
 
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
+import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
 import ProjectForJob.example.Job.entityJob.*;
 import ProjectForJob.example.Job.repositories.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
@@ -10,6 +11,8 @@ import ProjectForJob.example.Job.repositories.CouplingRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,9 +40,12 @@ public class OrderService {
                             .build();
                     return companyRepository.save(newCompany);
                 });
+
         CouplingEntity coupling = couplingRepository.findById(dto.getCouplingId())
                 .orElseThrow(() -> new RuntimeException("Продукция не найдена"));
-        List<AdditionalWorkEntity> additionalWorks = additionalWorkRepository.findAllById(dto.getAdditionalWorkIds());
+
+        List<AdditionalWorkEntity> additionalWorks = dto.getAdditionalWorkIds() != null ?
+                additionalWorkRepository.findAllById(dto.getAdditionalWorkIds()) : List.of();
 
         OrderEntity order = OrderEntity.builder()
                 .createdAt(LocalDateTime.now())
@@ -84,11 +90,15 @@ public class OrderService {
         return mapToDto(orderRepository.save(order));
     }
 
-    public List<OrderDto> getOrdersByStatus(OrderStatus status) {
-        return orderRepository.findByStatusOrderByCreatedAtDesc(status)
-                .stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+    public Page<OrderDto> getOrdersByStatus(OrderStatus status, String search, Pageable pageable) {
+        Page<OrderEntity> page;
+        if (search != null && !search.isBlank()) {
+            page = orderRepository.findByStatusAndCompanyNameContainingIgnoreCaseOrderByCreatedAtDesc(
+                    status, search, pageable);
+        } else {
+            page = orderRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
+        }
+        return page.map(this::mapToDto);
     }
 
     public OrderDto getOrderById(Long id) {
@@ -102,6 +112,7 @@ public class OrderService {
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setCompanyName(order.getCompany().getName());
+        dto.setCouplingId(order.getCoupling().getId()); //new
         dto.setProductName(order.getCoupling().getName());
         dto.setQuantity(order.getQuantity());
         dto.setDeadline(order.getDeadline());
@@ -110,6 +121,55 @@ public class OrderService {
         dto.setAdditionalWorkNames(order.getAdditionalWorks().stream()
                 .map(AdditionalWorkEntity::getName)
                 .collect(Collectors.toList()));
+        dto.setAdditionalWorkIds(order.getAdditionalWorks().stream()
+                .map(AdditionalWorkEntity::getId)
+                .collect(Collectors.toList()));
         return dto;
+    }
+
+    @Transactional
+    public void deleteOrder(Long orderId) {
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Заказ не найден"));
+        // можно добавить проверку, что удалять можно только заказы в статусе WAITING, но по желанию
+        orderRepository.delete(order);
+    }
+
+    @Transactional
+    public OrderDto updateOrder(Long orderId, OrderUpdateDto dto) {
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Заказ не найден"));
+
+        // Обновляем компанию
+        CompanyEntity company = companyRepository.findByNameIgnoreCase(dto.getCompanyName())
+                .orElseGet(() -> {
+                    CompanyEntity newCompany = CompanyEntity.builder()
+                            .name(dto.getCompanyName().trim())
+                            .build();
+                    return companyRepository.save(newCompany);
+                });
+        order.setCompany(company);
+
+        // Обновляем продукцию
+        CouplingEntity coupling = couplingRepository.findById(dto.getCouplingId())
+                .orElseThrow(() -> new RuntimeException("Продукция не найдена"));
+        order.setCoupling(coupling);
+
+        // Обновляем количество
+        order.setQuantity(dto.getQuantity());
+
+        // Обновляем дедлайн
+        order.setDeadline(dto.getDeadline());
+
+        // Обновляем список доп. работ
+        List<AdditionalWorkEntity> additionalWorks = dto.getAdditionalWorkIds() != null ?
+                additionalWorkRepository.findAllById(dto.getAdditionalWorkIds()) : List.of();
+        order.setAdditionalWorks(additionalWorks);
+
+        // Пересчитываем стоимость
+        order.setTotalCost(calculateTotalCost(order));
+
+        OrderEntity saved = orderRepository.save(order);
+        return mapToDto(saved);
     }
 }

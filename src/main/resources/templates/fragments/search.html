@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="searchForm">
+    <form method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-auto flex-grow-1">
+            <label for="searchInput" class="visually-hidden">Поиск по компании</label>
+            <input type="text" class="form-control" id="searchInput" name="search"
+                   placeholder="Поиск по названию компании..."
+                   th:value="${param.search}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-search"></i> Найти
+            </button>
+            <a th:href="@{${currentUri}}" class="btn btn-outline-secondary ms-1">
+                <i class="bi bi-x-circle"></i> Сбросить
+            </a>
+        </div>
+        <input type="hidden" name="page" value="0">
+        <input type="hidden" name="size" th:value="${param.size != null ? param.size : 12}">
+    </form>
+</div>
+</html>

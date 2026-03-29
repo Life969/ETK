@@ -7,10 +7,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class OrderCreateDto {
+public class OrderUpdateDto {
     @NotBlank(message = "Название компании обязательно")
     private String companyName;
-
 
     @NotNull(message = "Выберите продукцию")
     private Long couplingId;
@@ -20,7 +19,7 @@ public class OrderCreateDto {
     private Integer quantity;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate deadline; // необязательное
+    private LocalDate deadline;
 
-    private List<Long> additionalWorkIds; // id выбранных доп. работ
+    private List<Long> additionalWorkIds;
 }
