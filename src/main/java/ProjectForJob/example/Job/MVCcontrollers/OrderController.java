@@ -3,6 +3,7 @@ package ProjectForJob.example.Job.MVCcontrollers;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
+import ProjectForJob.example.Job.entityJob.OrderEntity;
 import ProjectForJob.example.Job.entityJob.OrderStatus;
 import ProjectForJob.example.Job.repositories.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,9 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 @Controller
 @RequestMapping("/orders")
@@ -163,17 +164,12 @@ public class OrderController {
     public String showEditForm(@PathVariable Long id, Model model) {
         OrderDto order = orderService.getOrderById(id);
         OrderUpdateDto updateDto = new OrderUpdateDto();
+
         updateDto.setCompanyName(order.getCompanyName());
-        updateDto.setCouplingId(order.getCouplingId()); // нужно в OrderDto добавить поле couplingId
+        updateDto.setCouplingId(order.getCouplingId());
         updateDto.setQuantity(order.getQuantity());
         updateDto.setDeadline(order.getDeadline());
         updateDto.setAdditionalWorkIds(order.getAdditionalWorkIds());
-        // Для доп. работ нужно знать их id, чтобы в форме отметить выбранные
-        // Лучше передать список id выбранных доп. работ
-        // Поэтому добавим в OrderDto поле additionalWorkIds
-        // Временно можно собрать из order.getAdditionalWorkNames, но это неудобно.
-        // Поэтому изменим OrderDto, добавим поле List<Long> additionalWorkIds.
-        // Для этого придётся изменить маппинг.
 
         model.addAttribute("order", order);
         model.addAttribute("orderUpdateDto", updateDto);
@@ -198,4 +194,37 @@ public class OrderController {
         orderService.updateOrder(id, dto);
         return "redirect:/orders/" + id;
     }
+
+    @PostMapping("/{id}/set-deadline-and-start")
+    @ResponseBody
+    public Map<String, Object> setDeadlineAndStartProduction(
+            @PathVariable Long id,
+            @RequestParam("deadline") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate deadline,
+            HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        log.info("Called method setDeadlineAndStartProduction from order id={}", id);
+        try {
+            OrderEntity order = orderService.getOrderEntityById(id);
+            if (order.getStatus() != OrderStatus.WAITING) {
+                response.put("success", false);
+                response.put("error", "Заказ уже не в статусе ожидания");
+                return response;
+            }
+            if (deadline == null) {
+                response.put("success", false);
+                response.put("error", "Дедлайн не указан");
+                return response;
+            }
+            // Устанавливаем дедлайн и меняем статус
+            order.setDeadline(deadline);
+            order.setStatus(OrderStatus.IN_PRODUCTION);
+            orderService.saveOrder(order); // добавить метод save в сервис
+            response.put("success", true);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+        }
+        return response;
+    }
+    
 }

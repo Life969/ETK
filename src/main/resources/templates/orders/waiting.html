@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -46,7 +47,9 @@
     <div th:if="${ordersPage.empty}" class="alert alert-info">Нет заказов в ожидании.</div>
 
     <div class="row" th:unless="${ordersPage.empty}">
-        <div th:each="order : ${ordersPage.content}" class="col-md-6 col-lg-4 mb-3">
+        <div th:each="order : ${ordersPage.content}" class="col-md-6 col-lg-4 mb-3"
+             th:data-order-id="${order.id}"
+             th:data-has-deadline="${order.deadline != null}">
             <div class="card h-100 shadow-sm position-relative">
                 <!-- Кнопка добавления/удаления в КП -->
                 <button class="btn btn-sm position-absolute top-0 end-0 m-2 add-to-offer-btn"
@@ -67,11 +70,11 @@
                         <strong>Создан:</strong> <span th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                     </p>
                     <div class="btn-group btn-group-sm" role="group">
-                        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="d-inline">
-                            <input type="hidden" name="newStatus" value="IN_PRODUCTION">
-                            <input type="hidden" name="returnTo" th:value="${currentUri}">
-                            <button type="submit" class="btn btn-outline-success"><i class="bi bi-play-fill"></i> В производство</button>
-                        </form>
+                        <button class="btn btn-outline-success start-production-btn"
+                                th:data-order-id="${order.id}"
+                                th:data-has-deadline="${order.deadline != null}">
+                            <i class="bi bi-play-fill"></i> В производство
+                        </button>
                         <a th:href="@{/orders/{id}/edit(id=${order.id})}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i> Ред.</a>
                         <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post" class="d-inline">
                             <input type="hidden" name="returnTo" th:value="${currentUri}">
@@ -97,8 +100,111 @@
     </nav>
 </div>
 
+<!-- Модальное окно для выбора дедлайна -->
+<div class="modal fade" id="deadlineModal" tabindex="-1" aria-labelledby="deadlineModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deadlineModalLabel">Укажите дедлайн</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p>Для перевода заказа в производство необходимо указать дедлайн.</p>
+                <label for="deadlineInput" class="form-label">Дедлайн</label>
+                <input type="date" id="deadlineInput" class="form-control" required>
+                <input type="hidden" id="orderIdForDeadline" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="confirmDeadlineBtn">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+
+    // Функция отправки запроса на изменение статуса (если дедлайн уже есть)
+    async function changeStatus(orderId) {
+        const url = `/orders/${orderId}/status`;
+        const formData = new URLSearchParams();
+        formData.append('newStatus', 'IN_PRODUCTION');
+        // можно добавить returnTo, но для AJAX необязательно, так как мы перезагрузим страницу после успеха
+        // Для удобства можно передать returnTo = window.location.pathname + window.location.search
+        const returnTo = window.location.pathname + window.location.search;
+        formData.append('returnTo', returnTo);
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        });
+
+        if (response.ok) {
+            // Перезагружаем страницу, чтобы обновить список заказов
+            window.location.reload();
+        } else {
+            const text = await response.text();
+            alert('Ошибка при переводе в производство: ' + text);
+        }
+    }
+
+    // Обработка кнопок "В производство"
+    document.querySelectorAll('.start-production-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            const hasDeadline = this.getAttribute('data-has-deadline') === 'true';
+            if (hasDeadline) {
+                // Дедлайн есть, отправляем запрос
+                await changeStatus(orderId);
+            } else {
+                // Дедлайна нет, показываем модалку
+                const modal = new bootstrap.Modal(document.getElementById('deadlineModal'));
+                document.getElementById('orderIdForDeadline').value = orderId;
+                modal.show();
+            }
+        });
+    });
+
+    // Обработка подтверждения в модальном окне
+    document.getElementById('confirmDeadlineBtn').addEventListener('click', async function() {
+        const orderId = document.getElementById('orderIdForDeadline').value;
+        const deadline = document.getElementById('deadlineInput').value;
+        if (!deadline) {
+            alert('Пожалуйста, выберите дату дедлайна');
+            return;
+        }
+
+        // Отправляем AJAX на установку дедлайна и перевод в производство
+        const url = `/orders/${orderId}/set-deadline-and-start`;
+        const formData = new URLSearchParams();
+        formData.append('deadline', deadline);
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData.toString()
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            // Закрываем модалку и перезагружаем страницу
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deadlineModal'));
+            modal.hide();
+            window.location.reload();
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    });
+
+    // Остальной код (КП, кнопки +/✓ и т.д.) остаётся без изменений
     // Обработка кнопок "+" / "✓"
     document.querySelectorAll('.add-to-offer-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
@@ -114,7 +220,6 @@
                     const added = data.added;
                     const count = data.count;
 
-                    // Обновляем счётчик и видимость блока управления КП
                     const countSpan = document.getElementById('offerCount');
                     const offerActions = document.getElementById('offerActions');
                     if (countSpan) countSpan.textContent = count;
@@ -126,7 +231,6 @@
                         }
                     }
 
-                    // Меняем внешний вид кнопки
                     const icon = this.querySelector('i');
                     if (added) {
                         this.classList.remove('btn-outline-success');
@@ -144,7 +248,7 @@
         });
     });
 
-    // Очистка КП с перезагрузкой страницы
+    // Очистка КП
     const clearBtn = document.getElementById('clearOfferBtn');
     if (clearBtn) {
         clearBtn.addEventListener('click', function() {

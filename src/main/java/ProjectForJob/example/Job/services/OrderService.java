@@ -1,6 +1,7 @@
 package ProjectForJob.example.Job.services;
 
 
+import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 @Slf4j
@@ -180,5 +183,48 @@ public class OrderService {
 
     public List<OrderEntity> getOrdersByIdsWithDetails(List<Long> ids) {
         return orderRepository.findByIdIn(ids);
+    }
+
+    @Transactional
+    public OrderEntity saveOrder(OrderEntity order) {
+        return orderRepository.save(order);
+    }
+
+    public List<HomeOrderDto> getUrgentProductionOrders(int limit) {
+        List<OrderEntity> orders = orderRepository
+                .findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus.IN_PRODUCTION);
+
+        // Ограничиваем количество
+        if (orders.size() > limit) {
+            orders = orders.subList(0, limit);
+        }
+
+        LocalDate today = LocalDate.now();
+
+        return orders.stream()
+                .map(order -> {
+                    HomeOrderDto dto = new HomeOrderDto();
+                    dto.setId(order.getId());
+                    dto.setCompanyName(order.getCompany().getName());
+                    dto.setProductName(order.getCoupling().getName());
+                    dto.setQuantity(order.getQuantity());
+
+                    long days = ChronoUnit.DAYS.between(today, order.getDeadline());
+                    dto.setDaysUntilDeadline(days);
+
+                    // Определяем класс срочности
+                    String urgencyClass;
+                    if (days <= 3) {
+                        urgencyClass = "bg-danger text-white";
+                    } else if (days <= 7) {
+                        urgencyClass = "bg-warning";
+                    } else {
+                        urgencyClass = "bg-light";
+                    }
+                    dto.setUrgencyClass(urgencyClass);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

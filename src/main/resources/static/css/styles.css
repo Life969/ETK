@@ -159,3 +159,40 @@ a:not(.btn):hover {
 .text-danger {
     color: #e74c3c !important;
 }
+
+/* Специфичные классы для карточек срочности */
+.card.bg-danger {
+    background-color: #c0392b !important;  /* приглушённый тёмно-красный */
+    border-color: #e67e22;
+    color: #ecf0f1;
+}
+.card.bg-danger .card-title a {
+    color: #ecf0f1 !important;
+}
+.card.bg-danger .card-title a:hover {
+    text-decoration: underline;
+}
+
+.card.bg-warning {
+    background-color: #f39c12 !important;  /* золотисто-оранжевый */
+    border-color: #e67e22;
+    color: #1e2b38;                       /* тёмный текст для контраста */
+}
+.card.bg-warning .card-title a {
+    color: #1e2b38 !important;
+}
+.card.bg-warning .card-title a:hover {
+    color: #000 !important;
+}
+
+.card.bg-light {
+    background-color: #34495e !important; /* стандартный тёмный фон карточки */
+    border-color: #e67e22;
+    color: #ecf0f1;
+}
+.card.bg-light .card-title a {
+    color: #e67e22 !important;            /* ссылка оранжевая */
+}
+.card.bg-light .card-title a:hover {
+    color: #d35400;
+}

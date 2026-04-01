@@ -4,6 +4,7 @@ import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
 import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -74,5 +75,10 @@ public class ProductionRecordService {
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+    public List<ProductionRecordEntity> findLast5Records() {
+        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("createdAt").descending());
+        Page<ProductionRecordEntity> page = repository.findAll(pageRequest);
+        return page.getContent();
     }
 }
