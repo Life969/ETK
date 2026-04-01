@@ -172,4 +172,13 @@ public class OrderService {
         OrderEntity saved = orderRepository.save(order);
         return mapToDto(saved);
     }
+
+    public OrderEntity getOrderEntityById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Заказ не найден, id=" + id));
+    }
+
+    public List<OrderEntity> getOrdersByIdsWithDetails(List<Long> ids) {
+        return orderRepository.findByIdIn(ids);
+    }
 }

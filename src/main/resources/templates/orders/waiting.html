@@ -11,14 +11,34 @@
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div class="container mt-4">
+    <!-- Блок управления КП -->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div class="d-flex align-items-center">
             <h1>Заказы в ожидании</h1>
             <img th:src="@{/images/bearAxe.png}" alt="Медведь с топором" style="width: 65px; height: auto; margin-left: 15px;">
         </div>
-        <a th:href="@{/orders/create}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Создать заказ
-        </a>
+        <div>
+            <a th:href="@{/orders/create}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Создать заказ
+            </a>
+        </div>
+    </div>
+
+    <!-- Строка с КП -->
+    <div class="row mb-3 align-items-center" id="offerActions" style="display: none;">
+        <div class="col-auto">
+        <span class="badge bg-success fs-6">
+            <i class="bi bi-cart-check"></i> В КП: <span id="offerCount">0</span>
+        </span>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/commercial-offer}" class="btn btn-success">
+                <i class="bi bi-file-text"></i> Сформировать КП
+            </a>
+            <button id="clearOfferBtn" class="btn btn-outline-danger ms-2">
+                <i class="bi bi-trash"></i> Очистить КП
+            </button>
+        </div>
     </div>
 
     <div th:replace="~{fragments/search :: searchForm}"></div>
@@ -27,7 +47,14 @@
 
     <div class="row" th:unless="${ordersPage.empty}">
         <div th:each="order : ${ordersPage.content}" class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 shadow-sm position-relative">
+                <!-- Кнопка добавления/удаления в КП -->
+                <button class="btn btn-sm position-absolute top-0 end-0 m-2 add-to-offer-btn"
+                        th:data-order-id="${order.id}"
+                        th:classappend="${selectedOrderIds.contains(order.id)} ? 'btn-success' : 'btn-outline-success'">
+                    <i th:classappend="${selectedOrderIds.contains(order.id)} ? 'bi-check-lg' : 'bi-plus-lg'" class="bi"></i>
+                </button>
+
                 <div class="card-body py-2">
                     <h5 class="card-title">
                         <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.companyName}" class="text-decoration-none"></a>
@@ -69,6 +96,71 @@
         </ul>
     </nav>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Обработка кнопок "+" / "✓"
+    document.querySelectorAll('.add-to-offer-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.dataset.orderId;
+            fetch(`/commercial-offer/add/${orderId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    const added = data.added;
+                    const count = data.count;
+
+                    // Обновляем счётчик и видимость блока управления КП
+                    const countSpan = document.getElementById('offerCount');
+                    const offerActions = document.getElementById('offerActions');
+                    if (countSpan) countSpan.textContent = count;
+                    if (offerActions) {
+                        if (count > 0) {
+                            offerActions.style.display = 'flex';
+                        } else {
+                            offerActions.style.display = 'none';
+                        }
+                    }
+
+                    // Меняем внешний вид кнопки
+                    const icon = this.querySelector('i');
+                    if (added) {
+                        this.classList.remove('btn-outline-success');
+                        this.classList.add('btn-success');
+                        icon.classList.remove('bi-plus-lg');
+                        icon.classList.add('bi-check-lg');
+                    } else {
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-success');
+                        icon.classList.remove('bi-check-lg');
+                        icon.classList.add('bi-plus-lg');
+                    }
+                })
+                .catch(err => console.error('Ошибка:', err));
+        });
+    });
+
+    // Очистка КП с перезагрузкой страницы
+    const clearBtn = document.getElementById('clearOfferBtn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            fetch('/commercial-offer/clear', { method: 'POST' })
+                .then(() => location.reload());
+        });
+    }
+</script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var selectedOrderIds = /*[[${selectedOrderIds}]]*/ [];
+    if (selectedOrderIds && selectedOrderIds.size > 0) {
+        document.getElementById('offerCount').innerText = selectedOrderIds.size();
+        document.getElementById('offerActions').style.display = 'flex';
+    }
+    /*]]>*/
+</script>
 </body>
 </html>

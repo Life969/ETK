@@ -17,6 +17,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @EntityGraph(attributePaths = {"company", "coupling", "additionalWorks"})
     Optional<OrderEntity> findById(Long id);
 
+    @EntityGraph(attributePaths = {"coupling", "additionalWorks", "company"})
+    List<OrderEntity> findByIdIn(List<Long> ids);
+
     @EntityGraph(attributePaths = {"company", "coupling", "additionalWorks"})
     Page<OrderEntity> findByStatusAndCompanyNameContainingIgnoreCaseOrderByCreatedAtDesc(
             OrderStatus status, String companyName, Pageable pageable);

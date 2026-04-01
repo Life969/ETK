@@ -9,6 +9,7 @@ import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.CouplingRepository;
 import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/orders")
@@ -40,7 +44,8 @@ public class OrderController {
                                 @RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "12") int size,
                                 @RequestParam(required = false) String search,
-                                HttpServletRequest request) {
+                                HttpServletRequest request,
+                                HttpSession session) {
         model.addAttribute("currentUri", request.getRequestURI());
         model.addAttribute("search", search);
 
@@ -50,6 +55,13 @@ public class OrderController {
 
         model.addAttribute("ordersPage", ordersPage);
         model.addAttribute("status", "WAITING");
+
+        // Получаем ID заказов, уже добавленных в КП
+        Set<Long> selectedOrderIds = (Set<Long>) session.getAttribute("commercialOffer");
+        if (selectedOrderIds == null) {
+            selectedOrderIds = Collections.emptySet();
+        }
+        model.addAttribute("selectedOrderIds", selectedOrderIds);
         return "orders/waiting";
     }
 
