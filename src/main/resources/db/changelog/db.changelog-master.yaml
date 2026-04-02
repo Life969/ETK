@@ -1,0 +1,368 @@
+databaseChangeLog:
+- changeSet:
+    id: 1775146791998-1
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: orders_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: created_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: deadline
+            type: date
+        - column:
+            constraints:
+              nullable: false
+            name: quantity
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: status
+            type: VARCHAR(255)
+        - column:
+            name: total_cost
+            type: numeric(12, 2)
+        - column:
+            constraints:
+              nullable: false
+            name: company_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: coupling_id
+            type: BIGINT
+        tableName: orders
+- changeSet:
+    id: 1775146791998-2
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: production_records_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: comment
+            type: VARCHAR(255)
+        - column:
+            name: created_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: production_date
+            type: date
+        - column:
+            constraints:
+              nullable: false
+            name: quantity
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: coupling_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: employee_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: machine_id
+            type: BIGINT
+        tableName: production_records
+- changeSet:
+    id: 1775146791998-3
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: companies_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: name
+            type: VARCHAR(255)
+        tableName: companies
+- changeSet:
+    id: 1775146791998-4
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: couplings_data_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: conditional_diameter
+            type: VARCHAR(255)
+        - column:
+            name: description
+            type: VARCHAR(255)
+        - column:
+            name: image_path
+            type: VARCHAR(255)
+        - column:
+            name: inner_diameter_mm
+            type: FLOAT8
+        - column:
+            name: length_mm
+            type: FLOAT8
+        - column:
+            constraints:
+              nullable: false
+            name: manufacturing_cost
+            type: numeric(10, 2)
+        - column:
+            name: outer_diameter_mm
+            type: FLOAT8
+        - column:
+            constraints:
+              nullable: false
+            name: price_for_employee
+            type: numeric(6, 2)
+        - column:
+            name: standart
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: type
+            type: VARCHAR(255)
+        - column:
+            name: weight_kg
+            type: FLOAT8
+        tableName: couplings_data
+- changeSet:
+    id: 1775146791998-5
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: list_additional_work_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: description
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: name
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: additional_cost
+            type: numeric(10, 2)
+        tableName: list_additional_work
+- changeSet:
+    id: 1775146791998-6
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: list_employees_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: name
+            type: VARCHAR(255)
+        tableName: list_employees
+- changeSet:
+    id: 1775146791998-7
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: list_machines_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: name
+            type: VARCHAR(255)
+        tableName: list_machines
+- changeSet:
+    id: 1775146791998-8
+    author: system
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: order_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: additional_work_id
+            type: BIGINT
+        tableName: order_additional_work
+- changeSet:
+    id: 1775146791998-9
+    author: system
+    changes:
+    - addUniqueConstraint:
+        columnNames: name
+        constraintName: uk50ygfritln653mnfhxucoy8up
+        tableName: companies
+- changeSet:
+    id: 1775146791998-10
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: orders
+        constraintName: fk1vldikbqexeu85qvsedncxvs3
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: companies
+        validate: true
+- changeSet:
+    id: 1775146791998-11
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: coupling_id
+        baseTableName: orders
+        constraintName: fk22hmtcvbxn115od2enrwo71xm
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: couplings_data
+        validate: true
+- changeSet:
+    id: 1775146791998-12
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: machine_id
+        baseTableName: production_records
+        constraintName: fk62v1qha0v1qpa6e4nuffx7muq
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: list_machines
+        validate: true
+- changeSet:
+    id: 1775146791998-13
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: order_id
+        baseTableName: order_additional_work
+        constraintName: fkkfp754eybtj6viyp7n2h6t42r
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: orders
+        validate: true
+- changeSet:
+    id: 1775146791998-14
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: employee_id
+        baseTableName: production_records
+        constraintName: fknkhwyef1b3x7f19k02vjgxmte
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: list_employees
+        validate: true
+- changeSet:
+    id: 1775146791998-15
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: coupling_id
+        baseTableName: production_records
+        constraintName: fkq4m6vev0he78q0v2u1fsabq8r
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: couplings_data
+        validate: true
+- changeSet:
+    id: 1775146791998-16
+    author: system
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: additional_work_id
+        baseTableName: order_additional_work
+        constraintName: fkryi1jqlcg7kqflkn6jg3csf43
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: list_additional_work
+        validate: true
+
