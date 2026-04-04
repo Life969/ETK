@@ -31,4 +31,12 @@ public class CouplingService {
     public void deleteById(Long id) {
         couplingRepository.deleteById(id);
     }
+
+    public List<String> findAllDistinctTypes() {
+        return couplingRepository.findAllDistinctTypes();
+    }
+
+    public List<CouplingEntity> findByType(String type) {
+        return couplingRepository.findByType(type);
+    }
 }

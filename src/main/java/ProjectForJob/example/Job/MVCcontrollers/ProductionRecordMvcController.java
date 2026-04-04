@@ -1,5 +1,6 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
+import ProjectForJob.example.Job.entityJob.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
 import ProjectForJob.example.Job.services.CouplingService;
 import ProjectForJob.example.Job.services.EmployeesService;
@@ -22,7 +23,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/production-records")
@@ -73,15 +78,29 @@ public class ProductionRecordMvcController {
         log.info("GET /production-records/new");
         prepareFormModel(model);
         model.addAttribute("record", new ProductionRecordEntity());
+
+        model.addAttribute("currentCouplingType", "");
+        model.addAttribute("currentCouplingDiameter", "");
+        model.addAttribute("currentCouplingId", null);
         return "production-records/form";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        log.info("GET /production-records/edit/{}", id);
         ProductionRecordEntity record = recordService.findById(id);
         prepareFormModel(model);
         model.addAttribute("record", record);
+        // Получаем информацию о текущей муфте
+        CouplingEntity coupling = record.getCoupling();
+        if (coupling != null) {
+            model.addAttribute("currentCouplingType", coupling.getType());
+            model.addAttribute("currentCouplingDiameter", coupling.getConditionalDiameter());
+            model.addAttribute("currentCouplingId", coupling.getId());
+        } else {
+            model.addAttribute("currentCouplingType", "");
+            model.addAttribute("currentCouplingDiameter", "");
+            model.addAttribute("currentCouplingId", null);
+        }
         return "production-records/form";
     }
 
@@ -124,5 +143,35 @@ public class ProductionRecordMvcController {
         model.addAttribute("couplings", couplingService.findAll());
         model.addAttribute("employees", employeeService.findAll());
         model.addAttribute("machines", machineService.findAll());
+    }
+
+    @GetMapping("/api/couplings/types")
+    @ResponseBody
+    public List<String> getCouplingTypes() {
+        return couplingService.findAllDistinctTypes(); // нужно добавить метод в CouplingService и CouplingRepository
+    }
+
+    @GetMapping("/api/couplings/by-type")
+    @ResponseBody
+    public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
+        List<CouplingEntity> couplings = couplingService.findByType(type);
+        return couplings.stream()
+                .map(c -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", c.getId());
+                    map.put("diameter", c.getConditionalDiameter());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/couplings/{id}")
+    @ResponseBody
+    public Map<String, String> getCouplingDetails(@PathVariable Long id) {
+        CouplingEntity coupling = couplingService.findById(id);
+        Map<String, String> map = new HashMap<>();
+        map.put("type", coupling.getType());
+        map.put("diameter", coupling.getConditionalDiameter());
+        return map;
     }
 }

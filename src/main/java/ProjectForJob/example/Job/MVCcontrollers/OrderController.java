@@ -3,6 +3,7 @@ package ProjectForJob.example.Job.MVCcontrollers;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
+import ProjectForJob.example.Job.entityJob.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.OrderEntity;
 import ProjectForJob.example.Job.entityJob.OrderStatus;
 import ProjectForJob.example.Job.repositories.AdditionalWorkRepository;
@@ -28,6 +29,7 @@ import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/orders")
@@ -171,6 +173,12 @@ public class OrderController {
         updateDto.setDeadline(order.getDeadline());
         updateDto.setAdditionalWorkIds(order.getAdditionalWorkIds());
 
+        // Дополнительно передаём текущий тип муфты и её условный диаметр для JavaScript
+        CouplingEntity coupling = couplingRepository.findById(order.getCouplingId()).orElse(null);
+        model.addAttribute("currentCouplingType", coupling != null ? coupling.getType() : "");
+        model.addAttribute("currentCouplingDiameter", coupling != null ? coupling.getConditionalDiameter() : "");
+        model.addAttribute("currentCouplingId", order.getCouplingId());
+
         model.addAttribute("order", order);
         model.addAttribute("orderUpdateDto", updateDto);
         model.addAttribute("companies", companyRepository.findAll());
@@ -225,6 +233,27 @@ public class OrderController {
             response.put("error", e.getMessage());
         }
         return response;
+    }
+
+    @GetMapping("/api/couplings/types")
+    @ResponseBody
+    public List<String> getCouplingTypes() {
+        // Предполагается, что в CouplingRepository есть метод findAllTypes()
+        return couplingRepository.findAllDistinctTypes();
+    }
+
+    @GetMapping("/api/couplings/by-type")
+    @ResponseBody
+    public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
+        List<CouplingEntity> couplings = couplingRepository.findByType(type);
+        return couplings.stream()
+                .map(c -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", c.getId());
+                    map.put("diameter", c.getConditionalDiameter()); // условный диаметр
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
     
 }

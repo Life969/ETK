@@ -37,14 +37,24 @@
         </div>
 
         <!-- Продукция -->
+        <!-- Вместо старого блока "Продукция (муфта)" -->
         <div class="mb-3">
-            <label class="form-label">Продукция (муфта)</label>
-            <select th:field="*{couplingId}" class="form-select" required>
-                <option value="">Выберите продукцию</option>
-                <option th:each="coupling : ${couplings}" th:value="${coupling.id}" th:text="${coupling.name}"></option>
+            <label class="form-label">Тип муфты</label>
+            <select id="typeSelect" class="form-select" required>
+                <option value="">-- Выберите тип --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Условный диаметр</label>
+            <select id="diameterSelect" class="form-select" required disabled>
+                <option value="">-- Сначала выберите тип --</option>
             </select>
             <div th:if="${#fields.hasErrors('couplingId')}" class="text-danger" th:errors="*{couplingId}"></div>
         </div>
+
+        <!-- Скрытое поле, в которое будет записываться реальный couplingId -->
+        <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden" />
 
         <!-- Количество -->
         <div class="mb-3">
@@ -80,5 +90,53 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('typeSelect');
+        const diameterSelect = document.getElementById('diameterSelect');
+        const couplingIdHidden = document.getElementById('couplingIdHidden');
+
+        // 1. Загружаем список типов
+        fetch('/orders/api/couplings/types')
+            .then(response => response.json())
+            .then(types => {
+                types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    typeSelect.appendChild(option);
+                });
+            });
+
+        // 2. При смене типа загружаем диаметры
+        typeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            diameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
+            couplingIdHidden.value = '';
+            if (!selectedType) {
+                diameterSelect.disabled = true;
+                return;
+            }
+            diameterSelect.disabled = false;
+            fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(selectedType)}`)
+                .then(response => response.json())
+                .then(couplings => {
+                    couplings.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.id;
+                        option.textContent = c.diameter;
+                        diameterSelect.appendChild(option);
+                    });
+                });
+        });
+
+        // 3. При выборе диаметра записываем couplingId в скрытое поле
+        diameterSelect.addEventListener('change', function() {
+            couplingIdHidden.value = this.value;
+        });
+    });
+    /*]]>*/
+</script>
 </body>
 </html>

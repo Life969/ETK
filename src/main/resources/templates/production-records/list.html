@@ -27,13 +27,21 @@
             <form method="get" class="row g-3">
                 <!-- Продукция -->
                 <div class="col-md-3">
-                    <label for="couplingId" class="form-label">Продукция</label>
-                    <select name="couplingId" id="couplingId" class="form-select">
-                        <option value="">Все</option>
-                        <option th:each="c : ${couplings}" th:value="${c.id}" th:text="${c.name}"
-                                th:selected="${c.id == selectedCouplingId}"></option>
+                    <label class="form-label">Тип муфты</label>
+                    <select id="filterTypeSelect" class="form-select">
+                        <option value="">-- Все типы --</option>
                     </select>
                 </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Условный диаметр</label>
+                    <select id="filterDiameterSelect" class="form-select" disabled>
+                        <option value="">-- Сначала выберите тип --</option>
+                    </select>
+                </div>
+
+                <!-- Скрытое поле для отправки couplingId -->
+                <input type="hidden" name="couplingId" id="filterCouplingIdHidden" value="" />
 
                 <!-- Сотрудник -->
                 <div class="col-md-3">
@@ -154,5 +162,96 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('filterTypeSelect');
+        const diameterSelect = document.getElementById('filterDiameterSelect');
+        const couplingIdHidden = document.getElementById('filterCouplingIdHidden');
+
+        // Текущее значение couplingId из модели (если фильтр уже применён)
+        const selectedCouplingId = /*[[${selectedCouplingId}]]*/ null;
+
+        // Функция для загрузки типов
+        function loadTypes() {
+            fetch('/production-records/api/couplings/types')
+                .then(response => response.json())
+                .then(types => {
+                    typeSelect.innerHTML = '<option value="">-- Все типы --</option>';
+                    types.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        typeSelect.appendChild(option);
+                    });
+                    // Если есть выбранная муфта, нужно определить её тип и загрузить диаметры
+                    if (selectedCouplingId) {
+                        fetchCouplingDetails(selectedCouplingId);
+                    }
+                })
+                .catch(error => console.error('Ошибка загрузки типов:', error));
+        }
+
+        // Функция для получения типа и диаметра по id муфты
+        function fetchCouplingDetails(couplingId) {
+            fetch(`/production-records/api/couplings/${couplingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.type && data.diameter) {
+                        typeSelect.value = data.type;
+                        // После установки типа загружаем диаметры и выбираем нужный
+                        typeSelect.dispatchEvent(new Event('change'));
+                        // Нужно дождаться загрузки диаметров, затем выбрать нужный
+                        const waitForDiameter = setInterval(() => {
+                            if (diameterSelect.options.length > 1) {
+                                clearInterval(waitForDiameter);
+                                for (let i = 0; i < diameterSelect.options.length; i++) {
+                                    if (diameterSelect.options[i].value == couplingId) {
+                                        diameterSelect.value = couplingId;
+                                        couplingIdHidden.value = couplingId;
+                                        break;
+                                    }
+                                }
+                            }
+                        }, 100);
+                    }
+                })
+                .catch(error => console.error('Ошибка загрузки данных муфты:', error));
+        }
+
+        // Загружаем типы при старте
+        loadTypes();
+
+        // При смене типа загружаем диаметры
+        typeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            diameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
+            couplingIdHidden.value = '';
+            if (!selectedType) {
+                diameterSelect.disabled = true;
+                return;
+            }
+            diameterSelect.disabled = false;
+            fetch(`/production-records/api/couplings/by-type?type=${encodeURIComponent(selectedType)}`)
+                .then(response => response.json())
+                .then(couplings => {
+                    couplings.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.id;
+                        option.textContent = c.diameter;
+                        diameterSelect.appendChild(option);
+                    });
+                    // Если был выбран диаметр ранее (при загрузке страницы), он уже установится в fetchCouplingDetails
+                })
+                .catch(error => console.error('Ошибка загрузки диаметров:', error));
+        });
+
+        // При выборе диаметра обновляем скрытое поле
+        diameterSelect.addEventListener('change', function() {
+            couplingIdHidden.value = this.value;
+        });
+    });
+    /*]]>*/
+</script>
 </body>
 </html>

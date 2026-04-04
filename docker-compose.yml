@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: my_postgres
+    environment:
+      POSTGRES_DB: postgres      # замени на имя твоей БД
+      POSTGRES_USER: postgres         # замени на твоего пользователя
+      POSTGRES_PASSWORD: zpletk     # замени на твой пароль
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: my_spring_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: zpletk
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate   # или update, но лучше validate
+      SERVER_ADDRESS: 0.0.0.0                  # чтобы слушать все интерфейсы
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
