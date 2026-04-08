@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,8 @@ public class EmployeesService {
     }
 
     public EmployeesEntity findById(Long id){
-        return listEmployeesRepository.findById(id).orElse(null);
+        return listEmployeesRepository.findById(id).
+                orElseThrow(() -> new NoSuchElementException("Сотрудник с id " + id + " не найдена"));
     }
 
     public void deleteById(Long id){

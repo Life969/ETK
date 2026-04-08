@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,8 @@ public class MachinesService {
     }
 
     public MachinesEntity findById(Long id){
-        return listMachineRepository.findById(id).orElse(null);
+        return listMachineRepository.findById(id).
+                orElseThrow(() -> new NoSuchElementException("Станок id " + id + " не найден"));
     }
 
     public void deleteById(Long id){
