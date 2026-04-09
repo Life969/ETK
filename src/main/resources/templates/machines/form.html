@@ -20,9 +20,11 @@
         <input type="hidden" th:field="*{id}" />
 
         <div class="mb-3">
-            <label for="name" class="form-label">Название:</label>
+            <label for="name" class="form-label">Наименование станка <span class="text-danger">*</span></label>
             <input type="text" id="name" th:field="*{name}" class="form-control" required />
+            <small class="form-text text-muted">Обязательное поле</small>
         </div>
+
 
 
         <button type="submit" class="btn btn-success">Сохранить</button>

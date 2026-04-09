@@ -7,6 +7,7 @@ import ProjectForJob.example.Job.services.EmployeesService;
 import ProjectForJob.example.Job.services.MachinesService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -24,9 +25,9 @@ import java.util.List;
 @Controller
 @RequestMapping("/reports")
 @RequiredArgsConstructor
+@Slf4j
 public class ReportController {
 
-    private static final Logger log = LoggerFactory.getLogger(ReportController.class);
     private final ProductionRecordService recordService;
     private final EmployeesService employeeService;
     private final MachinesService machinesService;
@@ -38,7 +39,7 @@ public class ReportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Model model) {
 
-        log.info("GET /reports/employee: employeeId={}, start={}, end={}", employeeId, startDate, endDate);
+        log.info("ReportController employeeReport employeeId={}, start={}, end={}", employeeId, startDate, endDate);
 
         // Если даты не указаны, задаём разумные значения
         if (startDate == null) {
@@ -86,7 +87,7 @@ public class ReportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Model model) {
 
-        log.info("GET /reports/machine: machineId={}, start={}, end={}", machineId, startDate, endDate);
+        log.info("ReportController machineReport machineId={}, start={}, end={}", machineId, startDate, endDate);
 
         if (startDate == null) {
             startDate = LocalDate.of(2025, 1, 1);

@@ -16,9 +16,14 @@
             <h1>Заказы в производстве</h1>
             <img th:src="@{/images/bearAxe.png}" alt="Медведь с топором" style="width: 65px; height: auto; margin-left: 15px;">
         </div>
-        <a th:href="@{/orders/create}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Создать заказ
-        </a>
+        <div>
+            <a th:href="@{/orders/waiting}" class="btn btn-warning">
+                <i class="bi bi-cart"></i> К ожидающим
+            </a>
+            <a th:href="@{/orders/completed}" class="btn btn-success">
+                <i class="bi bi-check"></i> К выполненным
+            </a>
+        </div>
     </div>
 
     <!-- Форма поиска -->

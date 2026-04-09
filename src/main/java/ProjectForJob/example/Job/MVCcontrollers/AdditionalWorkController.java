@@ -4,6 +4,7 @@ import ProjectForJob.example.Job.entityJob.AdditionalWorkEntity;
 import ProjectForJob.example.Job.services.AdditionalWorkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -19,15 +20,15 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping("/additionalWork")
 @RequiredArgsConstructor
+@Slf4j
 public class AdditionalWorkController {
-    private static final Logger log = LoggerFactory.getLogger(AdditionalWorkController.class);
     private final AdditionalWorkService additionalWorkService;
 
 
     // Метод для отображения списка всех станков
     @GetMapping
     public String listAllWork(Model model) {
-        log.info("getAllWork getMapping");
+        log.info("AdditionalWorkService listAllWork");
 
         // 1. Получаем данные через существующий сервис
         List<AdditionalWorkEntity> works = additionalWorkService.findAll();
@@ -41,7 +42,7 @@ public class AdditionalWorkController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        log.info("called showCreateFormWork");
+        log.info("AdditionalWorkService showCreateFormWork");
         // Создаём пустой объект, чтобы форма могла к нему привязаться
         model.addAttribute("work", new AdditionalWorkEntity());
         return "additionalWork/form";
@@ -55,7 +56,7 @@ public class AdditionalWorkController {
         if (bindingResult.hasErrors()) {
             return "additionalWork/form";
         } // Реализовать в REST! тоже.
-        log.info("method work called: {}", work);
+        log.info("AdditionalWorkService work called: {}", work);
         additionalWorkService.save(work);
         redirectAttributes.addFlashAttribute("message", "Дополнительная работа успешно сохранен");
         redirectAttributes.addFlashAttribute("messageType", "success");
@@ -64,7 +65,7 @@ public class AdditionalWorkController {
 
     @GetMapping("/edit/{id}")
     public String showEditFormWork(@PathVariable Long id, Model model) {
-        log.info("called showEditFormWork id = {}", id);
+        log.info("AdditionalWorkService called showEditFormWork id = {}", id);
         AdditionalWorkEntity work = additionalWorkService.findById(id);
         if (work == null) {
             throw new NoSuchElementException("Дополнительная работа с " + id + " не найдена");
@@ -75,7 +76,7 @@ public class AdditionalWorkController {
 
     @PostMapping("/delete/{id}")
     public String deleteWork(@PathVariable Long id,RedirectAttributes redirectAttributes) {
-        log.info("deleteWork id = {}", id);
+        log.info("AdditionalWorkService deleteWork id = {}", id);
         additionalWorkService.deleteById(id);
         redirectAttributes.addFlashAttribute("message", "Работа удалёна.");
         redirectAttributes.addFlashAttribute("messageType", "danger");
@@ -84,6 +85,7 @@ public class AdditionalWorkController {
 
     @ExceptionHandler(NoSuchElementException.class)
     public String handleNotFound(NoSuchElementException ex, Model model) {
+        log.info("AdditionalWorkService handleNotFound message = {}", ex.getMessage());
         model.addAttribute("error", ex.getMessage());
         return "error/404";
     }

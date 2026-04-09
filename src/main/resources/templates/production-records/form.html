@@ -20,24 +20,27 @@
 
         <!-- Дата изготовления -->
         <div class="mb-3">
-            <label for="productionDate" class="form-label">Дата изготовления *</label>
+            <label for="productionDate" class="form-label">Дата изготовления <span class="text-danger">*</span></label>
             <input type="date" id="productionDate" th:field="*{productionDate}" class="form-control" required />
+            <small class="form-text text-muted">обязательное поле</small>
         </div>
 
         <!-- Продукция (выбор из справочника муфт) -->
         <div class="mb-3">
-            <label class="form-label">Тип муфты</label>
+            <label class="form-label">Тип муфты<span class="text-danger">*</span></label>
             <select id="typeSelect" class="form-select" required>
                 <option value="">-- Выберите тип --</option>
             </select>
+            <small class="form-text text-muted">обязательное поле</small>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Условный диаметр</label>
+            <label class="form-label">Условный диаметр<span class="text-danger">*</span></label>
             <select id="diameterSelect" class="form-select" required disabled>
                 <option value="">-- Сначала выберите тип --</option>
             </select>
             <div th:if="${#fields.hasErrors('coupling.id')}" class="text-danger" th:errors="*{coupling.id}"></div>
+            <small class="form-text text-muted">обязательное поле</small>
         </div>
 
         <!-- Скрытое поле, в которое будет записываться реальный coupling.id -->
@@ -45,26 +48,29 @@
 
         <!-- Количество -->
         <div class="mb-3">
-            <label for="quantity" class="form-label">Количество *</label>
+            <label for="quantity" class="form-label">Количество <span class="text-danger">*</span></label>
             <input type="number" id="quantity" th:field="*{quantity}" class="form-control" min="1" required />
+            <small class="form-text text-muted">обязательное поле</small>
         </div>
 
         <!-- Сотрудник -->
         <div class="mb-3">
-            <label for="employee" class="form-label">Сотрудник *</label>
+            <label for="employee" class="form-label">Сотрудник <span class="text-danger">*</span></label>
             <select id="employee" th:field="*{employee.id}" class="form-select" required>
                 <option value="">Выберите сотрудника</option>
                 <option th:each="e : ${employees}" th:value="${e.id}" th:text="${e.name}"></option>
             </select>
+            <small class="form-text text-muted">обязательное поле</small>
         </div>
 
         <!-- Станок -->
         <div class="mb-3">
-            <label for="machine" class="form-label">Станок *</label>
+            <label for="machine" class="form-label">Станок <span class="text-danger">*</span></label>
             <select id="machine" th:field="*{machine.id}" class="form-select" required>
                 <option value="">Выберите станок</option>
                 <option th:each="m : ${machines}" th:value="${m.id}" th:text="${m.name}"></option>
             </select>
+            <small class="form-text text-muted">обязательное поле</small>
         </div>
 
         <!-- Комментарий -->

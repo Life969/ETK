@@ -8,6 +8,7 @@ import ProjectForJob.example.Job.services.MachinesService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -32,9 +33,9 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/production-records")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductionRecordMvcController {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductionRecordMvcController.class);
     private final ProductionRecordService recordService;
     private final CouplingService couplingService;
     private final EmployeesService employeeService;
@@ -135,25 +136,19 @@ public class ProductionRecordMvcController {
         return "error/404";
     }
 
-    private void prepareFormModel(Model model) {
-        addReferenceData(model);
-    }
 
-    private void addReferenceData(Model model) {
-        model.addAttribute("couplings", couplingService.findAll());
-        model.addAttribute("employees", employeeService.findAll());
-        model.addAttribute("machines", machineService.findAll());
-    }
 
     @GetMapping("/api/couplings/types")
     @ResponseBody
     public List<String> getCouplingTypes() {
+        log.info("ReportController getCouplingTypes");
         return couplingService.findAllDistinctTypes(); // нужно добавить метод в CouplingService и CouplingRepository
     }
 
     @GetMapping("/api/couplings/by-type")
     @ResponseBody
     public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
+        log.info("ReportController getCouplingsBytype");
         List<CouplingEntity> couplings = couplingService.findByType(type);
         return couplings.stream()
                 .map(c -> {
@@ -167,11 +162,23 @@ public class ProductionRecordMvcController {
 
     @GetMapping("/api/couplings/{id}")
     @ResponseBody
+
     public Map<String, String> getCouplingDetails(@PathVariable Long id) {
+        log.info("ReportController getCouplingDetails");
         CouplingEntity coupling = couplingService.findById(id);
         Map<String, String> map = new HashMap<>();
         map.put("type", coupling.getType());
         map.put("diameter", coupling.getConditionalDiameter());
         return map;
+    }
+
+    private void prepareFormModel(Model model) {
+        addReferenceData(model);
+    } // общий метод для упаковки
+
+    private void addReferenceData(Model model) { //общий метод для упаковки
+        model.addAttribute("couplings", couplingService.findAll());
+        model.addAttribute("employees", employeeService.findAll());
+        model.addAttribute("machines", machineService.findAll());
     }
 }

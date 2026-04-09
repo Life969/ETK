@@ -13,6 +13,7 @@ import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,12 +35,13 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/orders")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
     private final OrderService orderService;
     private final CompanyRepository companyRepository;
     private final CouplingRepository couplingRepository;
     private final AdditionalWorkRepository additionalWorkRepository;
-    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
+
 
     // Страница "В ожидании"
     @GetMapping("/waiting")
@@ -51,6 +53,7 @@ public class OrderController {
                                 HttpSession session) {
         model.addAttribute("currentUri", request.getRequestURI());
         model.addAttribute("search", search);
+        log.info("OrderController waiting orders");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<OrderDto> ordersPage = orderService.getOrdersByStatus(OrderStatus.WAITING, search, pageable);
@@ -75,6 +78,7 @@ public class OrderController {
                                    @RequestParam(defaultValue = "12") int size,
                                    @RequestParam(required = false) String search,
                                    HttpServletRequest request) {
+        log.info("OrderController production orders");
         model.addAttribute("currentUri", request.getRequestURI());
         model.addAttribute("search", search);
 
@@ -94,6 +98,7 @@ public class OrderController {
                                   @RequestParam(defaultValue = "12") int size,
                                   @RequestParam(required = false) String search,
                                   HttpServletRequest request) {
+        log.info("OrderController completed orders");
         model.addAttribute("currentUri", request.getRequestURI());
         model.addAttribute("search", search);
 
@@ -108,6 +113,7 @@ public class OrderController {
     // Форма создания заказа
     @GetMapping("/create")
     public String showCreateForm(Model model) {
+        log.info("OrderController create GET orders");
         model.addAttribute("orderCreateDto", new OrderCreateDto());
         model.addAttribute("companies", companyRepository.findAll());
         model.addAttribute("couplings", couplingRepository.findAll());
@@ -119,6 +125,7 @@ public class OrderController {
     public String createOrder(@Valid @ModelAttribute("orderCreateDto") OrderCreateDto dto,
                               BindingResult result,
                               Model model) {
+        log.info("OrderController create POST orders");
         if (result.hasErrors()) {
             model.addAttribute("companies", companyRepository.findAll());
             model.addAttribute("couplings", couplingRepository.findAll());
@@ -132,6 +139,7 @@ public class OrderController {
     // Просмотр деталей заказа (кликабельный заказ)
     @GetMapping("/{id}")
     public String viewOrder(@PathVariable Long id, Model model) {
+        log.info("OrderController viewOrder GET order with id={}", id);
         OrderDto order = orderService.getOrderById(id);
         model.addAttribute("order", order);
         return "orders/view";
@@ -143,6 +151,7 @@ public class OrderController {
                                @RequestParam OrderStatus newStatus,
                                @RequestParam(required = false) String returnTo) {
         orderService.updateStatus(id, newStatus);
+        log.info("OrderController  change status with id={}", id);
         // Возвращаемся на ту же страницу, откуда пришли (чтобы не терять контекст)
         if (returnTo != null && !returnTo.isEmpty()) {
             return "redirect:" + returnTo;
@@ -154,6 +163,7 @@ public class OrderController {
     @PostMapping("/{id}/delete")
     public String deleteOrder(@PathVariable Long id,
                               @RequestParam(required = false) String returnTo) {
+        log.info("OrderController bу delete order with id={}", id);
         orderService.deleteOrder(id);
         if (returnTo != null && !returnTo.isEmpty()) {
             return "redirect:" + returnTo;
@@ -164,6 +174,7 @@ public class OrderController {
     // Форма редактирования заказа
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
+        log.info("OrderController showEditForm GET order with id={}", id);
         OrderDto order = orderService.getOrderById(id);
         OrderUpdateDto updateDto = new OrderUpdateDto();
 
@@ -192,6 +203,7 @@ public class OrderController {
                               @Valid @ModelAttribute("orderUpdateDto") OrderUpdateDto dto,
                               BindingResult result,
                               Model model) {
+        log.info("OrderController update GET order with id={}", id);
         if (result.hasErrors()) {
             // при ошибке нужно снова загрузить справочники
             model.addAttribute("companies", companyRepository.findAll());
@@ -238,13 +250,14 @@ public class OrderController {
     @GetMapping("/api/couplings/types")
     @ResponseBody
     public List<String> getCouplingTypes() {
-        // Предполагается, что в CouplingRepository есть метод findAllTypes()
+        log.info("OrderController getCouplingTypes");
         return couplingRepository.findAllDistinctTypes();
     }
 
     @GetMapping("/api/couplings/by-type")
     @ResponseBody
     public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
+        log.info("OrderController getCouplingsByType GET order by type={}", type);
         List<CouplingEntity> couplings = couplingRepository.findByType(type);
         return couplings.stream()
                 .map(c -> {

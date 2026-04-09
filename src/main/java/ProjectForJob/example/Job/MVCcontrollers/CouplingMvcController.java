@@ -4,6 +4,8 @@ package ProjectForJob.example.Job.MVCcontrollers;
 import ProjectForJob.example.Job.entityJob.CouplingEntity;
 import ProjectForJob.example.Job.services.CouplingService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -21,14 +23,13 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/couplings")
+@RequiredArgsConstructor
+@Slf4j
 public class CouplingMvcController {
 
-    private static final Logger log = LoggerFactory.getLogger(CouplingMvcController.class);
     private final CouplingService couplingService;
 
-    public CouplingMvcController(CouplingService couplingService) {
-        this.couplingService = couplingService;
-    }
+
 
     @GetMapping()
     public String listAllGrouped(Model model) {

@@ -5,6 +5,8 @@ import ProjectForJob.example.Job.entityJob.MachinesEntity;
 import ProjectForJob.example.Job.services.EmployeesService;
 import ProjectForJob.example.Job.services.MachinesService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -18,13 +20,12 @@ import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/machines")
+@RequiredArgsConstructor
+@Slf4j
 public class MachinesMvcController {
-    private static final Logger log = LoggerFactory.getLogger(MachinesMvcController.class);
     private final MachinesService machinesService;
 
-    public MachinesMvcController(MachinesService machinesService) {
-        this.machinesService = machinesService;
-    }
+
 
     // Метод для отображения списка всех станков
     @GetMapping

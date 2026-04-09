@@ -3,6 +3,7 @@ package ProjectForJob.example.Job.MVCcontrollers;
 import ProjectForJob.example.Job.entityJob.EmployeesEntity;
 import ProjectForJob.example.Job.services.EmployeesService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -16,8 +17,8 @@ import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/employees")
+@Slf4j
 public class EmployeesMvcController {
-    private static final Logger log = LoggerFactory.getLogger(EmployeesMvcController.class);
     private final EmployeesService employeesService;
 
     public EmployeesMvcController(EmployeesService employeesService) {

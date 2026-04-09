@@ -5,6 +5,7 @@ import ProjectForJob.example.Job.entityJob.OrderStatus;
 import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.*;
 @Controller
 @RequestMapping("/commercial-offer")
 @RequiredArgsConstructor
+@Slf4j
 public class CommercialOfferController {
 
     private final OrderService orderService;
@@ -22,6 +24,7 @@ public class CommercialOfferController {
     // Отображение страницы КП
     @GetMapping
     public String showCommercialOffer(HttpSession session, Model model) {
+        log.info("CommercialOfferController showCommercialOffer");
         Set<Long> orderIds = getOrderIdsFromSession(session);
         if (orderIds.isEmpty()) {
             return "redirect:/orders/waiting";
@@ -64,6 +67,7 @@ public class CommercialOfferController {
     @PostMapping("/add/{orderId}")
     @ResponseBody
     public Map<String, Object> toggleOrder(@PathVariable Long orderId, HttpSession session) {
+        log.info("OrderController toggleOrder");
         Set<Long> orderIds = getOrderIdsFromSession(session);
         Map<String, Object> response = new HashMap<>();
         String error = null;
@@ -108,6 +112,7 @@ public class CommercialOfferController {
     // Очистка всей КП (редирект на страницу ожидания)
     @PostMapping("/clear")
     public String clearCommercialOffer(HttpSession session) {
+        log.info("OrderController clearCommercialOffer");
         session.removeAttribute("commercialOffer");
         return "redirect:/orders/waiting";
     }
@@ -115,6 +120,7 @@ public class CommercialOfferController {
     // Удаление одного заказа из КП (со страницы КП)
     @PostMapping("/remove/{orderId}")
     public String removeOrder(@PathVariable Long orderId, HttpSession session) {
+        log.info("OrderController removeOrder");
         Set<Long> orderIds = getOrderIdsFromSession(session);
         orderIds.remove(orderId);
         if (orderIds.isEmpty()) {
