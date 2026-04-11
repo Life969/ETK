@@ -8,8 +8,7 @@ import ProjectForJob.example.Job.services.MachinesService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -49,6 +48,8 @@ public class ReportController {
             endDate = LocalDate.now();
         }
 
+
+
         // Получаем всех сотрудников для выпадающего списка
         List<EmployeesEntity> employees = employeeService.findAll();
         model.addAttribute("employees", employees);
@@ -70,6 +71,7 @@ public class ReportController {
                 total = total.add(sum);
                 // Можно добавить вычисленную сумму в сам объект или передавать отдельно
             }
+
 
             model.addAttribute("records", records);
             model.addAttribute("totalEarned", total);

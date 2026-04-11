@@ -58,7 +58,7 @@
                     <table class="table table-striped">
                         <thead>
                         <th>Дата изготовления</th>
-                        <th>Муфта</th>
+                        <th>Изделие</th>
                         <th>Сотрудник</th>
                         <th>Количество</th>
                         <th>Цена за шт., руб.</th>
@@ -68,11 +68,11 @@
                         <tbody>
                         <tr th:each="rec : ${records}">
                             <td th:text="${#temporals.format(rec.productionDate, 'dd.MM.yyyy')}"></td>
-                            <td th:text="${rec.coupling.name}"></td>
+                            <td th:text="${rec.productName}"></td>
                             <td th:text="${rec.employee.name}"></td>
                             <td th:text="${rec.quantity}"></td>
-                            <td th:text="${#numbers.formatDecimal(rec.coupling.manufacturingCost, 0, 2)}"></td>
-                            <td th:text="${#numbers.formatDecimal(rec.coupling.manufacturingCost * rec.quantity, 0, 2)}"></td>
+                            <td th:text="${#numbers.formatDecimal(rec.unitManufacturingCost, 0, 2)}"></td>
+                            <td th:text="${#numbers.formatDecimal(rec.unitManufacturingCost * rec.quantity, 0, 2)}"></td>
                         </tr>
                         </tbody>
                         <tfoot class="table-group-divider">

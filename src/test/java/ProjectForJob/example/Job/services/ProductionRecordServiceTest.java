@@ -118,9 +118,10 @@ class ProductionRecordServiceTest {
     @Test
     @DisplayName("findAllByFilters с Pageable: вызывает repository.findAll с Specification и Pageable")
     void findAllByFilters_withPageable_shouldCallRepositoryFindAllWithSpecAndPageable() {
-        // given
+        String productType = "COUPLING";
         Long couplingId = 1L;
         Long employeeId = 2L;
+        Long adapterId = null;
         Long machineId = 3L;
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 12, 31);
@@ -128,8 +129,8 @@ class ProductionRecordServiceTest {
         Page<ProductionRecordEntity> expectedPage = new PageImpl<>(List.of(new ProductionRecordEntity()));
         when(repository.findAll(any(Specification.class), eq(pageable))).thenReturn(expectedPage);
 
-        // when
-        Page<ProductionRecordEntity> result = service.findAllByFilters(couplingId, employeeId, machineId, startDate, endDate, pageable);
+        Page<ProductionRecordEntity> result = service.findAllByFilters(
+                productType, couplingId, adapterId, employeeId, machineId, startDate, endDate, pageable);
 
         // then
         assertThat(result).isSameAs(expectedPage);
@@ -169,8 +170,7 @@ class ProductionRecordServiceTest {
         // when
         List<ProductionRecordEntity> result = service.findLast5Records();
 
-        // then
-        assertThat(result).isSameAs(expectedContent); // теперь ок — вернётся тот же объект
+        assertThat(result).isSameAs(expectedContent);
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(repository, only()).findAll(captor.capture());

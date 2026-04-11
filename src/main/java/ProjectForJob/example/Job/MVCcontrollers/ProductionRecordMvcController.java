@@ -1,11 +1,9 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
 import ProjectForJob.example.Job.entityJob.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.PipeAdapterEntity;
 import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
-import ProjectForJob.example.Job.services.CouplingService;
-import ProjectForJob.example.Job.services.EmployeesService;
-import ProjectForJob.example.Job.services.MachinesService;
-import ProjectForJob.example.Job.services.ProductionRecordService;
+import ProjectForJob.example.Job.services.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +38,13 @@ public class ProductionRecordMvcController {
     private final CouplingService couplingService;
     private final EmployeesService employeeService;
     private final MachinesService machineService;
+    private final PipeAdapterService adapterService;
 
 
     @GetMapping
-    public String listAll(@RequestParam(required = false) Long couplingId,
+    public String listAll(@RequestParam(required = false) String productType,
+                          @RequestParam(required = false) Long couplingId,
+                          @RequestParam(required = false) Long adapterId,
                           @RequestParam(required = false) Long employeeId,
                           @RequestParam(required = false) Long machineId,
                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -55,17 +56,28 @@ public class ProductionRecordMvcController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ProductionRecordEntity> pageResult = recordService.findAllByFilters(
-                couplingId, employeeId, machineId, startDate, endDate, pageable);
+                productType,
+                couplingId,
+                adapterId,
+                employeeId,
+                machineId,
+                startDate,
+                endDate,
+                pageable);
 
         model.addAttribute("recordsPage", pageResult);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", pageResult.getTotalPages());
 
+
         // для выпадающих списков фильтров
         addReferenceData(model);
+        model.addAttribute("adapterFirstSideTypes", adapterService.findAllDistinctFirstSideTypes());
 
         // сохраняем выбранные фильтры для формы
+        model.addAttribute("selectedProductType", productType);
         model.addAttribute("selectedCouplingId", couplingId);
+        model.addAttribute("selectedAdapterId", adapterId);
         model.addAttribute("selectedEmployeeId", employeeId);
         model.addAttribute("selectedMachineId", machineId);
         model.addAttribute("startDate", startDate);
@@ -76,13 +88,13 @@ public class ProductionRecordMvcController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        log.info("GET /production-records/new");
         prepareFormModel(model);
         model.addAttribute("record", new ProductionRecordEntity());
-
-        model.addAttribute("currentCouplingType", "");
-        model.addAttribute("currentCouplingDiameter", "");
+        model.addAttribute("productTypes", List.of("COUPLING", "ADAPTER"));
+        // Для JS: текущие значения пустые
+        model.addAttribute("currentProductType", "");
         model.addAttribute("currentCouplingId", null);
+        model.addAttribute("currentAdapterId", null);
         return "production-records/form";
     }
 
@@ -91,35 +103,63 @@ public class ProductionRecordMvcController {
         ProductionRecordEntity record = recordService.findById(id);
         prepareFormModel(model);
         model.addAttribute("record", record);
-        // Получаем информацию о текущей муфте
-        CouplingEntity coupling = record.getCoupling();
-        if (coupling != null) {
-            model.addAttribute("currentCouplingType", coupling.getType());
-            model.addAttribute("currentCouplingDiameter", coupling.getConditionalDiameter());
-            model.addAttribute("currentCouplingId", coupling.getId());
-        } else {
-            model.addAttribute("currentCouplingType", "");
-            model.addAttribute("currentCouplingDiameter", "");
-            model.addAttribute("currentCouplingId", null);
+        model.addAttribute("productTypes", List.of("COUPLING", "ADAPTER"));
+
+        String productType = record.getProductType();
+        model.addAttribute("currentProductType", productType);
+        if ("COUPLING".equals(productType)) {
+            model.addAttribute("currentCouplingId", record.getCoupling().getId());
+        } else if ("ADAPTER".equals(productType)) {
+            model.addAttribute("currentAdapterId", record.getAdapter().getId());
         }
         return "production-records/form";
     }
 
-    @PostMapping("/save")
-    public String save(@Valid @ModelAttribute("record") ProductionRecordEntity record,
-                       BindingResult bindingResult,
-                       Model model,
-                       RedirectAttributes redirectAttributes) {
-        log.info("POST /production-records/save");
-        if (bindingResult.hasErrors()) {
-            prepareFormModel(model);
-            return "production-records/form";
-        }
-        recordService.save(record);
-        redirectAttributes.addFlashAttribute("message", "Запись успешно сохранена");
-        redirectAttributes.addFlashAttribute("messageType", "success");
-        return "redirect:/production-records";
+   @PostMapping("/save")
+public String save(@Valid @ModelAttribute("record") ProductionRecordEntity record,
+                   BindingResult bindingResult,
+                   @RequestParam(value = "productType", required = false) String productType,
+                   Model model,
+                   RedirectAttributes redirectAttributes) {
+    log.info("POST /production-records/save, productType={}", productType);
+
+    // Проверяем, что тип изделия указан
+    if (productType == null || productType.isBlank()) {
+        bindingResult.reject("error.record", "Выберите тип изделия");
     }
+
+    // Валидация соответствующего ID
+    if ("COUPLING".equals(productType) && record.getCoupling() == null) {
+        bindingResult.rejectValue("coupling", "error.record", "Выберите муфту");
+    }
+    if ("ADAPTER".equals(productType) && record.getAdapter() == null) {
+        bindingResult.rejectValue("adapter", "error.record", "Выберите переводник");
+    }
+
+    // Обнуляем неиспользуемое поле
+    if ("COUPLING".equals(productType)) {
+        record.setAdapter(null);
+    } else if ("ADAPTER".equals(productType)) {
+        record.setCoupling(null);
+    }
+
+    if (bindingResult.hasErrors()) {
+        prepareFormModel(model);
+        // Чтобы радиокнопки отобразили выбранный тип после ошибки
+        model.addAttribute("currentProductType", productType);
+        if ("COUPLING".equals(productType)) {
+            model.addAttribute("currentCouplingId", record.getCoupling() != null ? record.getCoupling().getId() : null);
+        } else if ("ADAPTER".equals(productType)) {
+            model.addAttribute("currentAdapterId", record.getAdapter() != null ? record.getAdapter().getId() : null);
+        }
+        return "production-records/form";
+    }
+
+    recordService.save(record);
+    redirectAttributes.addFlashAttribute("message", "Запись успешно сохранена");
+    redirectAttributes.addFlashAttribute("messageType", "success");
+    return "redirect:/production-records";
+}
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -180,5 +220,53 @@ public class ProductionRecordMvcController {
         model.addAttribute("couplings", couplingService.findAll());
         model.addAttribute("employees", employeeService.findAll());
         model.addAttribute("machines", machineService.findAll());
+    }
+
+    @GetMapping("/api/adapters/first-side-types")
+    @ResponseBody
+    public List<String> getAdapterFirstSideTypes() {
+        return adapterService.findAllDistinctFirstSideTypes();
+    }
+
+    @GetMapping("/api/adapters/by-first-side-type")
+    @ResponseBody
+    public List<Map<String, Object>> getAdaptersByFirstSideType(@RequestParam String type) {
+        List<PipeAdapterEntity> adapters = adapterService.findByFirstSideType(type);
+        return adapters.stream()
+                .map(a -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", a.getId());
+                    map.put("firstSideDiameter", a.getFirstSideDiameter());
+                    map.put("secondSideType", a.getSecondSideType());
+                    map.put("secondSideDiameter", a.getSecondSideDiameter());
+                    map.put("fullName", a.getFullName());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/adapters/{id}")
+    @ResponseBody
+    public Map<String, Object> getAdapterDetails(@PathVariable Long id) {
+        PipeAdapterEntity a = adapterService.findById(id);
+        Map<String, Object> map = new HashMap<>();
+        map.put("firstSideType", a.getFirstSideType());
+        map.put("firstSideDiameter", a.getFirstSideDiameter());
+        map.put("secondSideType", a.getSecondSideType());
+        map.put("secondSideDiameter", a.getSecondSideDiameter());
+        return map;
+    }
+    @GetMapping("/api/adapters")
+    @ResponseBody
+    public List<Map<String, Object>> getAllAdapters() {
+        List<PipeAdapterEntity> adapters = adapterService.findAll();
+        return adapters.stream()
+                .map(a -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", a.getId());
+                    map.put("fullName", a.getFullName());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 }

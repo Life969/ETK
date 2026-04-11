@@ -40,42 +40,83 @@ public class ProductionRecordService {
         repository.deleteById(id);
     }
 
-    public Page<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId, Long machineId,
-                                                         LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return repository.findAll(buildSpecification(couplingId, employeeId, machineId, startDate, endDate), pageable);
+    public Page<ProductionRecordEntity> findAllByFilters(String productType,
+                                                         Long couplingId,
+                                                         Long adapterId,
+                                                         Long employeeId,
+                                                         Long machineId,
+                                                         LocalDate startDate,
+                                                         LocalDate endDate,
+                                                         Pageable pageable) {
+
+        Specification<ProductionRecordEntity> spec = buildSpecification(productType, couplingId, adapterId, employeeId, machineId, startDate, endDate);
+        return repository.findAll(spec, pageable);
     }
 
-    public List<ProductionRecordEntity> findAllByFilters(Long couplingId, Long employeeId, Long machineId,
-                                                         LocalDate startDate, LocalDate endDate, Sort sort) {
-        return repository.findAll(buildSpecification(couplingId, employeeId, machineId, startDate, endDate), sort);
+    public List<ProductionRecordEntity> findAllByFilters(Long couplingId,
+                                                         Long employeeId,
+                                                         Long machineId,
+                                                         LocalDate startDate,
+                                                         LocalDate endDate,
+                                                         Sort sort) {
+        // Передаём productType = null, adapterId = null для совместимости со старой сигнатурой
+        Specification<ProductionRecordEntity> spec = buildSpecification(null, couplingId, null, employeeId, machineId, startDate, endDate);
+        return repository.findAll(spec, sort);
     }
 
 
-    //Чтобы не дублировать код построения Specification, вынес его в отдельный метод
-    private Specification<ProductionRecordEntity> buildSpecification(Long couplingId, Long employeeId, Long machineId,
-                                                                     LocalDate startDate, LocalDate endDate) {
-        return (root,
-                query,
-                cb) -> {
+    // Универсальный метод построения спецификации
+    private Specification<ProductionRecordEntity> buildSpecification(String productType,
+                                                                     Long couplingId,
+                                                                     Long adapterId,
+                                                                     Long employeeId,
+                                                                     Long machineId,
+                                                                     LocalDate startDate,
+                                                                     LocalDate endDate) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            if ("COUPLING".equals(productType)) {
+                predicates.add(cb.isNotNull(root.get("coupling")));
+                predicates.add(cb.isNull(root.get("adapter")));
+            } else if ("ADAPTER".equals(productType)) {
+                predicates.add(cb.isNull(root.get("coupling")));
+                predicates.add(cb.isNotNull(root.get("adapter")));
+            }
+
+            // Фильтр по конкретной муфте
             if (couplingId != null) {
                 predicates.add(cb.equal(root.get("coupling").get("id"), couplingId));
             }
+
+            // Фильтр по конкретному переходнику
+            if (adapterId != null) {
+                predicates.add(cb.equal(root.get("adapter").get("id"), adapterId));
+            }
+
+            // Фильтр по сотруднику
             if (employeeId != null) {
                 predicates.add(cb.equal(root.get("employee").get("id"), employeeId));
             }
+
+            // Фильтр по станку
             if (machineId != null) {
                 predicates.add(cb.equal(root.get("machine").get("id"), machineId));
             }
+
+            // Фильтр по дате начала
             if (startDate != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("productionDate"), startDate));
             }
+
+            // Фильтр по дате окончания
             if (endDate != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("productionDate"), endDate));
             }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
+
     public List<ProductionRecordEntity> findLast5Records() {
         PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("createdAt").descending());
         Page<ProductionRecordEntity> page = repository.findAll(pageRequest);

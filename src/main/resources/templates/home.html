@@ -67,16 +67,26 @@
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
-                        <th>Продукция</th>
-                        <th>Количество</th>
-                        <th>Токарь</th>
-                        <th>Станок</th>
-                        <th>Дата записи</th>
+                        <tr>
+                            <th>Тип</th>
+                            <th>Продукция</th>
+                            <th>Количество</th>
+                            <th>Токарь</th>
+                            <th>Станок</th>
+                            <th>Дата записи</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="record : ${lastRecords}">
-                            <td th:text="${record.coupling.name}">Название</td>
+                            <td>
+                                <span th:if="${record.productType == 'COUPLING'}">
+                                    <i class="bi bi-box-seam"></i> Муфта
+                                </span>
+                                <span th:if="${record.productType == 'ADAPTER'}">
+                                    <i class="bi bi-arrow-left-right"></i> Переводник
+                                </span>
+                            </td>
+                            <td th:text="${record.productName}">НКТ 73</td>
                             <td th:text="${record.quantity}">10</td>
                             <td th:text="${record.employee.name}">Иванов</td>
                             <td th:text="${record.machine.name}">Станок</td>
