@@ -1,11 +1,9 @@
-package ProjectForJob.example.Job.MVCcontrollers;
+package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
 import ProjectForJob.example.Job.entityJob.EmployeesEntity;
 import ProjectForJob.example.Job.services.EmployeesService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

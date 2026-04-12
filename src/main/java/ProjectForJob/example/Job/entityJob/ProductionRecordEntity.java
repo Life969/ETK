@@ -17,6 +17,15 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "production_records")
+@NamedEntityGraph(
+        name = "ProductionRecord.details",
+        attributeNodes = {
+                @NamedAttributeNode("employee"),
+                @NamedAttributeNode("machine"),
+                @NamedAttributeNode("coupling"),
+                @NamedAttributeNode("adapter")
+        }
+)
 public class ProductionRecordEntity {
 
     @Id
@@ -64,45 +73,24 @@ public class ProductionRecordEntity {
         if (adapter != null) return "ADAPTER";
         return null;
     }
-    public String getProductTypeDisplayName() {
-        if (coupling != null) return "Муфта";
-        if (adapter != null) return "Переводник";
-        return "—";
-    }
 
     // Метод для отображения названия изделия в таблице
-    public String getProductName() {
-        if (coupling != null) {
-            return coupling.getName();
-        } else if (adapter != null) {
-            return adapter.getFullName();
-        }
-        return "";
-    }
-
-    // Метод для получения ID изделия (для скрытого поля формы)
-    public Long getProductId() {
-        if (coupling != null) return coupling.getId();
-        if (adapter != null) return adapter.getId();
-        return null;
-    }
-
     public BigDecimal getUnitPriceForEmployee() {
-        if (coupling != null) {
-            return coupling.getPriceForEmployee();
-        } else if (adapter != null) {
-            return adapter.getPriceForEmployee();
-        }
+        if (coupling != null) return coupling.getPriceForEmployee();
+        if (adapter != null) return adapter.getPriceForEmployee();
         return BigDecimal.ZERO;
     }
 
     public BigDecimal getUnitManufacturingCost() {
-        if (coupling != null) {
-            return coupling.getManufacturingCost();
-        } else if (adapter != null) {
-            return adapter.getManufacturingCost();
-        }
+        if (coupling != null) return coupling.getManufacturingCost();
+        if (adapter != null) return adapter.getManufacturingCost();
         return BigDecimal.ZERO;
+    }
+
+    public String getProductName() {
+        if (coupling != null) return coupling.getName();
+        if (adapter != null) return adapter.getFullName();
+        return "";
     }
 
 

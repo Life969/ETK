@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.MVCcontrollers;
+package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
 import ProjectForJob.example.Job.entityJob.PipeAdapterEntity;
 import ProjectForJob.example.Job.services.PipeAdapterService;

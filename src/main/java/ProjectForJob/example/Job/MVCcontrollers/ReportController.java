@@ -8,7 +8,6 @@ import ProjectForJob.example.Job.services.MachinesService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -48,8 +47,6 @@ public class ReportController {
             endDate = LocalDate.now();
         }
 
-
-
         // Получаем всех сотрудников для выпадающего списка
         List<EmployeesEntity> employees = employeeService.findAll();
         model.addAttribute("employees", employees);
@@ -66,7 +63,7 @@ public class ReportController {
             // Рассчитываем суммы и заполняем модель
             BigDecimal total = BigDecimal.ZERO;
             for (ProductionRecordEntity record : records) {
-                BigDecimal price = record.getCoupling().getPriceForEmployee();
+                BigDecimal price = record.getUnitPriceForEmployee();
                 BigDecimal sum = price.multiply(BigDecimal.valueOf(record.getQuantity()));
                 total = total.add(sum);
                 // Можно добавить вычисленную сумму в сам объект или передавать отдельно
@@ -110,7 +107,7 @@ public class ReportController {
 
             BigDecimal total = BigDecimal.ZERO;
             for (ProductionRecordEntity rec : records) {
-                BigDecimal price = rec.getCoupling().getManufacturingCost();
+                BigDecimal price = rec.getUnitPriceForEmployee();
                 BigDecimal sum = price.multiply(BigDecimal.valueOf(rec.getQuantity()));
                 total = total.add(sum);
             }
