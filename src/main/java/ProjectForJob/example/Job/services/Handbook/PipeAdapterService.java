@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.services.Handbook;
 
-import ProjectForJob.example.Job.entityJob.PipeAdapterEntity;
-import ProjectForJob.example.Job.repositories.PipeAdapterRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;

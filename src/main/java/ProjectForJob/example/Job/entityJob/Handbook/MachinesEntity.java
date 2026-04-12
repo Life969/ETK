@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.entityJob;
+package ProjectForJob.example.Job.entityJob.Handbook;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -12,10 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "list_employees")
-public class EmployeesEntity {
+@Table(name = "list_machines")
+public class MachinesEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // если ID автоинкремент
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank

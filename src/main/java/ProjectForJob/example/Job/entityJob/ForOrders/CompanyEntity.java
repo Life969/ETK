@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.entityJob;
+package ProjectForJob.example.Job.entityJob.ForOrders;
 
 
 import jakarta.persistence.*;

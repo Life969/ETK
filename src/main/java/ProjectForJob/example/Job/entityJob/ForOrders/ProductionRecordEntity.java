@@ -1,5 +1,9 @@
-package ProjectForJob.example.Job.entityJob;
+package ProjectForJob.example.Job.entityJob.ForOrders;
 
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

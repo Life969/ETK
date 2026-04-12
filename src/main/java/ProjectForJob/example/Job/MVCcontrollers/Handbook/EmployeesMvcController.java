@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
-import ProjectForJob.example.Job.entityJob.EmployeesEntity;
-import ProjectForJob.example.Job.services.EmployeesService;
+import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
+import ProjectForJob.example.Job.services.Handbook.EmployeesService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

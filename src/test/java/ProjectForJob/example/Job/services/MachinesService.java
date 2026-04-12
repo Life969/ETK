@@ -1,7 +1,8 @@
 package ProjectForJob.example.Job.services;
 
-import ProjectForJob.example.Job.entityJob.MachinesEntity;
-import ProjectForJob.example.Job.repositories.ListMachineRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
+import ProjectForJob.example.Job.repositories.Handbook.ListMachineRepository;
+import ProjectForJob.example.Job.services.Handbook.MachinesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

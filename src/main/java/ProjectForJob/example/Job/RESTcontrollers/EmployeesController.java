@@ -2,8 +2,8 @@ package ProjectForJob.example.Job.RESTcontrollers;
 
 import ProjectForJob.example.Job.DataTransferObject.EmployeeCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.EmployeeResponseDto;
-import ProjectForJob.example.Job.entityJob.EmployeesEntity;
-import ProjectForJob.example.Job.services.EmployeesService;
+import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
+import ProjectForJob.example.Job.services.Handbook.EmployeesService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

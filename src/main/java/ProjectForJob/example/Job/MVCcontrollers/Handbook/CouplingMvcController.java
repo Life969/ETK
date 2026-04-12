@@ -1,8 +1,8 @@
 package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
 
-import ProjectForJob.example.Job.entityJob.CouplingEntity;
-import ProjectForJob.example.Job.services.CouplingService;
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.services.Handbook.CouplingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

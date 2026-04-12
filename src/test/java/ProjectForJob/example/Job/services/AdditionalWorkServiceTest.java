@@ -1,7 +1,8 @@
 package ProjectForJob.example.Job.services;
 
-import ProjectForJob.example.Job.entityJob.AdditionalWorkEntity;
-import ProjectForJob.example.Job.repositories.AdditionalWorkRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
+import ProjectForJob.example.Job.services.Handbook.AdditionalWorkService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

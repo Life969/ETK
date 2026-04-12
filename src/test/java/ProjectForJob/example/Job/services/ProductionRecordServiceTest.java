@@ -1,6 +1,6 @@
 package ProjectForJob.example.Job.services;
 
-import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
 import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
 import org.junit.jupiter.api.Test;
 

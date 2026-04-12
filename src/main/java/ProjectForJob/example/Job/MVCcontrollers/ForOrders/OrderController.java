@@ -1,21 +1,19 @@
-package ProjectForJob.example.Job.MVCcontrollers;
+package ProjectForJob.example.Job.MVCcontrollers.ForOrders;
 
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
-import ProjectForJob.example.Job.entityJob.CouplingEntity;
-import ProjectForJob.example.Job.entityJob.OrderEntity;
-import ProjectForJob.example.Job.entityJob.OrderStatus;
-import ProjectForJob.example.Job.repositories.AdditionalWorkRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
+import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
-import ProjectForJob.example.Job.repositories.CouplingRepository;
+import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

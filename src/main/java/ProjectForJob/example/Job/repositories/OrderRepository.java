@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.repositories;
 
-import ProjectForJob.example.Job.entityJob.OrderEntity;
-import ProjectForJob.example.Job.entityJob.OrderStatus;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;

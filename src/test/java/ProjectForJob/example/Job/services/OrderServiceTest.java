@@ -1,15 +1,17 @@
 package ProjectForJob.example.Job.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
-import ProjectForJob.example.Job.entityJob.*;
-import ProjectForJob.example.Job.repositories.AdditionalWorkRepository;
+import ProjectForJob.example.Job.entityJob.ForOrders.CompanyEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
+import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
-import ProjectForJob.example.Job.repositories.CouplingRepository;
+import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

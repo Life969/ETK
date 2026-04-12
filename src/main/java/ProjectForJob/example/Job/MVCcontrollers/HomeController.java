@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
-import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
 import ProjectForJob.example.Job.services.OrderService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import jakarta.servlet.http.HttpServletRequest;

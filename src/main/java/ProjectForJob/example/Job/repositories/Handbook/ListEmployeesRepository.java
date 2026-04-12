@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.repositories;
+package ProjectForJob.example.Job.repositories.Handbook;
 
-import ProjectForJob.example.Job.entityJob.EmployeesEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

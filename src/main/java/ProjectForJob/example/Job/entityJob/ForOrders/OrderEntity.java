@@ -1,5 +1,7 @@
-package ProjectForJob.example.Job.entityJob;
+package ProjectForJob.example.Job.entityJob.ForOrders;
 
+import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;

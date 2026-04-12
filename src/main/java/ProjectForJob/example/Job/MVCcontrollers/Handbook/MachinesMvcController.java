@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
-import ProjectForJob.example.Job.entityJob.MachinesEntity;
-import ProjectForJob.example.Job.services.MachinesService;
+import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
+import ProjectForJob.example.Job.services.Handbook.MachinesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

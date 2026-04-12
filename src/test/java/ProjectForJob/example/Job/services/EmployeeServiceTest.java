@@ -1,7 +1,8 @@
 package ProjectForJob.example.Job.services;
 
-import ProjectForJob.example.Job.entityJob.EmployeesEntity;
-import ProjectForJob.example.Job.repositories.ListEmployeesRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
+import ProjectForJob.example.Job.repositories.Handbook.ListEmployeesRepository;
+import ProjectForJob.example.Job.services.Handbook.EmployeesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package ProjectForJob.example.Job.services;
 
-import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
 import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;

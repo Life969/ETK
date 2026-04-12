@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
-import ProjectForJob.example.Job.entityJob.PipeAdapterEntity;
-import ProjectForJob.example.Job.services.PipeAdapterService;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

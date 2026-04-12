@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.MVCcontrollers.Handbook;
 
-import ProjectForJob.example.Job.entityJob.AdditionalWorkEntity;
-import ProjectForJob.example.Job.services.AdditionalWorkService;
+import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.services.Handbook.AdditionalWorkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

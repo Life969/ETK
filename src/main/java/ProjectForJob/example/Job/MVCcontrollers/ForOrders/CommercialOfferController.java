@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.MVCcontrollers;
+package ProjectForJob.example.Job.MVCcontrollers.ForOrders;
 
-import ProjectForJob.example.Job.entityJob.OrderEntity;
-import ProjectForJob.example.Job.entityJob.OrderStatus;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
 import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

@@ -1,14 +1,16 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
-import ProjectForJob.example.Job.entityJob.CouplingEntity;
-import ProjectForJob.example.Job.entityJob.PipeAdapterEntity;
-import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
 import ProjectForJob.example.Job.services.*;
+import ProjectForJob.example.Job.services.Handbook.CouplingService;
+import ProjectForJob.example.Job.services.Handbook.EmployeesService;
+import ProjectForJob.example.Job.services.Handbook.MachinesService;
+import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

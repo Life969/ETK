@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.services.Handbook;
 
-import ProjectForJob.example.Job.entityJob.CouplingEntity;
-import ProjectForJob.example.Job.repositories.CouplingRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;

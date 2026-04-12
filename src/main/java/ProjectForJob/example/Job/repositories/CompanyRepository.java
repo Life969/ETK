@@ -1,6 +1,6 @@
 package ProjectForJob.example.Job.repositories;
 
-import ProjectForJob.example.Job.entityJob.CompanyEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.CompanyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

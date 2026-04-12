@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.DataTransferObject;
 
 
-import ProjectForJob.example.Job.entityJob.OrderStatus;
+import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;

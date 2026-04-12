@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.entityJob;
+package ProjectForJob.example.Job.entityJob.ForOrders;
 
 public enum OrderStatus {
     WAITING,          // Ожидание подписания

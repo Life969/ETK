@@ -1,10 +1,10 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
-import ProjectForJob.example.Job.entityJob.EmployeesEntity;
-import ProjectForJob.example.Job.entityJob.MachinesEntity;
-import ProjectForJob.example.Job.entityJob.ProductionRecordEntity;
-import ProjectForJob.example.Job.services.EmployeesService;
-import ProjectForJob.example.Job.services.MachinesService;
+import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
+import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
+import ProjectForJob.example.Job.services.Handbook.EmployeesService;
+import ProjectForJob.example.Job.services.Handbook.MachinesService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
