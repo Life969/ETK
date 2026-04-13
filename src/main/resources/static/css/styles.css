@@ -196,3 +196,113 @@ a:not(.btn):hover {
 .card.bg-light .card-title a:hover {
     color: #d35400;
 }
+
+.image-container {
+    background-color: #34495e;  /* родной фон карточки */
+    padding: 8px;
+    border-radius: 0.375rem;
+    display: inline-block;
+}
+
+.image-container img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    background: transparent !important;  /* убираем возможный фон у самого img */
+    border: none !important;
+}
+
+
+
+/* WoW Tooltip Style */
+.wow-tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.9);
+    background-image: linear-gradient(rgba(30, 20, 10, 0.7), rgba(0, 0, 0, 0.9));
+    border: 2px solid #b87c4f;
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 260px;
+    max-width: 360px;
+    color: #e6cc80;
+    font-family: 'Friz Quadrata', 'Times New Roman', 'Georgia', serif;
+    font-size: 13px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+    z-index: 10000;
+    pointer-events: none; /* чтобы не мешать кликам по таблице */
+    backdrop-filter: blur(2px);
+    transition: opacity 0.1s ease;
+}
+
+.wow-tooltip .tooltip-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #b87c4f;
+    padding-bottom: 6px;
+}
+
+.wow-tooltip .tooltip-image {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: #1a1a1a;
+    border: 1px solid #b87c4f;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.wow-tooltip .tooltip-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.wow-tooltip .tooltip-title {
+    flex-grow: 1;
+}
+
+.wow-tooltip .item-name {
+    color: #b470ff;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 3px #4a2a8a;
+}
+
+.wow-tooltip .item-type {
+    color: #aaa;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.wow-tooltip .stats {
+    margin: 8px 0;
+}
+
+.wow-tooltip .stat {
+    color: #1eff00;
+    margin: 4px 0;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.wow-tooltip .stat-value {
+    font-weight: bold;
+    color: #c0ff80;
+}
+
+.wow-tooltip .description {
+    margin-top: 8px;
+    font-style: italic;
+    color: #d4c5a0;
+    border-top: 1px solid #5a3a1a;
+    padding-top: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+}

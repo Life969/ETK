@@ -12,11 +12,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.NoSuchElementException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -69,11 +68,57 @@ public class CouplingMvcController {
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("coupling") CouplingEntity coupling,
                        BindingResult bindingResult,
-                       RedirectAttributes redirectAttributes) {
+                       @RequestParam(value = "imageBase64", required = false) String imageBase64,
+                       RedirectAttributes redirectAttributes) throws IOException {
         log.info("POST /couplings/save - сохранение муфты: {}", coupling);
         if (bindingResult.hasErrors()) {
             return "couplings/form";
         }
+
+        // Обработка изображения из base64
+        if (imageBase64 != null && !imageBase64.isEmpty() && imageBase64.startsWith("data:image")) {
+            // Извлекаем часть после "base64,"
+            String base64Data = imageBase64.substring(imageBase64.indexOf(",") + 1);
+            byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+
+            // Определяем расширение (можно из contentType)
+            String contentType = imageBase64.substring(5, imageBase64.indexOf(";"));
+            String extension = switch (contentType) {
+                case "image/jpeg" -> ".jpg";
+                case "image/png" -> ".png";
+                case "image/gif" -> ".gif";
+                default -> ".jpg";
+            };
+
+            // Удаляем старый файл, если редактируем
+            if (coupling.getId() != null) {
+                CouplingEntity existing = couplingService.findById(coupling.getId());
+                String oldImagePath = existing.getImagePath();
+                if (oldImagePath != null && !oldImagePath.isEmpty()) {
+                    deleteImageFile(oldImagePath);
+                }
+            }
+
+            // Сохраняем файл
+            String newFileName = UUID.randomUUID().toString() + extension;
+            String uploadDir = System.getProperty("user.dir") + "/uploads/couplings/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            File destFile = new File(uploadDir + newFileName);
+            try (FileOutputStream fos = new FileOutputStream(destFile)) {
+                fos.write(imageBytes);
+            }
+
+            coupling.setImagePath("/uploads/couplings/" + newFileName);
+        } else {
+            // Если файл не загружен, но это редактирование – оставляем старый путь
+            if (coupling.getId() != null) {
+                CouplingEntity existing = couplingService.findById(coupling.getId());
+                coupling.setImagePath(existing.getImagePath());
+            }
+        }
+
         couplingService.save(coupling);
         redirectAttributes.addFlashAttribute("message", "Муфта успешно сохранена");
         redirectAttributes.addFlashAttribute("messageType", "success");
@@ -101,5 +146,20 @@ public class CouplingMvcController {
     public String handleNotFound(NoSuchElementException ex, Model model) {
         model.addAttribute("error", ex.getMessage());
         return "error/404";
+    }
+
+
+    private void deleteImageFile(String imagePath) {
+        if (imagePath != null && imagePath.startsWith("/uploads/")) {
+            try {
+                String filePath = System.getProperty("user.dir") + imagePath;
+                File file = new File(filePath);
+                if (file.exists()) {
+                    file.delete();
+                }
+            } catch (Exception e) {
+                log.warn("Не удалось удалить старый файл: {}", imagePath, e);
+            }
+        }
     }
 }

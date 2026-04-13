@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class JobApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("org.apache.tomcat.util.http.fileupload.FileUploadBase.maxFileCount", "10");
 		SpringApplication.run(JobApplication.class, args);
 	}
 

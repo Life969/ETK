@@ -55,7 +55,7 @@ public class CouplingEntity {
     private BigDecimal priceForEmployee;
 
     @Column(name = "image_path")
-    private String imagePath;
+    private String imagePath; //правильно ли? так реализовывать или лучше хранить в бд фото?
 
 
     private String standart;

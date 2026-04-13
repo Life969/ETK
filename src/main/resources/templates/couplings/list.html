@@ -64,7 +64,19 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="coupling : ${entry.value}">
+                        <tr th:each="coupling : ${entry.value}"
+                            th:attr="data-id=${coupling.id},
+                            data-name=${coupling.name},
+                            data-type=${coupling.type},
+                                 data-diameter=${coupling.conditionalDiameter},
+                                 data-length=${coupling.lengthMm != null ? coupling.lengthMm : ''},
+                                 data-weight=${coupling.weightKg != null ? coupling.weightKg : ''},
+                                 data-outer-diameter=${coupling.outerDiameterMm != null ? coupling.outerDiameterMm : ''},
+                                 data-inner-diameter=${coupling.innerDiameterMm != null ? coupling.innerDiameterMm : ''},
+                                 data-cost=${coupling.manufacturingCost != null ? coupling.manufacturingCost : ''},
+                                 data-price=${coupling.priceForEmployee != null ? coupling.priceForEmployee : ''},
+                                 data-description=${coupling.description != null ? coupling.description : ''},
+                                 data-image=${coupling.imagePath != null ? coupling.imagePath : ''}">
                             <td><a th:href="@{/couplings/{id}(id=${coupling.id})}" th:text="${coupling.name}"></a></td>
                             <td th:text="${coupling.lengthMm}"></td>
                             <td th:text="${coupling.weightKg}"></td>
@@ -84,5 +96,118 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Создаём один контейнер для тултипа (будет переиспользоваться)
+    const tooltip = document.createElement('div');
+    tooltip.className = 'wow-tooltip';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
+
+    // Функция для безопасной вставки HTML (чтобы XSS)
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function getValue(value, defaultValue = '—') {
+        // если value undefined, null или пустая строка – вернём defaultValue
+        if (value === undefined || value === null || value === '') return defaultValue;
+        return value;
+    }
+    // Функция обновления содержимого тултипа из data-атрибутов строки
+    function updateTooltipContent(row) {
+        const name = row.dataset.name || 'Без названия';
+        const type = row.dataset.type || '';
+        const diameter = row.dataset.diameter || '';
+        const length = getValue(row.dataset.length);
+        const weight = getValue(row.dataset.weight);
+        const outerD = getValue(row.dataset.outerDiameter);
+        const innerD = getValue(row.dataset.innerDiameter);
+        const cost = getValue(row.dataset.cost);
+        const price = getValue(row.dataset.price);
+        let description = row.dataset.description || '';
+        const imagePath = row.dataset.image;
+        // Если описание слишком длинное, обрезаем (по желанию)
+        if (description.length > 200) description = description.substring(0, 200) + '...';
+
+        // Формируем HTML
+        let imageHtml = '';
+        if (imagePath && imagePath !== '') {
+            let imgUrl = imagePath;
+            if (!imgUrl.startsWith('/') && !imgUrl.startsWith('http')) {
+                imgUrl = '/images/' + imgUrl; // подстрой под свой путь
+            }
+            imageHtml = `<div class="tooltip-image"><img src="${escapeHtml(imgUrl)}" alt="icon" onerror="this.style.display='none'"></div>`;
+        } else {
+            imageHtml = `<div class="tooltip-image"><i class="bi bi-cup-straw" style="font-size:24px; color:#b87c4f;"></i></div>`;
+        }
+
+        const typeLine = (type && diameter) ? `${escapeHtml(type)} ${escapeHtml(diameter)}` : 'Муфта';
+
+        tooltip.innerHTML = `
+            <div class="tooltip-header">
+                ${imageHtml}
+                <div class="tooltip-title">
+                    <div class="item-name">${escapeHtml(name)}</div>
+                    <div class="item-type">${escapeHtml(typeLine)}</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
+                <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
+                <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
+                <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
+                <div class="stat"><span>💰 Цена (изг):</span><span class="stat-value">${cost} руб</span></div>
+                <div class="stat"><span>👷 Цена (сотр):</span><span class="stat-value">${price} руб</span></div>
+            </div>
+            ${description ? `<div class="description">📜 ${escapeHtml(description)}</div>` : ''}
+        `;
+    }
+
+    // Функция позиционирования тултипа относительно мыши
+    function positionTooltip(event) {
+        const x = event.clientX + 15;
+        const y = event.clientY + 15;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+
+        // Корректировка, чтобы не вылезал за правый край
+        const tooltipRect = tooltip.getBoundingClientRect();
+        if (x + tooltipRect.width > window.innerWidth) {
+            tooltip.style.left = (event.clientX - tooltipRect.width - 10) + 'px';
+        }
+        if (y + tooltipRect.height > window.innerHeight) {
+            tooltip.style.top = (event.clientY - tooltipRect.height - 10) + 'px';
+        }
+    }
+
+    // Навешиваем обработчики на все строки таблицы, у которых есть data-id
+    function bindTooltips() {
+        const rows = document.querySelectorAll('tr[data-id]');
+        rows.forEach(row => {
+            // При наведении мыши
+            row.addEventListener('mouseenter', (event) => {
+                updateTooltipContent(row);
+                tooltip.style.display = 'block';
+                positionTooltip(event);
+            });
+            // При движении мыши обновляем позицию
+            row.addEventListener('mousemove', positionTooltip);
+            // При уходе мыши прячем тултип
+            row.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        });
+    }
+
+    // Дождёмся загрузки DOM, затем привязываем
+    document.addEventListener('DOMContentLoaded', bindTooltips);
+</script>
 </body>
 </html>
