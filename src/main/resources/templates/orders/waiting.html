@@ -67,6 +67,8 @@
                 <div class="card-body py-2">
                     <h5 class="card-title">
                         <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.companyName}" class="text-decoration-none"></a>
+                        <span class="badge ms-2" th:classappend="${order.productType == 'COUPLING'} ? 'bg-primary' : 'bg-info'"
+                              th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'"></span>
                     </h5>
                     <p class="card-text small">
                         <strong>Продукция:</strong> <span th:text="${order.productName}"></span><br>

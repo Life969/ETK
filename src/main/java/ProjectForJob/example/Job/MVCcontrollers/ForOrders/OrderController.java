@@ -6,9 +6,12 @@ import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
+import ProjectForJob.example.Job.repositories.OrderRepository;
+import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -39,6 +42,7 @@ public class OrderController {
     private final CompanyRepository companyRepository;
     private final CouplingRepository couplingRepository;
     private final AdditionalWorkRepository additionalWorkRepository;
+    private final PipeAdapterService pipeAdapterService;
 
 
     // Страница "В ожидании"
@@ -111,11 +115,11 @@ public class OrderController {
     // Форма создания заказа
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        log.info("OrderController create GET orders");
         model.addAttribute("orderCreateDto", new OrderCreateDto());
         model.addAttribute("companies", companyRepository.findAll());
-        model.addAttribute("couplings", couplingRepository.findAll());
+        model.addAttribute("couplings", couplingRepository.findAll()); // если нужно
         model.addAttribute("additionalWorks", additionalWorkRepository.findAll());
+        model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
         return "orders/create";
     }
 
@@ -172,27 +176,34 @@ public class OrderController {
     // Форма редактирования заказа
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
-        log.info("OrderController showEditForm GET order with id={}", id);
         OrderDto order = orderService.getOrderById(id);
-        OrderUpdateDto updateDto = new OrderUpdateDto();
-
-        updateDto.setCompanyName(order.getCompanyName());
-        updateDto.setCouplingId(order.getCouplingId());
-        updateDto.setQuantity(order.getQuantity());
-        updateDto.setDeadline(order.getDeadline());
-        updateDto.setAdditionalWorkIds(order.getAdditionalWorkIds());
-
-        // Дополнительно передаём текущий тип муфты и её условный диаметр для JavaScript
-        CouplingEntity coupling = couplingRepository.findById(order.getCouplingId()).orElse(null);
-        model.addAttribute("currentCouplingType", coupling != null ? coupling.getType() : "");
-        model.addAttribute("currentCouplingDiameter", coupling != null ? coupling.getConditionalDiameter() : "");
-        model.addAttribute("currentCouplingId", order.getCouplingId());
+        OrderUpdateDto dto = new OrderUpdateDto();
+        dto.setCompanyName(order.getCompanyName());
+        dto.setProductType(order.getProductType());
+        if ("COUPLING".equals(order.getProductType())) {
+            dto.setCouplingId(order.getProductId());
+        } else {
+            dto.setAdapterId(order.getProductId());
+        }
+        dto.setQuantity(order.getQuantity());
+        dto.setDeadline(order.getDeadline());
+        dto.setAdditionalWorkIds(order.getAdditionalWorkIds());
 
         model.addAttribute("order", order);
-        model.addAttribute("orderUpdateDto", updateDto);
+        model.addAttribute("orderUpdateDto", dto);
         model.addAttribute("companies", companyRepository.findAll());
-        model.addAttribute("couplings", couplingRepository.findAll());
         model.addAttribute("additionalWorks", additionalWorkRepository.findAll());
+        model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
+        // Для муфт можно передать текущий тип и диаметр для JS
+        if ("COUPLING".equals(order.getProductType())) {
+            CouplingEntity coupling = couplingRepository.findById(order.getProductId()).orElse(null);
+            model.addAttribute("currentCouplingType", coupling != null ? coupling.getType() : "");
+            model.addAttribute("currentCouplingDiameter", coupling != null ? coupling.getConditionalDiameter() : "");
+        } else {
+            PipeAdapterEntity adapter = pipeAdapterService.findById(order.getProductId());
+            model.addAttribute("currentAdapterFirstSideType", adapter.getFirstSideType());
+            model.addAttribute("currentAdapterId", adapter.getId());
+        }
         return "orders/edit";
     }
 
@@ -262,6 +273,26 @@ public class OrderController {
                     Map<String, Object> map = new HashMap<>();
                     map.put("id", c.getId());
                     map.put("diameter", c.getConditionalDiameter()); // условный диаметр
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/adapters/first-side-types")
+    @ResponseBody
+    public List<String> getAdapterFirstSideTypes() {
+        return pipeAdapterService.findAllDistinctFirstSideTypes();
+    }
+
+    @GetMapping("/api/adapters/by-first-side-type")
+    @ResponseBody
+    public List<Map<String, Object>> getAdaptersByFirstSideType(@RequestParam String type) {
+        List<PipeAdapterEntity> adapters = pipeAdapterService.findByFirstSideType(type);
+        return adapters.stream()
+                .map(a -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", a.getId());
+                    map.put("fullName", a.getFullName());
                     return map;
                 })
                 .collect(Collectors.toList());

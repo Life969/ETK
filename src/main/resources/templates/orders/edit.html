@@ -38,23 +38,55 @@
             <div th:if="${#fields.hasErrors('companyName')}" class="text-danger" th:errors="*{companyName}"></div>
         </div>
 
-        <!-- Продукция -->
+        <!-- Тип продукции (радиокнопки) -->
         <div class="mb-3">
-            <label class="form-label">Тип муфты</label>
-            <select id="typeSelect" class="form-select" required>
-                <option value="">-- Выберите тип --</option>
-            </select>
+            <label class="form-label d-block">Тип продукции *</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="productType" id="typeCoupling" value="COUPLING"
+                       th:checked="${orderUpdateDto.productType == 'COUPLING'}" required>
+                <label class="form-check-label" for="typeCoupling">Муфта</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="productType" id="typeAdapter" value="ADAPTER"
+                       th:checked="${orderUpdateDto.productType == 'ADAPTER'}">
+                <label class="form-check-label" for="typeAdapter">Переводник</label>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Условный диаметр</label>
-            <select id="diameterSelect" class="form-select" required disabled>
-                <option value="">-- Сначала выберите тип --</option>
-            </select>
-            <div th:if="${#fields.hasErrors('couplingId')}" class="text-danger" th:errors="*{couplingId}"></div>
+        <!-- Блок муфты -->
+        <div id="couplingBlock" style="display: none;">
+            <div class="mb-3">
+                <label class="form-label">Тип муфты</label>
+                <select id="couplingTypeSelect" class="form-select">
+                    <option value="">-- Выберите тип --</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Условный диаметр</label>
+                <select id="couplingDiameterSelect" class="form-select" disabled>
+                    <option value="">-- Сначала выберите тип --</option>
+                </select>
+            </div>
+            <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden" />
         </div>
 
-        <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden" />
+        <!-- Блок переводника -->
+        <div id="adapterBlock" style="display: none;">
+            <div class="mb-3">
+                <label class="form-label">Тип первой стороны</label>
+                <select id="adapterTypeSelect" class="form-select">
+                    <option value="">-- Выберите тип --</option>
+                    <option th:each="type : ${adapterFirstSideTypes}" th:value="${type}" th:text="${type}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Переводник</label>
+                <select id="adapterSelect" class="form-select" disabled>
+                    <option value="">-- Сначала выберите тип --</option>
+                </select>
+            </div>
+            <input type="hidden" th:field="*{adapterId}" id="adapterIdHidden" />
+        </div>
 
         <!-- Количество -->
         <div class="mb-3">
@@ -91,73 +123,156 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Данные из модели
+    const initialProductType = /*[[${orderUpdateDto.productType}]]*/ '';
+    const initialCouplingId = /*[[${orderUpdateDto.couplingId}]]*/ null;
+    const initialAdapterId = /*[[${orderUpdateDto.adapterId}]]*/ null;
+    const currentCouplingType = /*[[${currentCouplingType}]]*/ '';
+    const currentCouplingDiameter = /*[[${currentCouplingDiameter}]]*/ '';
+    const currentAdapterFirstSideType = /*[[${currentAdapterFirstSideType}]]*/ '';
+    const adapterFirstSideTypes = /*[[${adapterFirstSideTypes}]]*/ [];
+    /*]]>*/
+</script>
 <script th:inline="javascript">
     /*<![CDATA[*/
     document.addEventListener('DOMContentLoaded', function() {
-        const typeSelect = document.getElementById('typeSelect');
-        const diameterSelect = document.getElementById('diameterSelect');
+        const radioCoupling = document.getElementById('typeCoupling');
+        const radioAdapter = document.getElementById('typeAdapter');
+        const couplingBlock = document.getElementById('couplingBlock');
+        const adapterBlock = document.getElementById('adapterBlock');
+
+        const couplingTypeSelect = document.getElementById('couplingTypeSelect');
+        const couplingDiameterSelect = document.getElementById('couplingDiameterSelect');
         const couplingIdHidden = document.getElementById('couplingIdHidden');
 
-        // Получаем текущие значения из атрибутов модели
-        const currentType = /*[[${currentCouplingType}]]*/ '';
-        const currentDiameter = /*[[${currentCouplingDiameter}]]*/ '';
-        const currentCouplingId = /*[[${currentCouplingId}]]*/ null;
+        const adapterTypeSelect = document.getElementById('adapterTypeSelect');
+        const adapterSelect = document.getElementById('adapterSelect');
+        const adapterIdHidden = document.getElementById('adapterIdHidden');
 
-        // Загружаем типы
-        fetch('/orders/api/couplings/types')
-            .then(response => response.json())
-            .then(types => {
-                types.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type;
-                    option.textContent = type;
-                    typeSelect.appendChild(option);
+        // Функция переключения блоков
+        function toggleProductBlocks() {
+            if (radioCoupling.checked) {
+                couplingBlock.style.display = 'block';
+                adapterBlock.style.display = 'none';
+                adapterIdHidden.value = '';
+            } else if (radioAdapter.checked) {
+                couplingBlock.style.display = 'none';
+                adapterBlock.style.display = 'block';
+                couplingIdHidden.value = '';
+            } else {
+                couplingBlock.style.display = 'none';
+                adapterBlock.style.display = 'none';
+            }
+        }
+
+        radioCoupling.addEventListener('change', toggleProductBlocks);
+        radioAdapter.addEventListener('change', toggleProductBlocks);
+        toggleProductBlocks();
+
+        // Загрузка типов муфт
+        function loadCouplingTypes(selectedType = null) {
+            return fetch('/orders/api/couplings/types')
+                .then(res => res.json())
+                .then(types => {
+                    couplingTypeSelect.innerHTML = '<option value="">-- Выберите тип --</option>';
+                    types.forEach(t => {
+                        const option = new Option(t, t);
+                        if (t === selectedType) option.selected = true;
+                        couplingTypeSelect.add(option);
+                    });
+                    if (selectedType) {
+                        couplingTypeSelect.dispatchEvent(new Event('change'));
+                    }
                 });
-                // После загрузки типов – устанавливаем текущий тип
-                if (currentType) {
-                    typeSelect.value = currentType;
-                    // Триггерим событие change, чтобы загрузить диаметры
-                    typeSelect.dispatchEvent(new Event('change'));
-                }
-            });
+        }
 
-        // Обработчик смены типа
-        typeSelect.addEventListener('change', function() {
-            const selectedType = this.value;
-            diameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
+        // При смене типа муфты загружаем диаметры
+        couplingTypeSelect.addEventListener('change', function() {
+            const type = this.value;
+            couplingDiameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
             couplingIdHidden.value = '';
-            if (!selectedType) {
-                diameterSelect.disabled = true;
+            if (!type) {
+                couplingDiameterSelect.disabled = true;
                 return;
             }
-            diameterSelect.disabled = false;
-            fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(selectedType)}`)
-                .then(response => response.json())
+            couplingDiameterSelect.disabled = false;
+            fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(type)}`)
+                .then(res => res.json())
                 .then(couplings => {
                     couplings.forEach(c => {
-                        const option = document.createElement('option');
-                        option.value = c.id;
-                        option.textContent = c.diameter;
-                        diameterSelect.appendChild(option);
+                        const option = new Option(c.diameter, c.id);
+                        couplingDiameterSelect.add(option);
                     });
-                    // После загрузки диаметров – устанавливаем текущий диаметр и couplingId
-                    if (currentCouplingId && currentDiameter) {
-                        // Ищем опцию с id = currentCouplingId
-                        for (let i = 0; i < diameterSelect.options.length; i++) {
-                            if (diameterSelect.options[i].value == currentCouplingId) {
-                                diameterSelect.value = currentCouplingId;
-                                couplingIdHidden.value = currentCouplingId;
-                                break;
-                            }
+                    // Если есть начальный couplingId, выбираем его
+                    if (initialCouplingId) {
+                        const optionToSelect = Array.from(couplingDiameterSelect.options)
+                            .find(opt => opt.value == initialCouplingId);
+                        if (optionToSelect) {
+                            optionToSelect.selected = true;
+                            couplingIdHidden.value = initialCouplingId;
                         }
                     }
                 });
         });
 
-        // При ручном выборе диаметра обновляем скрытое поле
-        diameterSelect.addEventListener('change', function() {
+        couplingDiameterSelect.addEventListener('change', function() {
             couplingIdHidden.value = this.value;
         });
+
+        // Для переводников
+        function loadAdaptersByFirstSideType(type, selectedAdapterId = null) {
+            if (!type) return;
+            return fetch(`/orders/api/adapters/by-first-side-type?type=${encodeURIComponent(type)}`)
+                .then(res => res.json())
+                .then(adapters => {
+                    adapterSelect.innerHTML = '<option value="">-- Выберите переводник --</option>';
+                    adapters.forEach(a => {
+                        const option = new Option(a.fullName, a.id);
+                        if (a.id == selectedAdapterId) option.selected = true;
+                        adapterSelect.add(option);
+                    });
+                    if (selectedAdapterId) {
+                        adapterIdHidden.value = selectedAdapterId;
+                    }
+                });
+        }
+
+        adapterTypeSelect.addEventListener('change', function() {
+            const type = this.value;
+            adapterSelect.innerHTML = '<option value="">-- Сначала выберите тип --</option>';
+            adapterIdHidden.value = '';
+            if (!type) {
+                adapterSelect.disabled = true;
+                return;
+            }
+            adapterSelect.disabled = false;
+            loadAdaptersByFirstSideType(type);
+        });
+
+        adapterSelect.addEventListener('change', function() {
+            adapterIdHidden.value = this.value;
+        });
+
+        // Инициализация в зависимости от начального типа продукта
+        if (initialProductType === 'COUPLING') {
+            radioCoupling.checked = true;
+            toggleProductBlocks();
+            // Загружаем типы муфт с выбором нужного типа
+            loadCouplingTypes(currentCouplingType).then(() => {
+                // После загрузки типов и вызова change, сработает загрузка диаметров,
+                // в которой мы выберем нужный couplingId (initialCouplingId)
+            });
+        } else if (initialProductType === 'ADAPTER') {
+            radioAdapter.checked = true;
+            toggleProductBlocks();
+            // Выбираем тип первой стороны
+            adapterTypeSelect.value = currentAdapterFirstSideType;
+            // Загружаем переводники и выбираем нужный
+            loadAdaptersByFirstSideType(currentAdapterFirstSideType, initialAdapterId);
+        }
     });
     /*]]>*/
 </script>

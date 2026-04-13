@@ -39,11 +39,19 @@
             </thead>
             <tbody>
             <tr th:each="order : ${orders}">
-                <td th:text="${order.coupling != null ? order.coupling.name : 'Не указано'}"></td>
+                <td>
+        <span th:if="${order.productType == 'COUPLING'}">
+            <i class="bi bi-box-seam"></i> Муфта:
+        </span>
+                    <span th:if="${order.productType == 'ADAPTER'}">
+            <i class="bi bi-arrow-left-right"></i> Переводник:
+        </span>
+                    <span th:text="${order.productName}">Название</span>
+                </td>
                 <td class="text-center" th:text="${order.quantity}"></td>
                 <td class="text-end">
-                    <span th:if="${order.quantity != null and order.quantity > 0 and order.totalCost != null}"
-                          th:text="${#numbers.formatDecimal(order.totalCost / order.quantity, 0, 'COMMA', 2, 'POINT')}"></span>
+        <span th:if="${order.quantity != null and order.quantity > 0 and order.totalCost != null}"
+              th:text="${#numbers.formatDecimal(order.totalCost / order.quantity, 0, 'COMMA', 2, 'POINT')}"></span>
                     <span th:unless="${order.quantity != null and order.quantity > 0 and order.totalCost != null}">—</span>
                 </td>
                 <td class="text-end">

@@ -41,9 +41,15 @@
                                class="text-decoration-none"
                                th:classappend="${order.urgencyClass.contains('danger') ? 'text-white' : ''}">
                             </a>
+                            <!-- бейдж типа продукции -->
+                            <span class="badge ms-2"
+                                  th:classappend="${order.productType == 'COUPLING'} ? 'bg-primary' : 'bg-info'"
+                                  th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'"></span>
                         </h5>
                         <p class="card-text">
-                            <strong>Продукция:</strong> <span th:text="${order.productName}"></span><br>
+                            <strong>Продукция:</strong>
+                            <i th:class="${order.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
+                            <span th:text="${order.productName}"></span><br>
                             <strong>Количество:</strong> <span th:text="${order.quantity}"></span><br>
                             <strong>Дней до дедлайна:</strong>
                             <span th:text="${order.daysUntilDeadline}"></span>

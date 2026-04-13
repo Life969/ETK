@@ -2,6 +2,7 @@ package ProjectForJob.example.Job.entityJob.ForOrders;
 
 import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -35,8 +36,12 @@ public class OrderEntity {
 
     // Продукция (муфта)
     @ManyToOne
-    @JoinColumn(name = "coupling_id", nullable = false)
+    @JoinColumn(name = "coupling_id")
     private CouplingEntity coupling;
+
+    @ManyToOne
+    @JoinColumn(name = "adapter_id")
+    private PipeAdapterEntity adapter;
 
     @Positive
     @Column(nullable = false)
@@ -64,4 +69,22 @@ public class OrderEntity {
     // Поле для хранения общей стоимости (можно вычислять, но лучше хранить для отчётов)
     @Column(name = "total_cost", precision = 12, scale = 2)
     private BigDecimal totalCost;
+
+    public String getProductName() {
+        if (coupling != null) return coupling.getName();
+        if (adapter != null) return adapter.getFullName();
+        return "";
+    }
+
+    public String getProductType() {
+        if (coupling != null) return "COUPLING";
+        if (adapter != null) return "ADAPTER";
+        return null;
+    }
+
+    public BigDecimal getUnitManufacturingCost() {
+        if (coupling != null) return coupling.getManufacturingCost();
+        if (adapter != null) return adapter.getManufacturingCost();
+        return BigDecimal.ZERO;
+    }
 }

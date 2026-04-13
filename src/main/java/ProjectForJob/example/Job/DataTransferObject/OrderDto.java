@@ -13,7 +13,9 @@ public class OrderDto {
     private Long id;
     private LocalDateTime createdAt;
     private String companyName;
+    private String productType;
     private String productName;
+    private Long productId;
     private Integer quantity;
     private LocalDate deadline;
     private List<String> additionalWorkNames;

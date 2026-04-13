@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
-    @EntityGraph(attributePaths = {"company", "coupling", "additionalWorks"})
+    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
     Page<OrderEntity> findByStatusOrderByCreatedAtDesc(OrderStatus status, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"company", "coupling", "additionalWorks"})
+    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
     Optional<OrderEntity> findById(Long id);
 
     @EntityGraph(attributePaths = {"coupling", "additionalWorks", "company"})
@@ -22,8 +22,8 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
     List<OrderEntity> findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus status);
 
-    @EntityGraph(attributePaths = {"company", "coupling", "additionalWorks"})
+    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
     Page<OrderEntity> findByStatusAndCompanyNameContainingIgnoreCaseOrderByCreatedAtDesc(
-            OrderStatus status, String companyName, Pageable pageable);
+            OrderStatus status, String companyName, Pageable pageable);;
 }
 

@@ -1,5 +1,7 @@
 package ProjectForJob.example.Job.services;
 
+
+
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
@@ -9,9 +11,11 @@ import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
 import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
+import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,95 +41,123 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Сервис заказов (OrderService)")
 class OrderServiceTest {
 
     @Mock private OrderRepository orderRepository;
     @Mock private CompanyRepository companyRepository;
     @Mock private CouplingRepository couplingRepository;
     @Mock private AdditionalWorkRepository additionalWorkRepository;
+    @Mock private PipeAdapterRepository pipeAdapterRepository;
 
-    @InjectMocks private OrderService orderService;
+    @InjectMocks
+    private OrderService orderService;
 
-    // ==================== ТЕСТОВЫЕ ДАННЫЕ ====================
+    // Общие константы
     private static final Long ORDER_ID = 1L;
     private static final Long COUPLING_ID = 100L;
-    private static final Long ADD_WORK_ID_1 = 200L;
-    private static final Long ADD_WORK_ID_2 = 201L;
-    private static final String COMPANY_NAME = "ООО Ромашка";
-    private static final String NEW_COMPANY_NAME = "Новая компания";
+    private static final Long ADAPTER_ID = 200L;
+    private static final String COMPANY_NAME = "ООО Рога и Копыта";
+    private static final String NEW_COMPANY_NAME = "ООО Новые Технологии";
     private static final int QUANTITY = 5;
-    private static final BigDecimal MANUFACTURING_COST = BigDecimal.valueOf(1000);
-    private static final BigDecimal ADD_WORK_PRICE_1 = BigDecimal.valueOf(150);
-    private static final BigDecimal ADD_WORK_PRICE_2 = BigDecimal.valueOf(250);
-    private static final LocalDate DEADLINE = LocalDate.now().plusDays(10);
+    private static final LocalDate DEADLINE = LocalDate.of(2025, 12, 31);
+    private static final BigDecimal MANUFACTURING_COST_COUPLING = BigDecimal.valueOf(1000);
+    private static final BigDecimal MANUFACTURING_COST_ADAPTER = BigDecimal.valueOf(1500);
+    private static final Long ADD_WORK_ID_1 = 10L;
+    private static final Long ADD_WORK_ID_2 = 11L;
+    private static final BigDecimal ADD_WORK_PRICE_1 = BigDecimal.valueOf(200);
+    private static final BigDecimal ADD_WORK_PRICE_2 = BigDecimal.valueOf(300);
+
+    // Вспомогательные методы создания объектов
+
+    private CompanyEntity createCompany(String name) {
+        return CompanyEntity.builder().id(1L).name(name).build();
+    }
+
+    private CompanyEntity createCompany(String name, Long id) {
+        return CompanyEntity.builder().id(id).name(name).build();
+    }
 
     private CouplingEntity createCoupling() {
         return CouplingEntity.builder()
                 .id(COUPLING_ID)
-                .type("Муфта А")
-                .manufacturingCost(MANUFACTURING_COST)
+                .type("Муфта обсадная")
+                .conditionalDiameter("146")
+                .manufacturingCost(MANUFACTURING_COST_COUPLING)
+                .priceForEmployee(BigDecimal.valueOf(500))
                 .build();
     }
 
-    private CompanyEntity createCompany(String name, Long id) {
-        return CompanyEntity.builder()
-                .id(id)
-                .name(name)
+    private PipeAdapterEntity createAdapter() {
+        return PipeAdapterEntity.builder()
+                .id(ADAPTER_ID)
+                .firstSideType("НКТ")
+                .firstSideDiameter("73")
+                .secondSideType("НКТ")
+                .secondSideDiameter("89")
+                .manufacturingCost(MANUFACTURING_COST_ADAPTER)
+                .priceForEmployee(BigDecimal.valueOf(600))
                 .build();
-    }
-
-    private CompanyEntity createCompany(String name) {
-        return createCompany(name, 1L);
     }
 
     private AdditionalWorkEntity createAddWork(Long id, String name, BigDecimal price) {
-        return AdditionalWorkEntity.builder()
-                .id(id)
-                .name(name)
-                .price(price)
-                .build();
+        return AdditionalWorkEntity.builder().id(id).name(name).price(price).build();
     }
 
     private OrderEntity createOrderEntity(OrderStatus status) {
+        CouplingEntity coupling = createCoupling();
         return OrderEntity.builder()
                 .id(ORDER_ID)
                 .createdAt(LocalDateTime.now())
                 .company(createCompany(COMPANY_NAME))
-                .coupling(createCoupling())
+                .coupling(coupling)
                 .quantity(QUANTITY)
                 .deadline(DEADLINE)
                 .status(status)
-                .additionalWorks(List.of(
-                        createAddWork(ADD_WORK_ID_1, "Покраска", ADD_WORK_PRICE_1),
-                        createAddWork(ADD_WORK_ID_2, "Упаковка", ADD_WORK_PRICE_2)
-                ))
-                .totalCost(calculateExpectedTotalCost())
+                .additionalWorks(List.of())
+                .totalCost(coupling.getManufacturingCost().multiply(BigDecimal.valueOf(QUANTITY)))
                 .build();
     }
 
-    private BigDecimal calculateExpectedTotalCost() {
-        BigDecimal addWorkSum = ADD_WORK_PRICE_1.add(ADD_WORK_PRICE_2);
-        return MANUFACTURING_COST.add(addWorkSum).multiply(BigDecimal.valueOf(QUANTITY));
-    }
-
-    private OrderCreateDto createOrderCreateDto(String companyName, Long couplingId, List<Long> addWorkIds) {
+    private OrderCreateDto createOrderCreateDto(String companyName, String productType, Long couplingId, Long adapterId, List<Long> addWorkIds) {
         OrderCreateDto dto = new OrderCreateDto();
         dto.setCompanyName(companyName);
+        dto.setProductType(productType);
         dto.setCouplingId(couplingId);
+        dto.setAdapterId(adapterId);
         dto.setQuantity(QUANTITY);
         dto.setDeadline(DEADLINE);
         dto.setAdditionalWorkIds(addWorkIds);
         return dto;
     }
+    private OrderEntity createOrderEntity(OrderStatus status, List<AdditionalWorkEntity> addWorks) {
+        CouplingEntity coupling = createCoupling();
+        return OrderEntity.builder()
+                .id(ORDER_ID)
+                .createdAt(LocalDateTime.now())
+                .company(createCompany(COMPANY_NAME))
+                .coupling(coupling)
+                .quantity(QUANTITY)
+                .deadline(DEADLINE)
+                .status(status)
+                .additionalWorks(addWorks != null ? addWorks : List.of())
+                .totalCost(calculateExpectedTotalCost(coupling.getManufacturingCost(), addWorks))
+                .build();
+    }
 
-    // ==================== ТЕСТЫ ====================
+
+    // для обратной совместимости со старыми тестами (только муфта)
+    private OrderCreateDto createOrderCreateDto(String companyName, Long couplingId, List<Long> addWorkIds) {
+        return createOrderCreateDto(companyName, "COUPLING", couplingId, null, addWorkIds);
+    }
+
+    // --- ТЕСТЫ ---
 
     @Test
-    @DisplayName("createOrder: компания существует, доп. работы есть → заказ создаётся с корректным расчётом")
+    @DisplayName("createOrder (COUPLING): компания существует, доп. работы есть → заказ создаётся с корректным расчётом")
     void createOrder_whenCompanyExistsAndAddWorks_shouldSaveAndReturnDto() {
         // given
-        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, COUPLING_ID, List.of(ADD_WORK_ID_1, ADD_WORK_ID_2));
+        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, "COUPLING", COUPLING_ID, null,
+                List.of(ADD_WORK_ID_1, ADD_WORK_ID_2));
         CompanyEntity existingCompany = createCompany(COMPANY_NAME);
         CouplingEntity coupling = createCoupling();
         List<AdditionalWorkEntity> addWorks = List.of(
@@ -137,7 +169,17 @@ class OrderServiceTest {
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(coupling));
         when(additionalWorkRepository.findAllById(List.of(ADD_WORK_ID_1, ADD_WORK_ID_2))).thenReturn(addWorks);
 
-        OrderEntity savedOrder = createOrderEntity(OrderStatus.WAITING);
+        OrderEntity savedOrder = OrderEntity.builder()
+                .id(ORDER_ID)
+                .createdAt(LocalDateTime.now())
+                .company(existingCompany)
+                .coupling(coupling)
+                .quantity(QUANTITY)
+                .deadline(DEADLINE)
+                .status(OrderStatus.WAITING)
+                .additionalWorks(addWorks)
+                .totalCost(calculateExpectedTotalCost(MANUFACTURING_COST_COUPLING, addWorks))
+                .build();
         when(orderRepository.save(any(OrderEntity.class))).thenReturn(savedOrder);
 
         // when
@@ -147,49 +189,91 @@ class OrderServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(ORDER_ID);
         assertThat(result.getCompanyName()).isEqualTo(COMPANY_NAME);
-        assertThat(result.getTotalCost()).isEqualByComparingTo(calculateExpectedTotalCost());
+        assertThat(result.getProductType()).isEqualTo("COUPLING");
+        assertThat(result.getTotalCost()).isEqualByComparingTo(calculateExpectedTotalCost(MANUFACTURING_COST_COUPLING, addWorks));
 
-        // Проверяем, что в сохраняемую сущность проставлены правильные поля
         ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
         verify(orderRepository).save(captor.capture());
         OrderEntity captured = captor.getValue();
 
         assertThat(captured.getCompany()).isSameAs(existingCompany);
         assertThat(captured.getCoupling()).isSameAs(coupling);
+        assertThat(captured.getAdapter()).isNull();
         assertThat(captured.getQuantity()).isEqualTo(QUANTITY);
         assertThat(captured.getDeadline()).isEqualTo(DEADLINE);
         assertThat(captured.getAdditionalWorks()).containsExactlyElementsOf(addWorks);
         assertThat(captured.getStatus()).isEqualTo(OrderStatus.WAITING);
         assertThat(captured.getCreatedAt()).isNotNull();
-        assertThat(captured.getTotalCost()).isEqualByComparingTo(calculateExpectedTotalCost());
+        assertThat(captured.getTotalCost()).isEqualByComparingTo(calculateExpectedTotalCost(MANUFACTURING_COST_COUPLING, addWorks));
 
         verify(companyRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("createOrder (ADAPTER): компания существует, доп. работы есть → заказ создаётся с корректным расчётом")
+    void createOrder_withAdapter_shouldSaveAndReturnDto() {
+        // given
+        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, "ADAPTER", null, ADAPTER_ID,
+                List.of(ADD_WORK_ID_1));
+        CompanyEntity existingCompany = createCompany(COMPANY_NAME);
+        PipeAdapterEntity adapter = createAdapter();
+        List<AdditionalWorkEntity> addWorks = List.of(createAddWork(ADD_WORK_ID_1, "Покраска", ADD_WORK_PRICE_1));
+
+        when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(existingCompany));
+        when(pipeAdapterRepository.findById(ADAPTER_ID)).thenReturn(Optional.of(adapter));
+        when(additionalWorkRepository.findAllById(List.of(ADD_WORK_ID_1))).thenReturn(addWorks);
+
+        OrderEntity savedOrder = OrderEntity.builder()
+                .id(ORDER_ID)
+                .createdAt(LocalDateTime.now())
+                .company(existingCompany)
+                .adapter(adapter)
+                .quantity(QUANTITY)
+                .deadline(DEADLINE)
+                .status(OrderStatus.WAITING)
+                .additionalWorks(addWorks)
+                .totalCost(calculateExpectedTotalCost(MANUFACTURING_COST_ADAPTER, addWorks))
+                .build();
+        when(orderRepository.save(any(OrderEntity.class))).thenReturn(savedOrder);
+
+        // when
+        OrderDto result = orderService.createOrder(dto);
+
+        // then
+        assertThat(result.getProductType()).isEqualTo("ADAPTER");
+        assertThat(result.getProductName()).isEqualTo(adapter.getFullName());
+        assertThat(result.getTotalCost()).isEqualByComparingTo(calculateExpectedTotalCost(MANUFACTURING_COST_ADAPTER, addWorks));
+
+        ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
+        verify(orderRepository).save(captor.capture());
+        OrderEntity captured = captor.getValue();
+
+        assertThat(captured.getCoupling()).isNull();
+        assertThat(captured.getAdapter()).isSameAs(adapter);
     }
 
     @Test
     @DisplayName("createOrder: компания не найдена → создаётся новая компания")
     void createOrder_whenCompanyNotFound_shouldCreateNewCompany() {
         // given
-        OrderCreateDto dto = createOrderCreateDto(NEW_COMPANY_NAME, COUPLING_ID, null);
+        OrderCreateDto dto = createOrderCreateDto(NEW_COMPANY_NAME, "COUPLING", COUPLING_ID, null, null);
         CouplingEntity coupling = createCoupling();
-        CompanyEntity newCompany = createCompany(NEW_COMPANY_NAME, 2L); // id=2, чтобы отличить
+        CompanyEntity newCompany = createCompany(NEW_COMPANY_NAME, 2L);
 
         when(companyRepository.findByNameIgnoreCase(NEW_COMPANY_NAME)).thenReturn(Optional.empty());
         when(companyRepository.save(any(CompanyEntity.class))).thenReturn(newCompany);
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(coupling));
 
-
-        // Создаём сущность заказа, которая будет возвращена после сохранения (с новой компанией)
         OrderEntity savedOrder = OrderEntity.builder()
                 .id(ORDER_ID)
                 .createdAt(LocalDateTime.now())
-                .company(newCompany)  // ← новая компания
+                .company(newCompany)
                 .coupling(coupling)
                 .quantity(QUANTITY)
                 .deadline(DEADLINE)
                 .status(OrderStatus.WAITING)
                 .additionalWorks(List.of())
-                .totalCost(MANUFACTURING_COST.multiply(BigDecimal.valueOf(QUANTITY)))
+                .totalCost(MANUFACTURING_COST_COUPLING.multiply(BigDecimal.valueOf(QUANTITY)))
                 .build();
         when(orderRepository.save(any(OrderEntity.class))).thenReturn(savedOrder);
 
@@ -206,34 +290,46 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("createOrder: продукция не найдена → исключение")
+    @DisplayName("createOrder: муфта не найдена → исключение")
     void createOrder_whenCouplingNotFound_shouldThrowException() {
         // given
-        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, 999L, null);
+        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, "COUPLING", 999L, null, null);
         when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(createCompany(COMPANY_NAME)));
         when(couplingRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // when/then
         assertThatThrownBy(() -> orderService.createOrder(dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Продукция не найдена");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Муфта не найдена");
 
         verify(orderRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("createOrder: дополнительные работы не указаны → список пустой, стоимость только за муфту")
+    @DisplayName("createOrder: переводник не найден → исключение")
+    void createOrder_whenAdapterNotFound_shouldThrowException() {
+        // given
+        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, "ADAPTER", null, 999L, null);
+        when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(createCompany(COMPANY_NAME)));
+        when(pipeAdapterRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> orderService.createOrder(dto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Переводник не найден");
+
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("createOrder: дополнительные работы не указаны → список пустой, стоимость только за продукцию")
     void createOrder_whenNoAdditionalWorks_shouldCalculateCostWithoutAddWorks() {
         // given
-        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, COUPLING_ID, null);
+        OrderCreateDto dto = createOrderCreateDto(COMPANY_NAME, "COUPLING", COUPLING_ID, null, null);
         CompanyEntity existingCompany = createCompany(COMPANY_NAME);
         CouplingEntity coupling = createCoupling();
 
         when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(existingCompany));
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(coupling));
 
-
-        // Сохраняемая сущность должна иметь пустой список доп. работ
         OrderEntity savedOrder = OrderEntity.builder()
                 .id(ORDER_ID)
                 .createdAt(LocalDateTime.now())
@@ -242,8 +338,8 @@ class OrderServiceTest {
                 .quantity(QUANTITY)
                 .deadline(DEADLINE)
                 .status(OrderStatus.WAITING)
-                .additionalWorks(List.of())   // ← явно пустой список, не null
-                .totalCost(MANUFACTURING_COST.multiply(BigDecimal.valueOf(QUANTITY)))
+                .additionalWorks(List.of())
+                .totalCost(MANUFACTURING_COST_COUPLING.multiply(BigDecimal.valueOf(QUANTITY)))
                 .build();
         when(orderRepository.save(any(OrderEntity.class))).thenReturn(savedOrder);
 
@@ -251,12 +347,56 @@ class OrderServiceTest {
         OrderDto result = orderService.createOrder(dto);
 
         // then
-        assertThat(result.getTotalCost()).isEqualByComparingTo(MANUFACTURING_COST.multiply(BigDecimal.valueOf(QUANTITY)));
+        assertThat(result.getTotalCost()).isEqualByComparingTo(MANUFACTURING_COST_COUPLING.multiply(BigDecimal.valueOf(QUANTITY)));
 
         ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
         verify(orderRepository).save(captor.capture());
         assertThat(captor.getValue().getAdditionalWorks()).isEmpty();
     }
+
+    @Test
+    @DisplayName("updateOrder: смена типа продукции с муфты на переводник")
+    void updateOrder_switchFromCouplingToAdapter_shouldUpdateProduct() {
+        // given
+        OrderEntity existingOrder = createOrderEntity(OrderStatus.WAITING); // имеет coupling
+        OrderUpdateDto updateDto = new OrderUpdateDto();
+        updateDto.setCompanyName(COMPANY_NAME);
+        updateDto.setProductType("ADAPTER");
+        updateDto.setAdapterId(ADAPTER_ID);
+        updateDto.setQuantity(QUANTITY);
+        updateDto.setDeadline(DEADLINE);
+        updateDto.setAdditionalWorkIds(null);
+
+        CompanyEntity company = createCompany(COMPANY_NAME);
+        PipeAdapterEntity adapter = createAdapter();
+
+        when(orderRepository.findById(ORDER_ID)).thenReturn(Optional.of(existingOrder));
+        when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(company));
+        when(pipeAdapterRepository.findById(ADAPTER_ID)).thenReturn(Optional.of(adapter));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // when
+        OrderDto result = orderService.updateOrder(ORDER_ID, updateDto);
+
+        // then
+        assertThat(result.getProductType()).isEqualTo("ADAPTER");
+        assertThat(result.getProductId()).isEqualTo(ADAPTER_ID);
+        assertThat(result.getProductName()).isEqualTo(adapter.getFullName());
+
+        assertThat(existingOrder.getCoupling()).isNull();
+        assertThat(existingOrder.getAdapter()).isSameAs(adapter);
+    }
+
+
+
+    // Вспомогательный расчёт
+    private BigDecimal calculateExpectedTotalCost(BigDecimal unitCost, List<AdditionalWorkEntity> addWorks) {
+        BigDecimal addPerUnit = addWorks.stream()
+                .map(AdditionalWorkEntity::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return unitCost.add(addPerUnit).multiply(BigDecimal.valueOf(QUANTITY));
+    }
+
 
     @Test
     @DisplayName("updateStatus: заказ найден → статус обновлён")
@@ -331,7 +471,11 @@ class OrderServiceTest {
     @DisplayName("getOrderById: заказ найден → возвращает DTO")
     void getOrderById_whenExists_shouldReturnDto() {
         // given
-        OrderEntity order = createOrderEntity(OrderStatus.WAITING);
+        List<AdditionalWorkEntity> addWorks = List.of(
+                createAddWork(ADD_WORK_ID_1, "Покраска", ADD_WORK_PRICE_1),
+                createAddWork(ADD_WORK_ID_2, "Упаковка", ADD_WORK_PRICE_2)
+        );
+        OrderEntity order = createOrderEntity(OrderStatus.WAITING, addWorks);
         when(orderRepository.findById(ORDER_ID)).thenReturn(Optional.of(order));
 
         // when
@@ -340,6 +484,8 @@ class OrderServiceTest {
         // then
         assertThat(result.getId()).isEqualTo(ORDER_ID);
         assertThat(result.getCompanyName()).isEqualTo(COMPANY_NAME);
+        assertThat(result.getProductType()).isEqualTo("COUPLING");
+        assertThat(result.getProductId()).isEqualTo(COUPLING_ID);
         assertThat(result.getAdditionalWorkIds()).containsExactly(ADD_WORK_ID_1, ADD_WORK_ID_2);
     }
 
@@ -356,7 +502,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("updateOrder: полное обновление всех полей с пересчётом стоимости")
+    @DisplayName("updateOrder: полное обновление всех полей с пересчётом стоимости (муфта)")
     void updateOrder_shouldUpdateAllFieldsAndRecalculateCost() {
         // given
         OrderEntity existingOrder = createOrderEntity(OrderStatus.WAITING);
@@ -368,6 +514,7 @@ class OrderServiceTest {
         List<Long> newAddWorkIds = List.of(ADD_WORK_ID_1);
 
         updateDto.setCompanyName(newCompanyName);
+        updateDto.setProductType("COUPLING");          // ← обязательно
         updateDto.setCouplingId(newCouplingId);
         updateDto.setQuantity(newQuantity);
         updateDto.setDeadline(newDeadline);
@@ -392,7 +539,8 @@ class OrderServiceTest {
 
         // then
         assertThat(result.getCompanyName()).isEqualTo(newCompanyName);
-        assertThat(result.getCouplingId()).isEqualTo(newCouplingId);
+        assertThat(result.getProductId()).isEqualTo(newCouplingId);     // ← productId вместо couplingId
+        assertThat(result.getProductType()).isEqualTo("COUPLING");
         assertThat(result.getQuantity()).isEqualTo(newQuantity);
         assertThat(result.getDeadline()).isEqualTo(newDeadline);
         assertThat(result.getAdditionalWorkIds()).containsExactly(ADD_WORK_ID_1);
@@ -403,6 +551,7 @@ class OrderServiceTest {
         // Проверяем, что сущность обновилась
         assertThat(existingOrder.getCompany()).isSameAs(newCompany);
         assertThat(existingOrder.getCoupling()).isSameAs(newCoupling);
+        assertThat(existingOrder.getAdapter()).isNull();
         assertThat(existingOrder.getQuantity()).isEqualTo(newQuantity);
         assertThat(existingOrder.getDeadline()).isEqualTo(newDeadline);
         assertThat(existingOrder.getAdditionalWorks()).containsExactly(addWork);
@@ -415,6 +564,7 @@ class OrderServiceTest {
         OrderEntity existingOrder = createOrderEntity(OrderStatus.WAITING);
         OrderUpdateDto updateDto = new OrderUpdateDto();
         updateDto.setCompanyName(NEW_COMPANY_NAME);
+        updateDto.setProductType("COUPLING");           // ← обязательно
         updateDto.setCouplingId(COUPLING_ID);
         updateDto.setQuantity(QUANTITY);
         updateDto.setDeadline(DEADLINE);
@@ -433,6 +583,8 @@ class OrderServiceTest {
 
         // then
         assertThat(result.getCompanyName()).isEqualTo(NEW_COMPANY_NAME);
+        assertThat(result.getProductType()).isEqualTo("COUPLING");
+        assertThat(result.getProductId()).isEqualTo(COUPLING_ID);
         verify(companyRepository).save(any(CompanyEntity.class));
     }
 

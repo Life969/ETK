@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="20260412-1" author="system">
+        <comment>Add adapter_id to orders, make coupling_id nullable</comment>
+        <dropNotNullConstraint tableName="orders" columnName="coupling_id" columnDataType="BIGINT"/>
+        <addColumn tableName="orders">
+            <column name="adapter_id" type="BIGINT">
+                <constraints foreignKeyName="fk_orders_adapter"
+                             references="pipe_adapters_data(id)"/>
+            </column>
+        </addColumn>
+        <sql>
+            ALTER TABLE orders ADD CONSTRAINT check_product_xor
+                CHECK ( (coupling_id IS NOT NULL AND adapter_id IS NULL) OR
+                        (coupling_id IS NULL AND adapter_id IS NOT NULL) );
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

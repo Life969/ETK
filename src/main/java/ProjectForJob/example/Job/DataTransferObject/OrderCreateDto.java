@@ -12,8 +12,11 @@ public class OrderCreateDto {
     private String companyName;
 
 
-    @NotNull(message = "Выберите продукцию")
+    @NotNull(message = "Выберите тип продукции")
+    private String productType; // "COUPLING" или "ADAPTER"
+
     private Long couplingId;
+    private Long adapterId;
 
     @NotNull(message = "Количество обязательно")
     @Positive(message = "Количество должно быть больше 0")
@@ -23,4 +26,14 @@ public class OrderCreateDto {
     private LocalDate deadline; // необязательное
 
     private List<Long> additionalWorkIds; // id выбранных доп. работ
+
+    @AssertTrue(message = "Необходимо выбрать продукцию соответствующего типа")
+    public boolean isProductValid() {
+        if ("COUPLING".equals(productType)) {
+            return couplingId != null && adapterId == null;
+        } else if ("ADAPTER".equals(productType)) {
+            return adapterId != null && couplingId == null;
+        }
+        return false;
+    }
 }
