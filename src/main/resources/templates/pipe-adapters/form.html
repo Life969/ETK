@@ -88,8 +88,20 @@
 
         <!-- Фото (необязательное) -->
         <div class="mb-3">
-            <label for="imagePath" class="form-label">Фото (путь к файлу):</label>
-            <input type="text" id="imagePath" th:field="*{imagePath}" class="form-control" placeholder="Необязательно"/>
+            <label for="imageFileInput" class="form-label">Фото переводника (jpg, png, gif):</label>
+            <input type="file" id="imageFileInput" class="form-control" accept="image/jpeg,image/png,image/gif" />
+            <small class="form-text text-muted">Поддерживаются изображения до 5 МБ.</small>
+
+            <!-- Скрытое поле, в которое JS положит base64 -->
+            <input type="hidden" id="imageBase64" name="imageBase64" />
+
+            <!-- Превью текущего фото (если есть) -->
+            <div th:if="${pipeAdapter.imagePath != null and !pipeAdapter.imagePath.isEmpty()}">
+                <div class="image-container">
+                    <img th:src="@{${pipeAdapter.imagePath}}" alt="Текущее фото" style="max-width: 200px;">
+                </div>
+                <p class="text-muted mt-1">Текущее фото. Загрузите новое, чтобы заменить.</p>
+            </div>
         </div>
 
         <!-- Стандарт -->
@@ -109,5 +121,24 @@
     </form>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById('imageFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Файл слишком большой. Максимальный размер 5 МБ.');
+            e.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('imageBase64').value = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
 </body>
 </html>
