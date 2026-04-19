@@ -358,3 +358,65 @@ a:not(.btn):hover {
     letter-spacing: 1px;
     text-shadow: 0 0 3px rgba(0,0,0,0.5);
 }
+
+/* Стилизованный прямоугольник для названия продукции */
+.product-name-wrapper {
+    display: inline-block;
+    background: #2a1a0a;
+    border: 1px solid #c69b6d;
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+}
+
+.product-name-wrapper:hover {
+    background: #3a2a1a;
+    border-color: #e6cc80;
+    cursor: pointer;
+}
+
+/* Чтобы тултип не конфликтовал с обёрткой */
+.product-tooltip {
+    display: inline-block;
+    color: #f0e6d0;
+    text-decoration: none;
+}
+
+.product-tooltip:hover {
+    text-decoration: underline;
+    color: #ffd966;
+}
+.product-name-wrapper {
+    display: inline-block;
+    background: #2a1a0a;
+    border: 1px solid #c69b6d;
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+}
+
+.product-name-wrapper:hover {
+    background: #3a2a1a;
+    border-color: #e6cc80;
+    cursor: pointer;
+}
+
+/* Текст внутри обёртки */
+.product-name-wrapper .product-tooltip {
+    display: inline-block;
+    color: #f0e6d0 !important;
+    text-decoration: none !important;
+    font-size: inherit;
+}
+
+.product-name-wrapper .product-tooltip:hover {
+    text-decoration: underline !important;
+    color: #ffd966 !important;
+}
+
+/* Дополнительная страховка для таблицы, чтобы не было подчёркивания по умолчанию */
+.table .product-tooltip {
+    text-decoration: none !important;
+}

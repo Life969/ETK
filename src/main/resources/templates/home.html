@@ -24,7 +24,6 @@
     <div class="row mt-5">
         <div class="col-12">
             <h2>Срочные заказы в производстве</h2>
-
         </div>
 
         <div th:if="${urgentOrders.isEmpty()}" class="col-12">
@@ -32,27 +31,64 @@
         </div>
 
         <div th:unless="${urgentOrders.isEmpty()}" class="row">
-            <div th:each="order : ${urgentOrders}" class="col-md-6 col-lg-3 mb-4">
-                <div class="card h-100 shadow-sm" th:classappend="${order.urgencyClass}">
+            <div th:each="item : ${ordersWithProducts}" class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 shadow-sm" th:classappend="${item.order.urgencyClass}">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <a th:href="@{/orders/{id}(id=${order.id})}"
-                               th:text="${order.companyName}"
+                            <a th:href="@{/orders/{id}(id=${item.order.id})}"
+                               th:text="${item.order.companyName}"
                                class="text-decoration-none"
-                               th:classappend="${order.urgencyClass.contains('danger') ? 'text-white' : ''}">
+                               th:classappend="${item.order.urgencyClass.contains('danger') ? 'text-white' : ''}">
                             </a>
-                            <!-- бейдж типа продукции -->
                             <span class="badge ms-2"
-                                  th:classappend="${order.productType == 'COUPLING'} ? 'bg-primary' : 'bg-info'"
-                                  th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'"></span>
+                                  th:classappend="${item.productType == 'COUPLING'} ? 'bg-primary' : 'bg-info'"
+                                  th:text="${item.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'"></span>
                         </h5>
                         <p class="card-text">
                             <strong>Продукция:</strong>
-                            <i th:class="${order.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
-                            <span th:text="${order.productName}"></span><br>
-                            <strong>Количество:</strong> <span th:text="${order.quantity}"></span><br>
+                            <i th:class="${item.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
+                            <!-- Название продукции с тултипом и стилизованной рамкой -->
+                            <span th:if="${item.product != null and item.productType == 'COUPLING'}"
+                                  class="product-name-wrapper">
+                            <span class="product-tooltip"
+                                  th:attr="data-id=${item.product.id},
+                                           data-name=${item.product.name},
+                                           data-type=${item.product.type},
+                                           data-diameter=${item.product.conditionalDiameter},
+                                           data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                                           data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                                           data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                                           data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                                           data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                           data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                           data-description=${item.product.description != null ? item.product.description : ''},
+                                           data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                                  th:text="${item.product.name}">Название муфты</span>
+                        </span>
+                            <span th:if="${item.product != null and item.productType == 'ADAPTER'}"
+                                  class="product-name-wrapper">
+                            <span class="product-tooltip"
+                                  th:attr="data-id=${item.product.id},
+                                           data-name=${item.product.fullName},
+                                           data-first-type=${item.product.firstSideType},
+                                           data-first-diameter=${item.product.firstSideDiameter},
+                                           data-second-type=${item.product.secondSideType},
+                                           data-second-diameter=${item.product.secondSideDiameter},
+                                           data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                                           data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                                           data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                                           data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                                           data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                           data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                           data-description=${item.product.description != null ? item.product.description : ''},
+                                           data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                                  th:text="${item.product.fullName}">Название переводника</span>
+                        </span>
+                            <span th:if="${item.product == null}" th:text="${item.order.productName}"></span>
+                            <br>
+                            <strong>Количество:</strong> <span th:text="${item.order.quantity}"></span><br>
                             <strong>Дней до дедлайна:</strong>
-                            <span th:text="${order.daysUntilDeadline}"></span>
+                            <span th:text="${item.order.daysUntilDeadline}"></span>
                         </p>
                     </div>
                 </div>
@@ -68,8 +104,8 @@
     <div class="row mt-5">
         <div class="col-12">
             <h2>Последние записи в журнале производства</h2>
-            <div th:if="${lastRecords.empty}" class="alert alert-info">Записей пока нет.</div>
-            <div th:unless="${lastRecords.empty}">
+            <div th:if="${recordsWithProducts.isEmpty()}" class="alert alert-info">Записей пока нет.</div>
+            <div th:unless="${recordsWithProducts.isEmpty()}">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -83,20 +119,56 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="record : ${lastRecords}">
-                            <td>
-                                <span th:if="${record.productType == 'COUPLING'}">
-                                    <i class="bi bi-box-seam"></i> Муфта
-                                </span>
-                                <span th:if="${record.productType == 'ADAPTER'}">
-                                    <i class="bi bi-arrow-left-right"></i> Переводник
-                                </span>
+                        <tr th:each="item : ${recordsWithProducts}">
+                            <td th:with="record=${item.record}">
+                            <span th:if="${item.productType == 'COUPLING'}">
+                                <i class="bi bi-box-seam"></i> Муфта
+                            </span>
+                                <span th:if="${item.productType == 'ADAPTER'}">
+                                <i class="bi bi-arrow-left-right"></i> Переводник
+                            </span>
                             </td>
-                            <td th:text="${record.productName}">НКТ 73</td>
-                            <td th:text="${record.quantity}">10</td>
-                            <td th:text="${record.employee.name}">Иванов</td>
-                            <td th:text="${record.machine.name}">Станок</td>
-                            <td th:text="${#temporals.format(record.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2026 12:00</td>
+                            <td>
+                                <span th:if="${item.product != null and item.productType == 'COUPLING'}" class="product-name-wrapper">
+                                    <span class="product-tooltip"
+                                          th:attr="data-id=${item.product.id},
+                                                   data-name=${item.product.name},
+                                                   data-type=${item.product.type},
+                                                   data-diameter=${item.product.conditionalDiameter},
+                                                   data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                                                   data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                                                   data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                                                   data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                                                   data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                                   data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                                   data-description=${item.product.description != null ? item.product.description : ''},
+                                                   data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                                          th:text="${item.product.name}">Название муфты</span>
+                                </span>
+                                                            <span th:if="${item.product != null and item.productType == 'ADAPTER'}" class="product-name-wrapper">
+                                    <span class="product-tooltip"
+                                          th:attr="data-id=${item.product.id},
+                                                   data-name=${item.product.fullName},
+                                                   data-first-type=${item.product.firstSideType},
+                                                   data-first-diameter=${item.product.firstSideDiameter},
+                                                   data-second-type=${item.product.secondSideType},
+                                                   data-second-diameter=${item.product.secondSideDiameter},
+                                                   data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                                                   data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                                                   data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                                                   data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                                                   data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                                   data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                                   data-description=${item.product.description != null ? item.product.description : ''},
+                                                   data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                                          th:text="${item.product.fullName}">Название переводника</span>
+                                </span>
+                                                            <span th:if="${item.product == null}" th:text="${item.record.productName}"></span>
+                            </td>
+                            <td th:text="${item.record.quantity}">10</td>
+                            <td th:text="${item.record.employee.name}">Иванов</td>
+                            <td th:text="${item.record.machine.name}">Станок</td>
+                            <td th:text="${#temporals.format(item.record.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2026 12:00</td>
                         </tr>
                         </tbody>
                     </table>
@@ -133,5 +205,157 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Контейнер тултипа (один на всю страницу)
+    const tooltip = document.createElement('div');
+    tooltip.className = 'wow-tooltip';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function getValue(value, defaultValue = '—') {
+        if (value === undefined || value === null || value === '') return defaultValue;
+        return value;
+    }
+
+    function updateTooltipContent(element, isCoupling) {
+        if (isCoupling) {
+            const name = element.dataset.name || 'Без названия';
+            const type = element.dataset.type || '';
+            const diameter = element.dataset.diameter || '';
+            const length = getValue(element.dataset.length);
+            const weight = getValue(element.dataset.weight);
+            const outerD = getValue(element.dataset.outerDiameter);
+            const innerD = getValue(element.dataset.innerDiameter);
+            const cost = getValue(element.dataset.cost);
+            const price = getValue(element.dataset.price);
+            let description = element.dataset.description || '';
+            const imagePath = element.dataset.image;
+
+            if (description.length > 200) description = description.substring(0, 200) + '...';
+
+            let imageHtml = '';
+            if (imagePath && imagePath !== '') {
+                let imgUrl = imagePath;
+                if (!imgUrl.startsWith('/') && !imgUrl.startsWith('http')) {
+                    imgUrl = '/uploads/couplings/' + imgUrl;
+                }
+                imageHtml = `<div class="tooltip-image"><img src="${escapeHtml(imgUrl)}" alt="icon" onerror="this.style.display='none'"></div>`;
+            } else {
+                imageHtml = `<div class="tooltip-image"><i class="bi bi-cup-straw" style="font-size:24px; color:#c69b6d;"></i></div>`;
+            }
+
+            const typeLine = (type && diameter) ? `${escapeHtml(type)} ${escapeHtml(diameter)}` : 'Муфта';
+
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    ${imageHtml}
+                    <div class="tooltip-title">
+                        <div class="item-name quality4">${escapeHtml(name)}</div>
+                        <div class="item-type">${escapeHtml(typeLine)}</div>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
+                    <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
+                    <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
+                    <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
+                </div>
+                <div class="prices">
+                    <div class="price-row"><span>Цена изготовления:</span><span class="coin"><i class="coin-icon"></i> ${cost} руб</span></div>
+                    <div class="price-row"><span>Цена для работника:</span><span class="coin"><i class="coin-icon"></i> ${price} руб</span></div>
+                </div>
+                ${description ? `<div class="description">📜 ${escapeHtml(description)}</div>` : ''}
+            `;
+        } else {
+            // Переводник
+            const name = element.dataset.name || 'Без названия';
+            const length = getValue(element.dataset.length);
+            const weight = getValue(element.dataset.weight);
+            const outerD = getValue(element.dataset.outerDiameter);
+            const innerD = getValue(element.dataset.innerDiameter);
+            const cost = getValue(element.dataset.cost);
+            const price = getValue(element.dataset.price);
+            let description = element.dataset.description || '';
+            const imagePath = element.dataset.image;
+
+            if (description.length > 200) description = description.substring(0, 200) + '...';
+
+            let imageHtml = '';
+            if (imagePath && imagePath !== '') {
+                let imgUrl = imagePath;
+                if (!imgUrl.startsWith('/') && !imgUrl.startsWith('http')) {
+                    imgUrl = '/uploads/adapters/' + imgUrl;
+                }
+                imageHtml = `<div class="tooltip-image"><img src="${escapeHtml(imgUrl)}" alt="icon" onerror="this.style.display='none'"></div>`;
+            } else {
+                imageHtml = `<div class="tooltip-image"><i class="bi bi-cup-straw" style="font-size:24px; color:#c69b6d;"></i></div>`;
+            }
+
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    ${imageHtml}
+                    <div class="tooltip-title">
+                        <div class="item-name quality5">${escapeHtml(name)}</div>
+                        <div class="item-type">Переводник</div>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
+                    <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
+                    <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
+                    <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
+                </div>
+                <div class="prices">
+                    <div class="price-row"><span>Цена изготовления:</span><span class="coin"><i class="coin-icon"></i> ${cost} руб</span></div>
+                    <div class="price-row"><span>Цена для работника:</span><span class="coin"><i class="coin-icon"></i> ${price} руб</span></div>
+                </div>
+                ${description ? `<div class="description">📜 ${escapeHtml(description)}</div>` : ''}
+            `;
+        }
+    }
+
+    function positionTooltip(event) {
+        let x = event.clientX + 15;
+        let y = event.clientY + 15;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+
+        const rect = tooltip.getBoundingClientRect();
+        if (x + rect.width > window.innerWidth) {
+            tooltip.style.left = (event.clientX - rect.width - 10) + 'px';
+        }
+        if (y + rect.height > window.innerHeight) {
+            tooltip.style.top = (event.clientY - rect.height - 10) + 'px';
+        }
+    }
+
+    function bindProductTooltips() {
+        const elements = document.querySelectorAll('.product-tooltip');
+        elements.forEach(el => {
+            const isCoupling = !el.hasAttribute('data-first-type');
+            el.addEventListener('mouseenter', (event) => {
+                updateTooltipContent(el, isCoupling);
+                tooltip.style.display = 'block';
+                positionTooltip(event);
+            });
+            el.addEventListener('mousemove', positionTooltip);
+            el.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', bindProductTooltips);
+</script>
 </body>
 </html>

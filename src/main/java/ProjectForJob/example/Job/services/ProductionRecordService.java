@@ -118,8 +118,6 @@ public class ProductionRecordService {
     }
 
     public List<ProductionRecordEntity> findLast5Records() {
-        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("createdAt").descending());
-        Page<ProductionRecordEntity> page = repository.findAll(pageRequest);
-        return page.getContent();
+        return repository.findTop5ByOrderByCreatedAtDesc();
     }
 }

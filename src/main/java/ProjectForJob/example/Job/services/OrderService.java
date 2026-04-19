@@ -191,6 +191,7 @@ public class OrderService {
             orders = orders.subList(0, limit);
         }
 
+
         LocalDate today = LocalDate.now();
 
         return orders.stream()
@@ -205,6 +206,15 @@ public class OrderService {
                     long days = ChronoUnit.DAYS.between(today, order.getDeadline());
                     dto.setDaysUntilDeadline(days);
 
+                    //это для выпадающего окна
+                    if (order.getCoupling() != null) {
+                        dto.setProductId(order.getCoupling().getId());
+                        dto.setProductType("COUPLING");
+                    } else if (order.getAdapter() != null) {
+                        dto.setProductId(order.getAdapter().getId());
+                        dto.setProductType("ADAPTER");
+                    }
+
                     // Определяем класс срочности
                     String urgencyClass;
                     if (days <= 3) {
@@ -214,10 +224,20 @@ public class OrderService {
                     } else {
                         urgencyClass = "bg-light";
                     }
+
                     dto.setUrgencyClass(urgencyClass);
 
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public List<OrderEntity> getUrgentProductionOrderEntities(int limit) {
+        List<OrderEntity> orders = orderRepository
+                .findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus.IN_PRODUCTION);
+        if (orders.size() > limit) {
+            orders = orders.subList(0, limit);
+        }
+        return orders;
     }
 }
