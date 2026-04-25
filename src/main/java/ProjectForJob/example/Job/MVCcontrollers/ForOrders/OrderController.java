@@ -152,9 +152,12 @@ public class OrderController {
     public String changeStatus(@PathVariable Long id,
                                @RequestParam OrderStatus newStatus,
                                @RequestParam(required = false) String returnTo) {
-        orderService.updateStatus(id, newStatus);
-        log.info("OrderController  change status with id={}", id);
-        // Возвращаемся на ту же страницу, откуда пришли (чтобы не терять контекст)
+        log.info("OrderController change status with id={}, newStatus={}", id, newStatus);
+        if (newStatus == OrderStatus.IN_PRODUCTION) {
+            orderService.startProduction(id, null);  // дедлайн не меняем
+        } else {
+            orderService.updateStatus(id, newStatus);
+        }
         if (returnTo != null && !returnTo.isEmpty()) {
             return "redirect:" + returnTo;
         }
@@ -228,28 +231,16 @@ public class OrderController {
     @ResponseBody
     public Map<String, Object> setDeadlineAndStartProduction(
             @PathVariable Long id,
-            @RequestParam("deadline") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate deadline,
-            HttpServletRequest request) {
+            @RequestParam("deadline")
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate deadline) {
         Map<String, Object> response = new HashMap<>();
         log.info("Called method setDeadlineAndStartProduction from order id={}", id);
         try {
-            OrderEntity order = orderService.getOrderEntityById(id);
-            if (order.getStatus() != OrderStatus.WAITING) {
-                response.put("success", false);
-                response.put("error", "Заказ уже не в статусе ожидания");
-                return response;
-            }
-            if (deadline == null) {
-                response.put("success", false);
-                response.put("error", "Дедлайн не указан");
-                return response;
-            }
-            // Устанавливаем дедлайн и меняем статус
-            order.setDeadline(deadline);
-            order.setStatus(OrderStatus.IN_PRODUCTION);
-            orderService.saveOrder(order); // добавить метод save в сервис
+            orderService.startProduction(id, deadline);
             response.put("success", true);
         } catch (Exception e) {
+            log.error("Ошибка при старте производства заказа {}", id, e);
             response.put("success", false);
             response.put("error", e.getMessage());
         }

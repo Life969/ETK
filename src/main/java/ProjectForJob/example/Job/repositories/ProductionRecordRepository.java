@@ -24,10 +24,6 @@ public interface ProductionRecordRepository extends JpaRepository<ProductionReco
     @EntityGraph("ProductionRecord.details")
     Page<ProductionRecordEntity> findAll(Specification<ProductionRecordEntity> spec, Pageable pageable);
 
-    @EntityGraph("ProductionRecord.details")
-    @Query("SELECT pr FROM ProductionRecordEntity pr ORDER BY pr.createdAt DESC")
-    List<ProductionRecordEntity> findLast5Records(Pageable pageable);
-
     @EntityGraph(attributePaths = {"employee", "machine", "coupling", "adapter"})
     List<ProductionRecordEntity> findTop5ByOrderByCreatedAtDesc();
 }

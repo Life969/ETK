@@ -3,8 +3,6 @@ package ProjectForJob.example.Job.MVCcontrollers;
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
-import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
-import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import ProjectForJob.example.Job.services.Handbook.CouplingService;
 import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.OrderService;
@@ -31,8 +29,6 @@ public class HomeController {
 
     private final ProductionRecordService productionRecordService;
     private final OrderService orderService;
-    private final CouplingService couplingService;
-    private final PipeAdapterService pipeAdapterService;
 
     @GetMapping({"/", "/home"})
     public String home(Model model, HttpServletRequest request) {
@@ -100,7 +96,7 @@ public class HomeController {
             dto.setUrgencyClass(urgencyClass);
             urgentOrders.add(dto);
 
-            // 2. Заполняем ordersWithProducts для Thymeleaf
+            // Заполняем ordersWithProducts для Thymeleaf
             Map<String, Object> item = new HashMap<>();
             item.put("order", dto);
             if ("COUPLING".equals(dto.getProductType()) && order.getCoupling() != null) {

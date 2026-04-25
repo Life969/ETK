@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -163,20 +162,13 @@ class ProductionRecordServiceTest {
     void findLast5Records_shouldReturnLast5Records() {
         // given
         List<ProductionRecordEntity> expectedContent = List.of(new ProductionRecordEntity(), new ProductionRecordEntity());
-        Page<ProductionRecordEntity> page = mock(Page.class);
-        when(page.getContent()).thenReturn(expectedContent);
-        when(repository.findAll(any(Pageable.class))).thenReturn(page);
+        when(repository.findTop5ByOrderByCreatedAtDesc()).thenReturn(expectedContent);
 
         // when
         List<ProductionRecordEntity> result = service.findLast5Records();
 
+        // then
         assertThat(result).isSameAs(expectedContent);
-
-        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-        verify(repository, only()).findAll(captor.capture());
-        Pageable captured = captor.getValue();
-        assertThat(captured.getPageNumber()).isEqualTo(0);
-        assertThat(captured.getPageSize()).isEqualTo(5);
-        assertThat(captured.getSort()).isEqualTo(Sort.by("createdAt").descending());
+        verify(repository, only()).findTop5ByOrderByCreatedAtDesc();
     }
 }

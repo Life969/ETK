@@ -5,6 +5,8 @@ import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
+import ProjectForJob.example.Job.DataTransferObject.kafkaDto.AdditionalWorkDto;
+import ProjectForJob.example.Job.DataTransferObject.kafkaDto.OrderStartedEvent;
 import ProjectForJob.example.Job.entityJob.ForOrders.CompanyEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
@@ -38,6 +40,7 @@ public class OrderService {
     private final CouplingRepository couplingRepository;
     private final AdditionalWorkRepository additionalWorkRepository;
     private final PipeAdapterRepository pipeAdapterRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     public OrderDto createOrder(OrderCreateDto dto) {
@@ -239,5 +242,75 @@ public class OrderService {
             orders = orders.subList(0, limit);
         }
         return orders;
+    }
+
+    @Transactional
+    public void startProduction(Long orderId, LocalDate deadline) {
+        OrderEntity order = getOrderEntityById(orderId);
+        if (order.getStatus() != OrderStatus.WAITING) {
+            throw new IllegalStateException("Заказ уже не в статусе ожидания");
+        }
+        if (deadline != null) {
+            order.setDeadline(deadline);
+        }
+        order.setStatus(OrderStatus.IN_PRODUCTION);
+        orderRepository.save(order);  // сохраняем сразу, чтобы событие отражало актуальное состояние
+
+        // Отправляем событие в Kafka
+        try {
+            OrderStartedEvent event = buildOrderStartedEvent(order);
+            kafkaProducerService.sendOrderStartedEvent(event);
+        } catch (Exception e) {
+            log.error("Не удалось отправить событие в Kafka для заказа {}", orderId, e);
+            // Ошибка отправки не должна откатывать транзакцию, заказ уже сохранён
+        }
+    }
+
+    private OrderStartedEvent buildOrderStartedEvent(OrderEntity order) {
+        // Собираем данные о продукте
+        String productType = order.getProductType();
+        String productName = order.getProductName();
+        String productDetails = "";
+        BigDecimal unitCost = BigDecimal.ZERO;
+        BigDecimal weightKg = BigDecimal.ZERO;
+        Double lengthMm = null;
+        String imagePath = null;
+
+        if ("COUPLING".equals(productType) && order.getCoupling() != null) {
+            CouplingEntity c = order.getCoupling();
+            productDetails = c.getType() + " " + c.getConditionalDiameter();
+            unitCost = c.getManufacturingCost();
+            weightKg = c.getWeightKg() != null ? BigDecimal.valueOf(c.getWeightKg()) : BigDecimal.ZERO;
+            lengthMm = c.getLengthMm();
+            imagePath = c.getImagePath();
+        } else if ("ADAPTER".equals(productType) && order.getAdapter() != null) {
+            PipeAdapterEntity a = order.getAdapter();
+            productDetails = a.getFullName();
+            unitCost = a.getManufacturingCost();
+            weightKg = a.getWeightKg() != null ? BigDecimal.valueOf(a.getWeightKg()) : BigDecimal.ZERO;
+            lengthMm = a.getLengthMm();
+            imagePath = a.getImagePath();
+        }
+
+        List<AdditionalWorkDto> works = order.getAdditionalWorks().stream()
+                .map(w -> new AdditionalWorkDto(w.getId(), w.getName(), w.getPrice()))
+                .collect(Collectors.toList());
+
+        return OrderStartedEvent.builder()
+                .orderId(order.getId())
+                .createdAt(order.getCreatedAt())
+                .companyName(order.getCompany().getName())
+                .productType(productType)
+                .productName(productName)
+                .productDetails(productDetails)
+                .unitManufacturingCost(unitCost)
+                .weightKg(weightKg)
+                .lengthMm(lengthMm)
+                .imagePath(imagePath)
+                .quantity(order.getQuantity())
+                .deadline(order.getDeadline())
+                .additionalWorks(works)
+                .totalCost(order.getTotalCost())
+                .build();
     }
 }

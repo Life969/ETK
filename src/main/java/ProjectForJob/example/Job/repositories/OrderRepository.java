@@ -25,18 +25,11 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @EntityGraph(attributePaths = {"company", "coupling", "adapter"})
     List<OrderEntity> findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus status);
 
-    @Query("SELECT o FROM OrderEntity o " +
-            "LEFT JOIN FETCH o.company " +
-            "LEFT JOIN FETCH o.coupling " +
-            "LEFT JOIN FETCH o.adapter " +
-            "WHERE o.status = :status AND o.deadline IS NOT NULL " +
-            "ORDER BY o.deadline")
-    List<OrderEntity> findUrgentOrdersWithDetails(@Param("status") OrderStatus status, Pageable pageable);
 
 
 
     @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
     Page<OrderEntity> findByStatusAndCompanyNameContainingIgnoreCaseOrderByCreatedAtDesc(
-            OrderStatus status, String companyName, Pageable pageable);;
+            OrderStatus status, String companyName, Pageable pageable);
 }
 

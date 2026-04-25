@@ -12,6 +12,50 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  # Новая БД для Production Service
+  postgres_production:
+    image: postgres:15
+    container_name: postgres_production
+    environment:
+      POSTGRES_DB: production_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: zpletk
+    ports:
+      - "5433:5432"   #  порт 5433, чтобы не конфликтовать
+    volumes:
+      - pg_production_data:/var/lib/postgresql/data
+
+    # Zookeeper (необходим для Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+    # Kafka брокер
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONTROLLER_LISTENER_NAMES: ""   # обязательно для версий 3.x+
+    restart: unless-stopped
+
+
+
   app:
     build: .
     container_name: my_spring_app
@@ -29,3 +73,4 @@ services:
 
 volumes:
   postgres_data:
+  pg_production_data:
