@@ -5,7 +5,6 @@ import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
-import ProjectForJob.example.Job.DataTransferObject.kafkaDto.AdditionalWorkDto;
 import ProjectForJob.example.Job.DataTransferObject.kafkaDto.OrderStartedEvent;
 import ProjectForJob.example.Job.entityJob.ForOrders.CompanyEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
@@ -18,6 +17,7 @@ import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
+import ProjectForJob.example.Job.services.mapping.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 @Slf4j
@@ -41,6 +40,7 @@ public class OrderService {
     private final AdditionalWorkRepository additionalWorkRepository;
     private final PipeAdapterRepository pipeAdapterRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final OrderMapper orderMapper;
 
     @Transactional
     public OrderDto createOrder(OrderCreateDto dto) {
@@ -70,7 +70,7 @@ public class OrderService {
         }
 
         order.setTotalCost(calculateTotalCost(order));
-        return mapToDto(orderRepository.save(order));
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     private BigDecimal calculateTotalCost(OrderEntity order) {
@@ -88,7 +88,7 @@ public class OrderService {
 
         // Можно добавить проверки допустимости перехода, но по заданию разрешено любое изменение
         order.setStatus(newStatus);
-        return mapToDto(orderRepository.save(order));
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     public Page<OrderDto> getOrdersByStatus(OrderStatus status, String search, Pageable pageable) {
@@ -99,37 +99,15 @@ public class OrderService {
         } else {
             page = orderRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
         }
-        return page.map(this::mapToDto);
+        return page.map(orderMapper::toDto);
     }
 
     public OrderDto getOrderById(Long id) {
         OrderEntity order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Заказ не найден"));
-        return mapToDto(order);
+        return orderMapper.toDto(order);
     }
 
-    private OrderDto mapToDto(OrderEntity order) {
-        OrderDto dto = new OrderDto();
-        dto.setId(order.getId());
-        dto.setCreatedAt(order.getCreatedAt());
-        dto.setCompanyName(order.getCompany().getName());
-        dto.setProductType(order.getProductType());
-        dto.setProductName(order.getProductName());
-        if (order.getCoupling() != null) {
-            dto.setProductId(order.getCoupling().getId());
-        } else if (order.getAdapter() != null) {
-            dto.setProductId(order.getAdapter().getId());
-        }
-        dto.setQuantity(order.getQuantity());
-        dto.setDeadline(order.getDeadline());
-        dto.setStatus(order.getStatus());
-        dto.setTotalCost(order.getTotalCost());
-        dto.setAdditionalWorkNames(order.getAdditionalWorks().stream()
-                .map(AdditionalWorkEntity::getName).collect(Collectors.toList()));
-        dto.setAdditionalWorkIds(order.getAdditionalWorks().stream()
-                .map(AdditionalWorkEntity::getId).collect(Collectors.toList()));
-        return dto;
-    }
 
     @Transactional
     public void deleteOrder(Long orderId) {
@@ -168,7 +146,7 @@ public class OrderService {
                 ? additionalWorkRepository.findAllById(dto.getAdditionalWorkIds()) : List.of());
         order.setTotalCost(calculateTotalCost(order));
 
-        return mapToDto(orderRepository.save(order));
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     public OrderEntity getOrderEntityById(Long id) {
@@ -189,49 +167,13 @@ public class OrderService {
         List<OrderEntity> orders = orderRepository
                 .findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus.IN_PRODUCTION);
 
-        // Ограничиваем количество
         if (orders.size() > limit) {
             orders = orders.subList(0, limit);
         }
-
-
         LocalDate today = LocalDate.now();
 
         return orders.stream()
-                .map(order -> {
-                    HomeOrderDto dto = new HomeOrderDto();
-                    dto.setId(order.getId());
-                    dto.setCompanyName(order.getCompany().getName());
-                    dto.setProductType(order.getProductType());
-                    dto.setProductName(order.getProductName());
-                    dto.setQuantity(order.getQuantity());
-
-                    long days = ChronoUnit.DAYS.between(today, order.getDeadline());
-                    dto.setDaysUntilDeadline(days);
-
-                    //это для выпадающего окна
-                    if (order.getCoupling() != null) {
-                        dto.setProductId(order.getCoupling().getId());
-                        dto.setProductType("COUPLING");
-                    } else if (order.getAdapter() != null) {
-                        dto.setProductId(order.getAdapter().getId());
-                        dto.setProductType("ADAPTER");
-                    }
-
-                    // Определяем класс срочности
-                    String urgencyClass;
-                    if (days <= 3) {
-                        urgencyClass = "bg-danger text-white";
-                    } else if (days <= 7) {
-                        urgencyClass = "bg-warning";
-                    } else {
-                        urgencyClass = "bg-light";
-                    }
-
-                    dto.setUrgencyClass(urgencyClass);
-
-                    return dto;
-                })
+                .map(order -> orderMapper.toHomeOrderDto(order, today))
                 .collect(Collectors.toList());
     }
 
@@ -254,63 +196,14 @@ public class OrderService {
             order.setDeadline(deadline);
         }
         order.setStatus(OrderStatus.IN_PRODUCTION);
-        orderRepository.save(order);  // сохраняем сразу, чтобы событие отражало актуальное состояние
+        orderRepository.save(order);
 
-        // Отправляем событие в Kafka
         try {
-            OrderStartedEvent event = buildOrderStartedEvent(order);
+            OrderStartedEvent event = orderMapper.toStartedEvent(order);  // было buildOrderStartedEvent
             kafkaProducerService.sendOrderStartedEvent(event);
         } catch (Exception e) {
             log.error("Не удалось отправить событие в Kafka для заказа {}", orderId, e);
-            // Ошибка отправки не должна откатывать транзакцию, заказ уже сохранён
         }
     }
 
-    private OrderStartedEvent buildOrderStartedEvent(OrderEntity order) {
-        // Собираем данные о продукте
-        String productType = order.getProductType();
-        String productName = order.getProductName();
-        String productDetails = "";
-        BigDecimal unitCost = BigDecimal.ZERO;
-        BigDecimal weightKg = BigDecimal.ZERO;
-        Double lengthMm = null;
-        String imagePath = null;
-
-        if ("COUPLING".equals(productType) && order.getCoupling() != null) {
-            CouplingEntity c = order.getCoupling();
-            productDetails = c.getType() + " " + c.getConditionalDiameter();
-            unitCost = c.getManufacturingCost();
-            weightKg = c.getWeightKg() != null ? BigDecimal.valueOf(c.getWeightKg()) : BigDecimal.ZERO;
-            lengthMm = c.getLengthMm();
-            imagePath = c.getImagePath();
-        } else if ("ADAPTER".equals(productType) && order.getAdapter() != null) {
-            PipeAdapterEntity a = order.getAdapter();
-            productDetails = a.getFullName();
-            unitCost = a.getManufacturingCost();
-            weightKg = a.getWeightKg() != null ? BigDecimal.valueOf(a.getWeightKg()) : BigDecimal.ZERO;
-            lengthMm = a.getLengthMm();
-            imagePath = a.getImagePath();
-        }
-
-        List<AdditionalWorkDto> works = order.getAdditionalWorks().stream()
-                .map(w -> new AdditionalWorkDto(w.getId(), w.getName(), w.getPrice()))
-                .collect(Collectors.toList());
-
-        return OrderStartedEvent.builder()
-                .orderId(order.getId())
-                .createdAt(order.getCreatedAt())
-                .companyName(order.getCompany().getName())
-                .productType(productType)
-                .productName(productName)
-                .productDetails(productDetails)
-                .unitManufacturingCost(unitCost)
-                .weightKg(weightKg)
-                .lengthMm(lengthMm)
-                .imagePath(imagePath)
-                .quantity(order.getQuantity())
-                .deadline(order.getDeadline())
-                .additionalWorks(works)
-                .totalCost(order.getTotalCost())
-                .build();
-    }
 }

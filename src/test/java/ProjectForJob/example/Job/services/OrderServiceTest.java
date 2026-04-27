@@ -1,7 +1,5 @@
 package ProjectForJob.example.Job.services;
 
-
-
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
@@ -17,11 +15,13 @@ import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
+import ProjectForJob.example.Job.services.mapping.OrderMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -48,9 +48,24 @@ class OrderServiceTest {
     @Mock private CouplingRepository couplingRepository;
     @Mock private AdditionalWorkRepository additionalWorkRepository;
     @Mock private PipeAdapterRepository pipeAdapterRepository;
+    @Mock private KafkaProducerService kafkaProducerService;
 
-    @InjectMocks
+    private final OrderMapper orderMapper = new OrderMapper();
+
+
     private OrderService orderService;
+    @BeforeEach
+    void setUp() {
+        orderService = new OrderService(
+                orderRepository,
+                companyRepository,
+                couplingRepository,
+                additionalWorkRepository,
+                pipeAdapterRepository,
+                kafkaProducerService,
+                orderMapper
+        );
+    }
 
     // Общие константы
     private static final Long ORDER_ID = 1L;
@@ -144,11 +159,6 @@ class OrderServiceTest {
                 .build();
     }
 
-
-    // для обратной совместимости со старыми тестами (только муфта)
-    private OrderCreateDto createOrderCreateDto(String companyName, Long couplingId, List<Long> addWorkIds) {
-        return createOrderCreateDto(companyName, "COUPLING", couplingId, null, addWorkIds);
-    }
 
     // --- ТЕСТЫ ---
 
