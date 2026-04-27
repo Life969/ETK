@@ -11,6 +11,9 @@ import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
+import ProjectForJob.example.Job.services.Handbook.AdditionalWorkService;
+import ProjectForJob.example.Job.services.Handbook.CompanyService;
+import ProjectForJob.example.Job.services.Handbook.CouplingService;
 import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,9 +42,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OrderController {
     private final OrderService orderService;
-    private final CompanyRepository companyRepository;
-    private final CouplingRepository couplingRepository;
-    private final AdditionalWorkRepository additionalWorkRepository;
+    private final CompanyService companyService;
+    private final CouplingService couplingService;
+    private final AdditionalWorkService additionalWorkService;
     private final PipeAdapterService pipeAdapterService;
 
 
@@ -116,9 +119,9 @@ public class OrderController {
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("orderCreateDto", new OrderCreateDto());
-        model.addAttribute("companies", companyRepository.findAll());
-        model.addAttribute("couplings", couplingRepository.findAll()); // если нужно
-        model.addAttribute("additionalWorks", additionalWorkRepository.findAll());
+        model.addAttribute("companies", companyService.findAll());
+        model.addAttribute("couplings", couplingService.findAll());
+        model.addAttribute("additionalWorks", additionalWorkService.findAll());
         model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
         return "orders/create";
     }
@@ -129,9 +132,9 @@ public class OrderController {
                               Model model) {
         log.info("OrderController create POST orders");
         if (result.hasErrors()) {
-            model.addAttribute("companies", companyRepository.findAll());
-            model.addAttribute("couplings", couplingRepository.findAll());
-            model.addAttribute("additionalWorks", additionalWorkRepository.findAll());
+            model.addAttribute("companies", companyService.findAll());
+            model.addAttribute("couplings", couplingService.findAll());
+            model.addAttribute("additionalWorks", additionalWorkService.findAll());
             return "orders/create";
         }
         orderService.createOrder(dto);
@@ -194,12 +197,12 @@ public class OrderController {
 
         model.addAttribute("order", order);
         model.addAttribute("orderUpdateDto", dto);
-        model.addAttribute("companies", companyRepository.findAll());
-        model.addAttribute("additionalWorks", additionalWorkRepository.findAll());
+        model.addAttribute("companies", companyService.findAll());
+        model.addAttribute("additionalWorks", additionalWorkService.findAll());
         model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
         // Для муфт можно передать текущий тип и диаметр для JS
         if ("COUPLING".equals(order.getProductType())) {
-            CouplingEntity coupling = couplingRepository.findById(order.getProductId()).orElse(null);
+            CouplingEntity coupling = couplingService.findById(order.getProductId());
             model.addAttribute("currentCouplingType", coupling != null ? coupling.getType() : "");
             model.addAttribute("currentCouplingDiameter", coupling != null ? coupling.getConditionalDiameter() : "");
         } else {
@@ -218,9 +221,9 @@ public class OrderController {
         log.info("OrderController update GET order with id={}", id);
         if (result.hasErrors()) {
             // при ошибке нужно снова загрузить справочники
-            model.addAttribute("companies", companyRepository.findAll());
-            model.addAttribute("couplings", couplingRepository.findAll());
-            model.addAttribute("additionalWorks", additionalWorkRepository.findAll());
+            model.addAttribute("companies", companyService.findAll());
+            model.addAttribute("couplings", couplingService.findAll());
+            model.addAttribute("additionalWorks", additionalWorkService.findAll());
             return "orders/edit";
         }
         orderService.updateOrder(id, dto);
@@ -251,14 +254,14 @@ public class OrderController {
     @ResponseBody
     public List<String> getCouplingTypes() {
         log.info("OrderController getCouplingTypes");
-        return couplingRepository.findAllDistinctTypes();
+        return couplingService.findAllDistinctTypes();
     }
 
     @GetMapping("/api/couplings/by-type")
     @ResponseBody
     public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
         log.info("OrderController getCouplingsByType GET order by type={}", type);
-        List<CouplingEntity> couplings = couplingRepository.findByType(type);
+        List<CouplingEntity> couplings = couplingService.findByType(type);
         return couplings.stream()
                 .map(c -> {
                     Map<String, Object> map = new HashMap<>();

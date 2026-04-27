@@ -2,18 +2,16 @@ package ProjectForJob.example.Job.services.Handbook;
 
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
-
+@RequiredArgsConstructor
 @Service
 public class CouplingService {
 
     private final CouplingRepository couplingRepository;
 
-    public CouplingService(CouplingRepository couplingRepository) {
-        this.couplingRepository = couplingRepository;
-    }
 
     public List<CouplingEntity> findAll() {
         return couplingRepository.findAll();
