@@ -26,8 +26,9 @@
                 <img src="/images/book.png" alt="Книга" style="width: 20px; height: 20px; margin-right: 6px;">
                 Переводники
             </a>
-             <a href="/" class="btn btn-primary">
-                <img src="/images/HS.png" alt="Камень возвращения" style="width: 20px; height: 20px; margin-right: 6px;">
+            <a href="/" class="btn btn-primary">
+                <img src="/images/HS.png" alt="Камень возвращения"
+                     style="width: 20px; height: 20px; margin-right: 6px;">
                 На главную
             </a>
         </div>
@@ -104,120 +105,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<script th:src="@{/js/tooltip.js}"></script>
 <script>
-    // Создаём один контейнер для тултипа (будет переиспользоваться)
-    const tooltip = document.createElement('div');
-    tooltip.className = 'wow-tooltip';
-    tooltip.style.display = 'none';
-    document.body.appendChild(tooltip);
-
-    // Функция для безопасной вставки HTML (чтобы XSS)
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    function getValue(value, defaultValue = '—') {
-        // если value undefined, null или пустая строка – вернём defaultValue
-        if (value === undefined || value === null || value === '') return defaultValue;
-        return value;
-    }
-    // Функция обновления содержимого тултипа из data-атрибутов строки
-    function updateTooltipContent(row) {
-        const name = row.dataset.name || 'Без названия';
-        const type = row.dataset.type || '';
-        const diameter = row.dataset.diameter || '';
-        const length = getValue(row.dataset.length);
-        const weight = getValue(row.dataset.weight);
-        const outerD = getValue(row.dataset.outerDiameter);
-        const innerD = getValue(row.dataset.innerDiameter);
-        const cost = getValue(row.dataset.cost);
-        const price = getValue(row.dataset.price);
-        let description = row.dataset.description || '';
-        const imagePath = row.dataset.image;
-
-        if (description.length > 200) description = description.substring(0, 200) + '...';
-
-        // Формируем иконку (если есть)
-        let imageHtml = '';
-        if (imagePath && imagePath !== '') {
-            let imgUrl = imagePath;
-            if (!imgUrl.startsWith('/') && !imgUrl.startsWith('http')) {
-                imgUrl = '/uploads/couplings/' + imgUrl; // путь из твоего контроллера
-            }
-            imageHtml = `<div class="tooltip-image"><img src="${escapeHtml(imgUrl)}" alt="icon" onerror="this.style.display='none'"></div>`;
-        } else {
-            imageHtml = `<div class="tooltip-image"><i class="bi bi-cup-straw" style="font-size:24px; color:#c69b6d;"></i></div>`;
-        }
-
-        const typeLine = 'Муфта';
-
-        tooltip.innerHTML = `
-        <div class="tooltip-header">
-            ${imageHtml}
-            <div class="tooltip-title">
-                <div class="item-name quality4">${escapeHtml(name)}</div>
-                <div class="item-type">${escapeHtml(typeLine)}</div>
-            </div>
-        </div>
-        <div class="stats">
-            <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
-            <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
-            <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
-            <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
-        </div>
-        <div class="prices">
-            <div class="price-row"><span>Цена изготовления:</span><span class="coin"><i class="coin-icon"></i> ${cost} руб</span></div>
-            <div class="price-row"><span>Цена для работника:</span><span class="coin"><i class="coin-icon"></i> ${price} руб</span></div>
-        </div>
-        ${description ? `<div class="description">📜 ${escapeHtml(description)}</div>` : ''}
-    `;
-    }
-
-    // Функция позиционирования тултипа относительно мыши
-    function positionTooltip(event) {
-        const x = event.clientX + 15;
-        const y = event.clientY + 15;
-        tooltip.style.left = x + 'px';
-        tooltip.style.top = y + 'px';
-
-        // Корректировка, чтобы не вылезал за правый край
-        const tooltipRect = tooltip.getBoundingClientRect();
-        if (x + tooltipRect.width > window.innerWidth) {
-            tooltip.style.left = (event.clientX - tooltipRect.width - 10) + 'px';
-        }
-        if (y + tooltipRect.height > window.innerHeight) {
-            tooltip.style.top = (event.clientY - tooltipRect.height - 10) + 'px';
-        }
-    }
-
-    // Навешиваем обработчики на все строки таблицы, у которых есть data-id
-    function bindTooltips() {
-        const rows = document.querySelectorAll('tr[data-id]');
-        rows.forEach(row => {
-            // При наведении мыши
-            row.addEventListener('mouseenter', (event) => {
-                updateTooltipContent(row);
-                tooltip.style.display = 'block';
-                positionTooltip(event);
-            });
-            // При движении мыши обновляем позицию
-            row.addEventListener('mousemove', positionTooltip);
-            // При уходе мыши прячем тултип
-            row.addEventListener('mouseleave', () => {
-                tooltip.style.display = 'none';
-            });
-        });
-    }
-
-    // Дождёмся загрузки DOM, затем привязываем
-    document.addEventListener('DOMContentLoaded', bindTooltips);
+    document.addEventListener('DOMContentLoaded', function () {
+        WowTooltip.init('tr[data-id]');
+    });
 </script>
 </body>
 </html>

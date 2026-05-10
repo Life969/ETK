@@ -58,11 +58,27 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<OrderDto> ordersPage = orderService.getOrdersByStatus(OrderStatus.WAITING, search, pageable);
 
+        // 🔧 Обогащаем: подгружаем продукт для каждого заказа
+        List<Map<String, Object>> waitingItems = new ArrayList<>();
+        for (OrderDto orderDto : ordersPage.getContent()) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("order", orderDto);
+            if ("COUPLING".equals(orderDto.getProductType()) && orderDto.getProductId() != null) {
+                CouplingEntity coupling = couplingService.findById(orderDto.getProductId());
+                item.put("product", coupling);
+                item.put("productType", "COUPLING");
+            } else if ("ADAPTER".equals(orderDto.getProductType()) && orderDto.getProductId() != null) {
+                PipeAdapterEntity adapter = pipeAdapterService.findById(orderDto.getProductId());
+                item.put("product", adapter);
+                item.put("productType", "ADAPTER");
+            }
+            waitingItems.add(item);
+        }
 
-        model.addAttribute("ordersPage", ordersPage);
+        model.addAttribute("ordersPage", ordersPage);          // для пагинации
+        model.addAttribute("waitingItems", waitingItems);      // для карточек
         model.addAttribute("status", "WAITING");
 
-        // Получаем ID заказов, уже добавленных в КП
         Set<Long> selectedOrderIds = (Set<Long>) session.getAttribute("commercialOffer");
         if (selectedOrderIds == null) {
             selectedOrderIds = Collections.emptySet();
@@ -286,5 +302,5 @@ public class OrderController {
                 })
                 .collect(Collectors.toList());
     }
-    
+
 }

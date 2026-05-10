@@ -16,7 +16,8 @@
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div class="d-flex align-items-center">
             <h1>Заказы в ожидании</h1>
-            <img th:src="@{/images/bearAxe.png}" alt="Медведь с топором" style="width: 65px; height: auto; margin-left: 15px;">
+            <img th:src="@{/images/bearAxe.png}" alt="Медведь с топором"
+                 style="width: 65px; height: auto; margin-left: 15px;">
         </div>
         <div>
             <a th:href="@{/orders/production}" class="btn btn-success">
@@ -52,30 +53,74 @@
 
     <div th:if="${ordersPage.empty}" class="alert alert-info">Нет заказов в ожидании.</div>
 
-    <div class="row" th:unless="${ordersPage.empty}">
-        <div th:each="order : ${ordersPage.content}" class="col-md-6 col-lg-4 mb-3"
-             th:data-order-id="${order.id}"
-             th:data-has-deadline="${order.deadline != null}">
+    <div class="row" th:unless="${waitingItems.empty}">
+        <div th:each="item : ${waitingItems}" class="col-md-6 col-lg-4 mb-3"
+             th:with="order=${item.order}">
             <div class="card h-100 shadow-sm position-relative">
-                <!-- Кнопка добавления/удаления в КП -->
+                <!-- Кнопка КП -->
                 <button class="btn btn-sm position-absolute top-0 end-0 m-2 add-to-offer-btn"
                         th:data-order-id="${order.id}"
                         th:classappend="${selectedOrderIds.contains(order.id)} ? 'btn-success' : 'btn-outline-success'">
-                    <i th:classappend="${selectedOrderIds.contains(order.id)} ? 'bi-check-lg' : 'bi-plus-lg'" class="bi"></i>
+                    <i th:classappend="${selectedOrderIds.contains(order.id)} ? 'bi-check-lg' : 'bi-plus-lg'"
+                       class="bi"></i>
                 </button>
 
                 <div class="card-body py-2">
                     <h5 class="card-title">
-                        <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.companyName}" class="text-decoration-none"></a>
-                        <span class="badge ms-2" th:classappend="${order.productType == 'COUPLING'} ? 'bg-primary' : 'bg-info'"
+                        <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.companyName}"
+                           class="text-decoration-none"></a>
+                        <span class="badge ms-2"
+                              th:classappend="${order.productType == 'COUPLING'} ? 'bg-primary' : 'bg-info'"
                               th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'"></span>
                     </h5>
                     <p class="card-text small">
-                        <strong>Продукция:</strong> <span th:text="${order.productName}"></span><br>
+                        <strong>Продукция:</strong>
+                        <span th:if="${item.product != null and item.productType == 'COUPLING'}"
+                              class="product-name-wrapper">
+     <span class="product-tooltip"
+           th:attr="data-id=${item.product.id},
+                   data-name=${item.product.name},
+                   data-type=${item.product.type},
+                   data-diameter=${item.product.conditionalDiameter},
+                   data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                   data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                   data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                   data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                   data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                   data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                   data-description=${item.product.description != null ? item.product.description : ''},
+                   data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+           th:text="${item.product.name}">Название муфты</span>
+</span>
+                        <span th:if="${item.product != null and item.productType == 'ADAPTER'}"
+                              class="product-name-wrapper">
+    <span class="product-tooltip"
+          th:attr="data-id=${item.product.id},
+                   data-name=${item.product.fullName},
+                   data-first-type=${item.product.firstSideType},
+                   data-first-diameter=${item.product.firstSideDiameter},
+                   data-second-type=${item.product.secondSideType},
+                   data-second-diameter=${item.product.secondSideDiameter},
+                   data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                   data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                   data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                   data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                   data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                   data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                   data-description=${item.product.description != null ? item.product.description : ''},
+                   data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+          th:text="${item.product.fullName}">Название переводника</span>
+</span>
+                        <span th:if="${item.product == null}" th:text="${order.productName}"></span>
+                        <br>
                         <strong>Количество:</strong> <span th:text="${order.quantity}"></span><br>
-                        <strong>Стоимость:</strong> <span th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')}"></span> руб.<br>
-                        <strong>Дедлайн:</strong> <span th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}"></span><br>
-                        <strong>Создан:</strong> <span th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                        <strong>Стоимость:</strong> <span
+                            th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')}"></span>
+                        руб.<br>
+                        <strong>Дедлайн:</strong> <span
+                            th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}"></span><br>
+                        <strong>Создан:</strong> <span
+                            th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                     </p>
                     <div class="btn-group btn-group-sm" role="group">
                         <button class="btn btn-outline-success start-production-btn"
@@ -83,10 +128,13 @@
                                 th:data-has-deadline="${order.deadline != null}">
                             <i class="bi bi-play-fill"></i> В производство
                         </button>
-                        <a th:href="@{/orders/{id}/edit(id=${order.id})}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i> Ред.</a>
+                        <a th:href="@{/orders/{id}/edit(id=${order.id})}" class="btn btn-outline-warning"><i
+                                class="bi bi-pencil"></i> Ред.</a>
                         <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post" class="d-inline">
                             <input type="hidden" name="returnTo" th:value="${currentUri}">
-                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Вы уверены?')"><i class="bi bi-trash"></i> Удалить</button>
+                            <button type="submit" class="btn btn-outline-danger"
+                                    onclick="return confirm('Вы уверены?')"><i class="bi bi-trash"></i> Удалить
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -100,7 +148,9 @@
             <li class="page-item" th:classappend="${!ordersPage.hasPrevious()} ? 'disabled'">
                 <a class="page-link" th:href="@{${currentUri}(page=${ordersPage.number - 1}, size=${ordersPage.size})}">Назад</a>
             </li>
-            <li class="page-item disabled"><span class="page-link" th:text="${ordersPage.number + 1} + ' / ' + ${ordersPage.totalPages}"></span></li>
+            <li class="page-item disabled"><span class="page-link"
+                                                 th:text="${ordersPage.number + 1} + ' / ' + ${ordersPage.totalPages}"></span>
+            </li>
             <li class="page-item" th:classappend="${!ordersPage.hasNext()} ? 'disabled'">
                 <a class="page-link" th:href="@{${currentUri}(page=${ordersPage.number + 1}, size=${ordersPage.size})}">Вперед</a>
             </li>
@@ -131,148 +181,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/tooltip.js}"></script>
+<script th:src="@{/js/waiting-orders.js}"></script>
 <script>
-
-
-    // Функция отправки запроса на изменение статуса (если дедлайн уже есть)
-    async function changeStatus(orderId) {
-        const url = `/orders/${orderId}/status`;
-        const formData = new URLSearchParams();
-        formData.append('newStatus', 'IN_PRODUCTION');
-        // можно добавить returnTo, но для AJAX необязательно, так как мы перезагрузим страницу после успеха
-        // Для удобства можно передать returnTo = window.location.pathname + window.location.search
-        const returnTo = window.location.pathname + window.location.search;
-        formData.append('returnTo', returnTo);
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
-        });
-
-        if (response.ok) {
-            // Перезагружаем страницу, чтобы обновить список заказов
-            window.location.reload();
-        } else {
-            const text = await response.text();
-            alert('Ошибка при переводе в производство: ' + text);
-        }
-    }
-
-    // Обработка кнопок "В производство"
-    document.querySelectorAll('.start-production-btn').forEach(btn => {
-        btn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const orderId = this.getAttribute('data-order-id');
-            const hasDeadline = this.getAttribute('data-has-deadline') === 'true';
-            if (hasDeadline) {
-                // Дедлайн есть, отправляем запрос
-                await changeStatus(orderId);
-            } else {
-                // Дедлайна нет, показываем модалку
-                const modal = new bootstrap.Modal(document.getElementById('deadlineModal'));
-                document.getElementById('orderIdForDeadline').value = orderId;
-                modal.show();
-            }
-        });
+    document.addEventListener('DOMContentLoaded', function () {
+        WaitingOrders.init();
+        WowTooltip.init('.product-tooltip');  // активируем тултипы
     });
-
-    // Обработка подтверждения в модальном окне
-    document.getElementById('confirmDeadlineBtn').addEventListener('click', async function() {
-        const orderId = document.getElementById('orderIdForDeadline').value;
-        const deadline = document.getElementById('deadlineInput').value;
-        if (!deadline) {
-            alert('Пожалуйста, выберите дату дедлайна');
-            return;
-        }
-
-        // Отправляем AJAX на установку дедлайна и перевод в производство
-        const url = `/orders/${orderId}/set-deadline-and-start`;
-        const formData = new URLSearchParams();
-        formData.append('deadline', deadline);
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData.toString()
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            // Закрываем модалку и перезагружаем страницу
-            const modal = bootstrap.Modal.getInstance(document.getElementById('deadlineModal'));
-            modal.hide();
-            window.location.reload();
-        } else {
-            alert('Ошибка: ' + result.error);
-        }
-    });
-
-    // Остальной код (КП, кнопки +/✓ и т.д.) остаётся без изменений
-    // Обработка кнопок "+" / "✓"
-    document.querySelectorAll('.add-to-offer-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const orderId = this.dataset.orderId;
-            fetch(`/commercial-offer/add/${orderId}`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
-                    const added = data.added;
-                    const count = data.count;
-
-                    const countSpan = document.getElementById('offerCount');
-                    const offerActions = document.getElementById('offerActions');
-                    if (countSpan) countSpan.textContent = count;
-                    if (offerActions) {
-                        if (count > 0) {
-                            offerActions.style.display = 'flex';
-                        } else {
-                            offerActions.style.display = 'none';
-                        }
-                    }
-
-                    const icon = this.querySelector('i');
-                    if (added) {
-                        this.classList.remove('btn-outline-success');
-                        this.classList.add('btn-success');
-                        icon.classList.remove('bi-plus-lg');
-                        icon.classList.add('bi-check-lg');
-                    } else {
-                        this.classList.remove('btn-success');
-                        this.classList.add('btn-outline-success');
-                        icon.classList.remove('bi-check-lg');
-                        icon.classList.add('bi-plus-lg');
-                    }
-                })
-                .catch(err => console.error('Ошибка:', err));
-        });
-    });
-
-    // Очистка КП
-    const clearBtn = document.getElementById('clearOfferBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function() {
-            fetch('/commercial-offer/clear', { method: 'POST' })
-                .then(() => location.reload());
-        });
-    }
-</script>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    var selectedOrderIds = /*[[${selectedOrderIds}]]*/ [];
-    if (selectedOrderIds && selectedOrderIds.size > 0) {
-        document.getElementById('offerCount').innerText = selectedOrderIds.size();
-        document.getElementById('offerActions').style.display = 'flex';
-    }
-    /*]]>*/
 </script>
 </body>
 </html>
