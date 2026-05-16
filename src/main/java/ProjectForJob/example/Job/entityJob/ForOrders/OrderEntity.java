@@ -75,6 +75,25 @@ public class OrderEntity {
         if (adapter != null) return adapter.getFullName();
         return "";
     }
+    // Поле для хранения наружнего диаметра заготовки в мм
+    @Positive
+    @Column(name = "workpiece_outer_diameter")
+    private Double workpieceOuterDiameter; // мм
+
+    // Поле для хранения Толщины стенки заготовки в мм
+    @Positive
+    @Column(name = "workpiece_wall_thickness")
+    private Double workpieceWallThickness; // мм
+
+    // Поле для хранения Длины заготовки в метрах
+    @Positive
+    @Column(name = "workpiece_length_meters")
+    private Double workpieceLengthMeters; // общая длина заготовки, м
+
+    // Вес заготовки в кг (может вычисляться автоматически)
+    @Positive
+    @Column(name = "workpiece_weight_kg")
+    private Double workpieceWeightKg; // вес, кг
 
     public String getProductType() {
         if (coupling != null) return "COUPLING";

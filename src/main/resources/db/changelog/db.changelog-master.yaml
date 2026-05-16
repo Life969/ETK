@@ -375,3 +375,6 @@ databaseChangeLog:
 
 - include:
       file: db/changelog/2026/04/12-01-changelog.xml
+
+- include:
+      file: db/changelog/2026/04/16-01-changelog.xml

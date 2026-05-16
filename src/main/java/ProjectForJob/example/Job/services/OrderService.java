@@ -17,6 +17,8 @@ import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
+import ProjectForJob.example.Job.services.Handbook.CouplingService;
+import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.mapping.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static ProjectForJob.example.Job.util.WorkpieceCalculator.calculateWeight;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,6 +46,8 @@ public class OrderService {
     private final PipeAdapterRepository pipeAdapterRepository;
     private final KafkaProducerService kafkaProducerService;
     private final OrderMapper orderMapper;
+    private final CouplingService couplingService;//    Разобраться что лучше использовать сервис или репозиторий!!!!!!!
+    private final PipeAdapterService pipeAdapterService;//
 
     @Transactional
     public OrderDto createOrder(OrderCreateDto dto) {
@@ -67,6 +74,26 @@ public class OrderService {
             order.setAdapter(adapter);
         } else {
             throw new IllegalArgumentException("Неверный тип продукции");
+        }
+
+        // считаем вес,длину и стенку
+        if (dto.getCouplingId() != null) {
+            CouplingEntity coupling = couplingService.findById(dto.getCouplingId());
+            order.setCoupling(coupling);
+            // Заполняем заготовку
+            fillWorkpieceData(order,
+                    coupling.getOuterDiameterMm(),
+                    coupling.getInnerDiameterMm(),
+                    coupling.getLengthMm(),
+                    dto.getQuantity());
+        } else if (dto.getAdapterId() != null) {
+            PipeAdapterEntity adapter = pipeAdapterService.findById(dto.getAdapterId());
+            order.setAdapter(adapter);
+            fillWorkpieceData(order,
+                    adapter.getOuterDiameterMm(),
+                    adapter.getInnerDiameterMm(),
+                    adapter.getLengthMm(),
+                    dto.getQuantity());
         }
 
         order.setTotalCost(calculateTotalCost(order));
@@ -140,6 +167,25 @@ public class OrderService {
             order.setAdapter(adapter);
         }
 
+        if (dto.getCouplingId() != null) {
+            CouplingEntity coupling = couplingService.findById(dto.getCouplingId());
+            order.setCoupling(coupling);
+            // Заполняем заготовку
+            fillWorkpieceData(order,
+                    coupling.getOuterDiameterMm(),
+                    coupling.getInnerDiameterMm(),
+                    coupling.getLengthMm(),
+                    dto.getQuantity());
+        } else if (dto.getAdapterId() != null) {
+            PipeAdapterEntity adapter = pipeAdapterService.findById(dto.getAdapterId());
+            order.setAdapter(adapter);
+            fillWorkpieceData(order,
+                    adapter.getOuterDiameterMm(),
+                    adapter.getInnerDiameterMm(),
+                    adapter.getLengthMm(),
+                    dto.getQuantity());
+        }
+
         order.setQuantity(dto.getQuantity());
         order.setDeadline(dto.getDeadline());
         order.setAdditionalWorks(dto.getAdditionalWorkIds() != null
@@ -204,6 +250,21 @@ public class OrderService {
         } catch (Exception e) {
             log.error("Не удалось отправить событие в Kafka для заказа {}", orderId, e);
         }
+    }
+
+    private void fillWorkpieceData(OrderEntity order,
+                                   double outerDiameterMm,
+                                   double innerDiameterMm,
+                                   double pieceLengthMm, // длина одной штуки в мм
+                                   int quantity) {
+        double wall = (outerDiameterMm - innerDiameterMm) / 2.0;
+        double totalLengthM = (pieceLengthMm * quantity) / 1000.0; // в метры
+        double weight = calculateWeight(outerDiameterMm, wall, totalLengthM);
+
+        order.setWorkpieceOuterDiameter(outerDiameterMm);
+        order.setWorkpieceWallThickness(wall);
+        order.setWorkpieceLengthMeters(totalLengthM);
+        order.setWorkpieceWeightKg(weight);
     }
 
 }

@@ -51,9 +51,11 @@
 
     <div th:replace="~{fragments/search :: searchForm}"></div>
 
-    <div th:if="${ordersPage.empty}" class="alert alert-info">Нет заказов в ожидании.</div>
+    <div th:if="${ordersPage == null or #lists.isEmpty(ordersPage.content)}" class="alert alert-info">
+        Нет заказов в ожидании.
+    </div>
 
-    <div class="row" th:unless="${waitingItems.empty}">
+    <div class="row" th:unless="${#lists.isEmpty(waitingItems)}">
         <div th:each="item : ${waitingItems}" class="col-md-6 col-lg-4 mb-3"
              th:with="order=${item.order}">
             <div class="card h-100 shadow-sm position-relative">
@@ -114,6 +116,10 @@
                         <span th:if="${item.product == null}" th:text="${order.productName}"></span>
                         <br>
                         <strong>Количество:</strong> <span th:text="${order.quantity}"></span><br>
+                        <strong>Заготовка:</strong>
+                        <span th:if="${order.workpieceOuterDiameter != null}"
+                              th:text="${order.workpieceDescription}"></span>
+                        <span th:unless="${order.workpieceOuterDiameter != null}">не рассчитана</span><br>
                         <strong>Стоимость:</strong> <span
                             th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')}"></span>
                         руб.<br>

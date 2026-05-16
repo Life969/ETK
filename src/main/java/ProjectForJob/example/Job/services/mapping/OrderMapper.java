@@ -37,6 +37,12 @@ public class OrderMapper {
                 .map(AdditionalWorkEntity::getName).collect(Collectors.toList()));
         dto.setAdditionalWorkIds(order.getAdditionalWorks().stream()
                 .map(AdditionalWorkEntity::getId).collect(Collectors.toList()));
+
+        dto.setWorkpieceOuterDiameter(order.getWorkpieceOuterDiameter());
+        dto.setWorkpieceWallThickness(order.getWorkpieceWallThickness());
+        dto.setWorkpieceLengthMeters(order.getWorkpieceLengthMeters());
+        dto.setWorkpieceWeightKg(order.getWorkpieceWeightKg());
+
         return dto;
     }
 
