@@ -1,4 +1,18 @@
 services:
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.0
+    container_name: keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "9090:8080"   # снаружи порт 9090, внутри контейнера 8080
+    command: start-dev
+    # необязательно: перезапускать при падении
+    restart: unless-stopped
+
+
   postgres:
     image: postgres:15
     container_name: my_postgres

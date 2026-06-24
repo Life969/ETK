@@ -15,13 +15,14 @@ import ProjectForJob.example.Job.repositories.CompanyRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
 import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
+import ProjectForJob.example.Job.services.Handbook.CouplingService;
+import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.mapping.OrderMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -43,19 +44,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
+
     @Mock private OrderRepository orderRepository;
     @Mock private CompanyRepository companyRepository;
     @Mock private CouplingRepository couplingRepository;
     @Mock private AdditionalWorkRepository additionalWorkRepository;
     @Mock private PipeAdapterRepository pipeAdapterRepository;
     @Mock private KafkaProducerService kafkaProducerService;
+    @Mock private CouplingService couplingService;
+    @Mock private PipeAdapterService pipeAdapterService;
 
-    private final OrderMapper orderMapper = new OrderMapper();
-
-
+    private OrderMapper orderMapper;
     private OrderService orderService;
+
     @BeforeEach
     void setUp() {
+        orderMapper = new OrderMapper();   // ← обычное создание
         orderService = new OrderService(
                 orderRepository,
                 companyRepository,
@@ -63,7 +67,9 @@ class OrderServiceTest {
                 additionalWorkRepository,
                 pipeAdapterRepository,
                 kafkaProducerService,
-                orderMapper
+                orderMapper,
+                couplingService,
+                pipeAdapterService
         );
     }
 
@@ -99,6 +105,9 @@ class OrderServiceTest {
                 .conditionalDiameter("146")
                 .manufacturingCost(MANUFACTURING_COST_COUPLING)
                 .priceForEmployee(BigDecimal.valueOf(500))
+                .outerDiameterMm(146.0)
+                .innerDiameterMm(130.0)
+                .lengthMm(200.0)
                 .build();
     }
 
@@ -111,6 +120,9 @@ class OrderServiceTest {
                 .secondSideDiameter("89")
                 .manufacturingCost(MANUFACTURING_COST_ADAPTER)
                 .priceForEmployee(BigDecimal.valueOf(600))
+                .outerDiameterMm(89.0)
+                .innerDiameterMm(73.0)
+                .lengthMm(250.0)
                 .build();
     }
 
@@ -144,6 +156,7 @@ class OrderServiceTest {
         dto.setAdditionalWorkIds(addWorkIds);
         return dto;
     }
+
     private OrderEntity createOrderEntity(OrderStatus status, List<AdditionalWorkEntity> addWorks) {
         CouplingEntity coupling = createCoupling();
         return OrderEntity.builder()
@@ -158,7 +171,6 @@ class OrderServiceTest {
                 .totalCost(calculateExpectedTotalCost(coupling.getManufacturingCost(), addWorks))
                 .build();
     }
-
 
     // --- ТЕСТЫ ---
 
@@ -178,6 +190,7 @@ class OrderServiceTest {
         when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(existingCompany));
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(coupling));
         when(additionalWorkRepository.findAllById(List.of(ADD_WORK_ID_1, ADD_WORK_ID_2))).thenReturn(addWorks);
+        when(couplingService.findById(COUPLING_ID)).thenReturn(coupling);
 
         OrderEntity savedOrder = OrderEntity.builder()
                 .id(ORDER_ID)
@@ -232,6 +245,7 @@ class OrderServiceTest {
         when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(existingCompany));
         when(pipeAdapterRepository.findById(ADAPTER_ID)).thenReturn(Optional.of(adapter));
         when(additionalWorkRepository.findAllById(List.of(ADD_WORK_ID_1))).thenReturn(addWorks);
+        when(pipeAdapterService.findById(ADAPTER_ID)).thenReturn(adapter);
 
         OrderEntity savedOrder = OrderEntity.builder()
                 .id(ORDER_ID)
@@ -273,6 +287,7 @@ class OrderServiceTest {
         when(companyRepository.findByNameIgnoreCase(NEW_COMPANY_NAME)).thenReturn(Optional.empty());
         when(companyRepository.save(any(CompanyEntity.class))).thenReturn(newCompany);
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(coupling));
+        when(couplingService.findById(COUPLING_ID)).thenReturn(coupling);
 
         OrderEntity savedOrder = OrderEntity.builder()
                 .id(ORDER_ID)
@@ -339,6 +354,7 @@ class OrderServiceTest {
 
         when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(existingCompany));
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(coupling));
+        when(couplingService.findById(COUPLING_ID)).thenReturn(coupling);
 
         OrderEntity savedOrder = OrderEntity.builder()
                 .id(ORDER_ID)
@@ -383,6 +399,7 @@ class OrderServiceTest {
         when(orderRepository.findById(ORDER_ID)).thenReturn(Optional.of(existingOrder));
         when(companyRepository.findByNameIgnoreCase(COMPANY_NAME)).thenReturn(Optional.of(company));
         when(pipeAdapterRepository.findById(ADAPTER_ID)).thenReturn(Optional.of(adapter));
+        when(pipeAdapterService.findById(ADAPTER_ID)).thenReturn(adapter);
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // when
@@ -397,8 +414,6 @@ class OrderServiceTest {
         assertThat(existingOrder.getAdapter()).isSameAs(adapter);
     }
 
-
-
     // Вспомогательный расчёт
     private BigDecimal calculateExpectedTotalCost(BigDecimal unitCost, List<AdditionalWorkEntity> addWorks) {
         BigDecimal addPerUnit = addWorks.stream()
@@ -406,7 +421,6 @@ class OrderServiceTest {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return unitCost.add(addPerUnit).multiply(BigDecimal.valueOf(QUANTITY));
     }
-
 
     @Test
     @DisplayName("updateStatus: заказ найден → статус обновлён")
@@ -524,7 +538,7 @@ class OrderServiceTest {
         List<Long> newAddWorkIds = List.of(ADD_WORK_ID_1);
 
         updateDto.setCompanyName(newCompanyName);
-        updateDto.setProductType("COUPLING");          // ← обязательно
+        updateDto.setProductType("COUPLING");
         updateDto.setCouplingId(newCouplingId);
         updateDto.setQuantity(newQuantity);
         updateDto.setDeadline(newDeadline);
@@ -535,6 +549,9 @@ class OrderServiceTest {
                 .id(newCouplingId)
                 .type("Новая муфта")
                 .manufacturingCost(BigDecimal.valueOf(2000))
+                .outerDiameterMm(146.0)
+                .innerDiameterMm(130.0)
+                .lengthMm(200.0)
                 .build();
         AdditionalWorkEntity addWork = createAddWork(ADD_WORK_ID_1, "Покраска", BigDecimal.valueOf(300));
 
@@ -542,6 +559,7 @@ class OrderServiceTest {
         when(companyRepository.findByNameIgnoreCase(newCompanyName)).thenReturn(Optional.of(newCompany));
         when(couplingRepository.findById(newCouplingId)).thenReturn(Optional.of(newCoupling));
         when(additionalWorkRepository.findAllById(newAddWorkIds)).thenReturn(List.of(addWork));
+        when(couplingService.findById(newCouplingId)).thenReturn(newCoupling);
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // when
@@ -549,7 +567,7 @@ class OrderServiceTest {
 
         // then
         assertThat(result.getCompanyName()).isEqualTo(newCompanyName);
-        assertThat(result.getProductId()).isEqualTo(newCouplingId);     // ← productId вместо couplingId
+        assertThat(result.getProductId()).isEqualTo(newCouplingId);
         assertThat(result.getProductType()).isEqualTo("COUPLING");
         assertThat(result.getQuantity()).isEqualTo(newQuantity);
         assertThat(result.getDeadline()).isEqualTo(newDeadline);
@@ -574,7 +592,7 @@ class OrderServiceTest {
         OrderEntity existingOrder = createOrderEntity(OrderStatus.WAITING);
         OrderUpdateDto updateDto = new OrderUpdateDto();
         updateDto.setCompanyName(NEW_COMPANY_NAME);
-        updateDto.setProductType("COUPLING");           // ← обязательно
+        updateDto.setProductType("COUPLING");
         updateDto.setCouplingId(COUPLING_ID);
         updateDto.setQuantity(QUANTITY);
         updateDto.setDeadline(DEADLINE);
@@ -585,7 +603,7 @@ class OrderServiceTest {
         CompanyEntity newCompany = createCompany(NEW_COMPANY_NAME, 3L);
         when(companyRepository.save(any(CompanyEntity.class))).thenReturn(newCompany);
         when(couplingRepository.findById(COUPLING_ID)).thenReturn(Optional.of(createCoupling()));
-
+        when(couplingService.findById(COUPLING_ID)).thenReturn(createCoupling());
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // when
@@ -630,7 +648,6 @@ class OrderServiceTest {
     void getUrgentProductionOrders_shouldReturnLimitedOrdersWithUrgencyClass() {
         // given
         LocalDate today = LocalDate.now();
-        // Создаём заказы с дедлайнами в нужном порядке (уже отсортированными по возрастанию)
         OrderEntity order4 = createOrderEntity(OrderStatus.IN_PRODUCTION);
         order4.setDeadline(today.plusDays(1));
         OrderEntity order1 = createOrderEntity(OrderStatus.IN_PRODUCTION);
@@ -640,7 +657,7 @@ class OrderServiceTest {
         OrderEntity order3 = createOrderEntity(OrderStatus.IN_PRODUCTION);
         order3.setDeadline(today.plusDays(10));
 
-        List<OrderEntity> allOrders = List.of(order4, order1, order2, order3); // уже отсортировано
+        List<OrderEntity> allOrders = List.of(order4, order1, order2, order3);
         when(orderRepository.findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus.IN_PRODUCTION))
                 .thenReturn(allOrders);
 
@@ -651,7 +668,6 @@ class OrderServiceTest {
 
         // then
         assertThat(result).hasSize(limit);
-        // Проверяем, что взяты первые 3 (по возрастанию дедлайна)
         assertThat(result.get(0).getDaysUntilDeadline()).isEqualTo(1);
         assertThat(result.get(1).getDaysUntilDeadline()).isEqualTo(2);
         assertThat(result.get(2).getDaysUntilDeadline()).isEqualTo(5);
@@ -692,9 +708,6 @@ class OrderServiceTest {
         // then
         assertThat(result).isEmpty();
     }
-
-    // Дополнительно: проверка вспомогательных методов getOrderEntityById, getOrdersByIdsWithDetails, saveOrder
-    // Можно написать короткие тесты для них, но они тривиальны. Приведём пару примеров:
 
     @Test
     @DisplayName("getOrderEntityById: делегирует репозиторию и пробрасывает исключение если не найден")

@@ -3,8 +3,6 @@ package ProjectForJob.example.Job.MVCcontrollers;
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
-import ProjectForJob.example.Job.services.Handbook.CouplingService;
-import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.OrderService;
 import ProjectForJob.example.Job.services.ProductionRecordService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +28,7 @@ public class HomeController {
     private final ProductionRecordService productionRecordService;
     private final OrderService orderService;
 
-    @GetMapping({"/", "/home"})
+    @GetMapping({"/home"})
     public String home(Model model, HttpServletRequest request) {
         // Текущий URI для подсветки активного пункта меню
         log.info("HomeController home GET");
@@ -113,7 +111,16 @@ public class HomeController {
         model.addAttribute("ordersWithProducts", ordersWithProducts);
 
 
+        return "welcomeToHome/home";
+    }
 
-        return "home";
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/welcome";
+    }
+
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "welcomeToHome/welcome";
     }
 }

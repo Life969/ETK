@@ -1,18 +1,38 @@
 class WaitingOrders {
 
+    static getCsrfToken() {
+        const tokenMeta = document.querySelector('meta[name="_csrf"]');
+        const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+        if (!tokenMeta || !headerMeta) {
+            console.warn('CSRF meta tags not found');
+            return {token: '', header: ''};
+        }
+        return {
+            token: tokenMeta.content,
+            header: headerMeta.content
+        };
+    }
+
     // AJAX-запрос на изменение статуса (когда дедлайн уже есть)
     static async changeStatus(orderId) {
+        const {token, header} = WaitingOrders.getCsrfToken();
+
         const url = `/orders/${orderId}/status`;
         const formData = new URLSearchParams();
         formData.append('newStatus', 'IN_PRODUCTION');
         const returnTo = window.location.pathname + window.location.search;
         formData.append('returnTo', returnTo);
 
+        const fetchHeaders = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        };
+        if (header && token) {
+            fetchHeaders[header] = token;
+        }
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
+            headers: fetchHeaders,
             body: formData.toString()
         });
 
@@ -45,6 +65,8 @@ class WaitingOrders {
         });
 
         document.getElementById('confirmDeadlineBtn').addEventListener('click', async () => {
+            const {token, header} = WaitingOrders.getCsrfToken();
+
             const orderId = document.getElementById('orderIdForDeadline').value;
             const deadline = document.getElementById('deadlineInput').value;
             if (!deadline) {
@@ -56,11 +78,16 @@ class WaitingOrders {
             const formData = new URLSearchParams();
             formData.append('deadline', deadline);
 
+            const fetchHeaders = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            };
+            if (header && token) {
+                fetchHeaders[header] = token;
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: fetchHeaders,
                 body: formData.toString()
             });
 
@@ -91,11 +118,22 @@ class WaitingOrders {
 
         // Навешиваем обработчики на все кнопки "+" / "✓"
         document.querySelectorAll('.add-to-offer-btn').forEach(btn => {
-            btn.addEventListener('click', async function(e) {
+            btn.addEventListener('click', async function (e) {
                 e.preventDefault();
+                const {token, header} = WaitingOrders.getCsrfToken();
                 const orderId = this.dataset.orderId;
                 try {
-                    const response = await fetch(`/commercial-offer/add/${orderId}`, { method: 'POST' });
+                    const fetchHeaders = {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    };
+                    if (header && token) {
+                        fetchHeaders[header] = token;
+                    }
+
+                    const response = await fetch(`/commercial-offer/add/${orderId}`, {
+                        method: 'POST',
+                        headers: fetchHeaders
+                    });
                     const data = await response.json();
                     if (data.error) {
                         alert(data.error);
@@ -124,8 +162,16 @@ class WaitingOrders {
         // Кнопка очистки
         const clearBtn = document.getElementById('clearOfferBtn');
         if (clearBtn) {
-            clearBtn.addEventListener('click', async function() {
-                await fetch('/commercial-offer/clear', { method: 'POST' });
+            clearBtn.addEventListener('click', async function () {
+                const {token, header} = WaitingOrders.getCsrfToken();
+                const fetchHeaders = {};
+                if (header && token) {
+                    fetchHeaders[header] = token;
+                }
+                await fetch('/commercial-offer/clear', {
+                    method: 'POST',
+                    headers: fetchHeaders
+                });
                 window.location.reload();
             });
         }
