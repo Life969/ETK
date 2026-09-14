@@ -1,65 +1,72 @@
 package ProjectForJob.example.Job.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-@RequiredArgsConstructor
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity  // Включает возможность использовать @PreAuthorize
 public class SecurityConfig {
 
-    private final ClientRegistrationRepository clientRegistrationRepository;
+    // Пароль dotalove96
+    private static final String ADMIN_PASSWORD = "$2a$12$wj7oVywuK2oF/UAEa0T/Y.E8N9rGhvlBXkuhKbiMLjJQpn0deBddC";
 
+    // 1. Создаем пользователя "admin" в памяти приложения
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password(ADMIN_PASSWORD)
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(admin);
+    }
+
+    // 2. Кодировщик паролей BCrypt
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // 3. Главная цепь фильтров безопасности
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
+
+                // ПРАВИЛА ДОСТУПА (Порядок критичен!)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/",
-                                "/welcome",
-                                "/css/**",
-                                "/js/**",
-                                "/uploads/**",
-                                "/images/**",
-                                "/favicon.ico").permitAll()
-                        .requestMatchers("/home",
-                                "/employees/**",
-                                "/couplings/**",
-                                "/production-records/**",
-                                "/orders/**",
-                                "/machines/**",
-                                "/pipe-adapters/**",
-                                "/additionalWork/**",
-                                "/commercial-offer/**",
-                                "/reports/**").authenticated()  // всё, что требует входа
-                        .anyRequest().denyAll() // на всякий случай, чтобы непредусмотренные пути не были открыты
+                        .requestMatchers("/", "/index", "/error").permitAll()
+                        .requestMatchers("/css/**", "/images/**", "/js/**", "/webjars/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/home", true)  // после успешного входа всегда на /home
+
+                // НАСТРОЙКА ЛОГИНА
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
                 )
+
+                // НАСТРОЙКА ВЫХОДА
                 .logout(logout -> logout
-                        .logoutSuccessHandler(oidcLogoutSuccessHandler())
+                        .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
-                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
-        return http.build();
-    }
 
-    private LogoutSuccessHandler oidcLogoutSuccessHandler() {
-        OidcClientInitiatedLogoutSuccessHandler successHandler =
-                new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-        successHandler.setPostLogoutRedirectUri("http://localhost:8080/welcome");  // после логаута идём на публичную страницу
-        return successHandler;
+        return http.build();
     }
 }

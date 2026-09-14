@@ -244,12 +244,13 @@ public class OrderService {
         order.setStatus(OrderStatus.IN_PRODUCTION);
         orderRepository.save(order);
 
-        try {
-            OrderStartedEvent event = orderMapper.toStartedEvent(order);  // было buildOrderStartedEvent
-            kafkaProducerService.sendOrderStartedEvent(event);
-        } catch (Exception e) {
-            log.error("Не удалось отправить событие в Kafka для заказа {}", orderId, e);
-        }
+        // TODO: включить, когда будет готов сервис производства + Kafka
+        // try {
+        //     OrderStartedEvent event = orderMapper.toStartedEvent(order);
+        //     kafkaProducerService.sendOrderStartedEvent(event);
+        // } catch (Exception e) {
+        //     log.error("Не удалось отправить событие в Kafka для заказа {}", orderId, e);
+        // }
     }
 
     private void fillWorkpieceData(OrderEntity order,

@@ -116,7 +116,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String root() {
-        return "redirect:/welcome";
+        return "welcomeToHome/welcome";
     }
 
     @GetMapping("/welcome")
