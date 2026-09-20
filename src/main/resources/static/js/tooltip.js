@@ -1,8 +1,8 @@
 class WowTooltip {
-    // Единый контейнер на страницу
     static container = null;
+    static _selector = null;
+    static _delegated = false;
 
-    // Безопасный вывод текста
     static escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function (m) {
@@ -13,15 +13,13 @@ class WowTooltip {
         });
     }
 
-    // Простановка значения по умолчанию
     static getValue(value, defaultValue = '—') {
         if (value === undefined || value === null || value === '') return defaultValue;
         return value;
     }
 
-    // Строим HTML тултипа из data-атрибутов элемента
     static updateContent(element) {
-        const isAdapter = element.dataset.firstType !== undefined; // есть firstType — переводник
+        const isAdapter = element.dataset.firstType !== undefined;
 
         const name = element.dataset.name || 'Без названия';
         const length = WowTooltip.getValue(element.dataset.length);
@@ -37,7 +35,6 @@ class WowTooltip {
             description = description.substring(0, 200) + '...';
         }
 
-        // Изображение или иконка
         let imageHtml = '';
         if (imagePath && imagePath !== '') {
             let imgUrl = imagePath;
@@ -49,7 +46,6 @@ class WowTooltip {
             imageHtml = `<div class="tooltip-image"><i class="bi bi-cup-straw" style="font-size:24px; color:#c69b6d;"></i></div>`;
         }
 
-        // Тип изделия и quality-класс
         let typeLine, qualityClass;
         if (isAdapter) {
             typeLine = 'Переводник';
@@ -85,7 +81,6 @@ class WowTooltip {
         `;
     }
 
-    // Позиционирование тултипа с корректировкой, чтобы не вылезал за экран
     static position(event) {
         let x = event.clientX + 15;
         let y = event.clientY + 15;
@@ -101,9 +96,9 @@ class WowTooltip {
         }
     }
 
-    // Главный метод — привязать тултип ко всем элементам по селектору
+    // Делегирование: один раз навешиваем на document.
+    // Работает и после Turbo-навигации — новые .product-tooltip подхватываются автоматически.
     static init(selector) {
-        // Создаём контейнер, если ещё нет
         if (!WowTooltip.container) {
             WowTooltip.container = document.createElement('div');
             WowTooltip.container.className = 'wow-tooltip';
@@ -111,17 +106,60 @@ class WowTooltip {
             document.body.appendChild(WowTooltip.container);
         }
 
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-            el.addEventListener('mouseenter', (e) => {
-                WowTooltip.updateContent(el);
-                WowTooltip.container.style.display = 'block';
+        WowTooltip._selector = selector;
+
+        if (WowTooltip._delegated) return;
+        WowTooltip._delegated = true;
+
+        document.addEventListener('mouseover', (e) => {
+            const el = e.target.closest(WowTooltip._selector);
+            if (!el) return;
+            if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+
+            WowTooltip.updateContent(el);
+            WowTooltip.container.style.display = 'block';
+            WowTooltip.position(e);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (WowTooltip.container.style.display === 'block') {
                 WowTooltip.position(e);
-            });
-            el.addEventListener('mousemove', WowTooltip.position);
-            el.addEventListener('mouseleave', () => {
-                WowTooltip.container.style.display = 'none';
-            });
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            const el = e.target.closest(WowTooltip._selector);
+            if (!el) return;
+            if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+
+            WowTooltip.container.style.display = 'none';
         });
     }
 }
+
+// ============================================================
+// САМОЗАПУСК — не зависит от inline-скриптов в HTML.
+// Класс объявлен выше, значит доступен в этой же области видимости.
+// ============================================================
+(function autoInitWowTooltip() {
+    const SELECTOR = '.product-tooltip';
+
+    function boot() {
+        if (document.querySelector(SELECTOR)) {
+            WowTooltip.init(SELECTOR);
+        }
+    }
+
+    // DOM ещё парсится — ждём готовности
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+
+    // Повторный boot при Turbo-навигации и при подгрузке в #app
+    document.addEventListener('turbo:load', boot);
+    document.addEventListener('turbo:frame-load', (e) => {
+        if (e.target.id === 'app') boot();
+    });
+})();

@@ -8,6 +8,8 @@ import ProjectForJob.example.Job.services.ProductionRecordService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,19 +30,46 @@ public class HomeController {
     private final ProductionRecordService productionRecordService;
     private final OrderService orderService;
 
-    @GetMapping({"/home"})
-    public String home(Model model, HttpServletRequest request) {
-        // Текущий URI для подсветки активного пункта меню
-        log.info("HomeController home GET");
+    // ===== Авторизованная зона =====
 
+    @GetMapping("/layout")
+    public String layout(Model model, HttpServletRequest request) {
+        populateDashboard(model, request);
+        return "welcomeToHome/layout";
+    }
+
+    @GetMapping("/fragments/home")
+    public String homeFragment(Model model, HttpServletRequest request) {
+        populateDashboard(model, request);
+        return "fragments/home";
+    }
+
+    @GetMapping("/home")
+    public String home() {
+        return "redirect:/layout";
+    }
+
+    // ===== Публичная зона =====
+
+    @GetMapping("/")
+    public String root(@AuthenticationPrincipal UserDetails user) {
+        return (user != null) ? "redirect:/layout" : "welcomeToHome/welcome";
+    }
+
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "welcomeToHome/welcome";
+    }
+
+    // ===== Общая логика наполнения модели =====
+
+    private void populateDashboard(Model model, HttpServletRequest request) {
         model.addAttribute("currentUri", request.getRequestURI());
 
-        // Текущая дата
         LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
-        model.addAttribute("todayDate", today.format(formatter));
+        model.addAttribute("todayDate", today.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
 
-        // Последние 5 записей из журнала производства
+        // Последние 5 записей
         List<ProductionRecordEntity> lastRecords = productionRecordService.findLast5Records();
         List<Map<String, Object>> recordsWithProducts = new ArrayList<>();
         for (ProductionRecordEntity record : lastRecords) {
@@ -59,12 +88,10 @@ public class HomeController {
 
         // Срочные заказы
         List<OrderEntity> urgentOrderEntities = orderService.getUrgentProductionOrderEntities(8);
-
         List<HomeOrderDto> urgentOrders = new ArrayList<>();
         List<Map<String, Object>> ordersWithProducts = new ArrayList<>();
 
         for (OrderEntity order : urgentOrderEntities) {
-            // 1. Строим HomeOrderDto
             HomeOrderDto dto = new HomeOrderDto();
             dto.setId(order.getId());
             dto.setCompanyName(order.getCompany().getName());
@@ -83,18 +110,11 @@ public class HomeController {
                 dto.setProductType("ADAPTER");
             }
 
-            String urgencyClass;
-            if (days <= 3) {
-                urgencyClass = "bg-danger text-white";
-            } else if (days <= 7) {
-                urgencyClass = "bg-warning";
-            } else {
-                urgencyClass = "bg-light";
-            }
-            dto.setUrgencyClass(urgencyClass);
+            if (days < 5)       dto.setUrgencyClass("bg-danger text-white");
+            else if (days < 14) dto.setUrgencyClass("bg-warning");
+            else                dto.setUrgencyClass("bg-light");
             urgentOrders.add(dto);
 
-            // Заполняем ordersWithProducts для Thymeleaf
             Map<String, Object> item = new HashMap<>();
             item.put("order", dto);
             if ("COUPLING".equals(dto.getProductType()) && order.getCoupling() != null) {
@@ -109,18 +129,5 @@ public class HomeController {
 
         model.addAttribute("urgentOrders", urgentOrders);
         model.addAttribute("ordersWithProducts", ordersWithProducts);
-
-
-        return "welcomeToHome/home";
-    }
-
-    @GetMapping("/")
-    public String root() {
-        return "welcomeToHome/welcome";
-    }
-
-    @GetMapping("/welcome")
-    public String welcome() {
-        return "welcomeToHome/welcome";
     }
 }

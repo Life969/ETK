@@ -32,12 +32,14 @@ services:
       - backend
     env_file:
       - .env
+    volumes:
+      - ./uploads:/app/uploads
     command: >
       sh -c "java -Djava.security.egd=file:/dev/./urandom 
       -Dspring.datasource.hikari.connection-timeout=60000 
       -jar app.jar"
 
-  
+
 
 
 

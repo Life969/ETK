@@ -38,14 +38,17 @@ body {
     --bs-table-hover-bg: rgba(230, 126, 34, 0.15);
     --bs-table-border-color: #E67E22;
 }
+
 .table td,
 .table th {
     color: inherit; /* наследуем от родителя .table */
 }
+
 .table thead {
     --bs-table-bg: #1e2b38;
     color: #E67E22;
 }
+
 .table thead th {
     color: #E67E22; /* оранжевый */
     /* можно также использовать переменную --bs-primary */
@@ -56,14 +59,17 @@ body {
     background-color: #E67E22;
     border-color: #E67E22;
 }
+
 .btn-primary:hover {
     background-color: #d35400;
     border-color: #d35400;
 }
+
 .btn-outline-primary {
     color: #E67E22;
     border-color: #E67E22;
 }
+
 .btn-outline-primary:hover {
     background-color: #E67E22;
     color: #fff;
@@ -75,11 +81,13 @@ body {
     border-color: #E67E22;
     color: #ECF0F1;
 }
+
 .form-control:focus, .form-select:focus {
     background-color: #3d566e;
     border-color: #E67E22;
     box-shadow: 0 0 0 0.25rem rgba(230, 126, 34, 0.25);
 }
+
 .form-control::placeholder {
     color: #95a5a6;
 }
@@ -90,16 +98,19 @@ body {
     color: #1e2b38;
     border-color: #27ae60;
 }
+
 .alert-danger {
     background-color: #e74c3c;
     color: #1e2b38;
     border-color: #c0392b;
 }
+
 .alert-warning {
     background-color: #f39c12;
     color: #1e2b38;
     border-color: #e67e22;
 }
+
 .alert-info {
     background-color: #3498db;
     color: #1e2b38;
@@ -110,6 +121,7 @@ body {
 a:not(.btn) {
     color: #E67E22;
 }
+
 a:not(.btn):hover {
     color: #d35400;
 }
@@ -118,10 +130,10 @@ a:not(.btn):hover {
     position: absolute;
     bottom: 20px;
     right: 20px;
-    width: 300px;   /* или любой размер */
+    width: 300px; /* или любой размер */
     height: auto;
-    opacity: 0.9;   /* можно сделать полупрозрачным, чтобы не отвлекал */
-    z-index: 100;   /* чтобы был поверх других элементов, если надо */
+    opacity: 0.9; /* можно сделать полупрозрачным, чтобы не отвлекал */
+    z-index: 100; /* чтобы был поверх других элементов, если надо */
     pointer-events: none; /* чтобы картинка не мешала кликать по кнопкам под ней */
 }
 
@@ -162,25 +174,29 @@ a:not(.btn):hover {
 
 /* Специфичные классы для карточек срочности */
 .card.bg-danger {
-    background-color: #c0392b !important;  /* приглушённый тёмно-красный */
+    background-color: #c0392b !important; /* приглушённый тёмно-красный */
     border-color: #e67e22;
     color: #ecf0f1;
 }
+
 .card.bg-danger .card-title a {
     color: #ecf0f1 !important;
 }
+
 .card.bg-danger .card-title a:hover {
     text-decoration: underline;
 }
 
 .card.bg-warning {
-    background-color: #f39c12 !important;  /* золотисто-оранжевый */
+    background-color: #f39c12 !important; /* золотисто-оранжевый */
     border-color: #e67e22;
-    color: #1e2b38;                       /* тёмный текст для контраста */
+    color: #1e2b38; /* тёмный текст для контраста */
 }
+
 .card.bg-warning .card-title a {
     color: #1e2b38 !important;
 }
+
 .card.bg-warning .card-title a:hover {
     color: #000 !important;
 }
@@ -190,15 +206,17 @@ a:not(.btn):hover {
     border-color: #e67e22;
     color: #ecf0f1;
 }
+
 .card.bg-light .card-title a {
-    color: #e67e22 !important;            /* ссылка оранжевая */
+    color: #e67e22 !important; /* ссылка оранжевая */
 }
+
 .card.bg-light .card-title a:hover {
     color: #d35400;
 }
 
 .image-container {
-    background-color: #34495e;  /* родной фон карточки */
+    background-color: #34495e; /* родной фон карточки */
     padding: 8px;
     border-radius: 0.375rem;
     display: inline-block;
@@ -208,7 +226,7 @@ a:not(.btn):hover {
     display: block;
     max-width: 100%;
     height: auto;
-    background: transparent !important;  /* убираем возможный фон у самого img */
+    background: transparent !important; /* убираем возможный фон у самого img */
     border: none !important;
 }
 
@@ -225,7 +243,7 @@ a:not(.btn):hover {
     color: #f0e6d0;
     font-family: 'Friz Quadrata', 'Cinema', 'Verdana', sans-serif;
     font-size: 17px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     z-index: 10000;
     pointer-events: none;
     backdrop-filter: blur(2px);
@@ -267,7 +285,7 @@ a:not(.btn):hover {
     font-size: 25px;
     font-weight: bold;
     letter-spacing: 1px;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 .wow-tooltip .item-type {
@@ -313,7 +331,6 @@ a:not(.btn):hover {
 }
 
 
-
 .wow-tooltip .description {
     margin-top: 11px;
     font-style: italic;
@@ -322,6 +339,7 @@ a:not(.btn):hover {
     line-height: 1.5;
     text-align: center;
 }
+
 .wow-tooltip .coin {
     display: inline-flex;
     align-items: center;
@@ -341,22 +359,55 @@ a:not(.btn):hover {
     display: inline-block;
     margin-right: 4px;
 }
+
 /* Цвета качества предметов (как в WoW) */
-.quality0 { color: #9d9d9d; } /* серый */
-.quality1 { color: #ffffff; } /* белый */
-.quality2 { color: #1eff00; } /* зелёный */
-.quality3 { color: #0070dd; } /* синий */
-.quality4 { color: #a335ee; } /* фиолетовый */
-.quality5 { color: #ff8000; } /* оранжевый */
-.quality6 { color: #e5cc80; } /* жёлтый */
-.quality7 { color: #ff0000; } /* красный */
+.quality0 {
+    color: #9d9d9d;
+}
+
+/* серый */
+.quality1 {
+    color: #ffffff;
+}
+
+/* белый */
+.quality2 {
+    color: #1eff00;
+}
+
+/* зелёный */
+.quality3 {
+    color: #0070dd;
+}
+
+/* синий */
+.quality4 {
+    color: #a335ee;
+}
+
+/* фиолетовый */
+.quality5 {
+    color: #ff8000;
+}
+
+/* оранжевый */
+.quality6 {
+    color: #e5cc80;
+}
+
+/* жёлтый */
+.quality7 {
+    color: #ff0000;
+}
+
+/* красный */
 
 /* Применяем к названию в тултипе */
 .wow-tooltip .item-name {
     font-size: 22px;
     font-weight: bold;
     letter-spacing: 1px;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 /* Стилизованный прямоугольник для названия продукции */
@@ -387,6 +438,7 @@ a:not(.btn):hover {
     text-decoration: underline;
     color: #ffd966;
 }
+
 .product-name-wrapper {
     display: inline-block;
     background: #2a1a0a;
@@ -420,3 +472,1607 @@ a:not(.btn):hover {
 .table .product-tooltip {
     text-decoration: none !important;
 }
+
+/* =========================================
+   Страница фабрики WC1 — full screen, без letterbox
+   ========================================= */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.factory-page {
+    background-color: #f0e6d6;
+}
+
+/* Сцена занимает ровно весь viewport */
+.scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Картинка заполняет сцену, при несовпадении пропорций
+   обрезается по краям (object-fit: cover) — это нормально */
+.background-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    z-index: 1;
+}
+
+/* =========================================
+   ДЫМ
+   ========================================= */
+
+.smoke-container {
+    position: absolute;
+    top: 9%;
+    left: 55%;
+    width: 3vw;
+    height: 3vw;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.smoke {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 2.2vw;
+    height: 2.2vw;
+    background-color: #d4cfc9;
+    filter: blur(1px);
+    opacity: 0;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+
+    animation-name: puffUp;
+    animation-duration: 4s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}
+
+.smoke::before,
+.smoke::after {
+    content: '';
+    position: absolute;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.smoke::before {
+    width: 70%;
+    height: 70%;
+    top: -15%;
+    left: 15%;
+}
+
+.smoke::after {
+    width: 60%;
+    height: 60%;
+    top: 10%;
+    left: -15%;
+}
+
+@keyframes puffUp {
+    0% {
+        transform: translate(0, 0) scale(0.4) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.85;
+    }
+    50% {
+        transform: translate(-1vw, -4vw) scale(1.1) rotate(5deg);
+    }
+    100% {
+        transform: translate(-3vw, -11vw) scale(2.2) rotate(-10deg);
+        opacity: 0;
+    }
+}
+
+/* Задержки и стартовые позиции — тоже в vw */
+.puff-1 {
+    animation-delay: 0s;
+}
+
+.puff-2 {
+    animation-delay: 1s;
+    left: 0.8vw;
+    width: 1.4vw;
+    height: 1.4vw;
+}
+
+.puff-3 {
+    animation-delay: 2s;
+    left: -0.6vw;
+    width: 2.5vw;
+    height: 2.5vw;
+}
+
+.puff-4 {
+    animation-delay: 3s;
+    left: 0.3vw;
+    width: 1.7vw;
+    height: 1.7vw;
+}
+
+.smoke-container:hover .smoke {
+    animation-duration: 1.8s;
+    background-color: #e8e3dd;
+}
+
+/* =========================================
+   ОБЛАКА — в vw, движение через transform
+   ========================================= */
+
+.clouds-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.cloud {
+    position: absolute;
+    background-color: #fdf2e3;
+    border-radius: 999px;
+    opacity: 0.9;
+    left: 0;
+
+    /* СТАРТОВАЯ позиция — облако за левым краем */
+    transform: translateX(-25vw);
+    will-change: transform;
+
+    animation-name: drift;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.cloud::before {
+    content: '';
+    position: absolute;
+    background: inherit;
+    width: 55%;
+    height: 160%;
+    border-radius: 50%;
+    top: -80%;
+    left: 20%;
+    /* Тени в vw — плавно масштабируются с экраном, без дёрганий */
+    box-shadow: 1.4vw 0.3vw 0 -0.3vw #fdf2e3,
+    -1.1vw 0.5vw 0 -0.4vw #fdf2e3;
+}
+
+.cloud::after {
+    content: '';
+    position: absolute;
+    background: inherit;
+    width: 40%;
+    height: 130%;
+    border-radius: 50%;
+    top: -60%;
+    left: 40%;
+}
+
+/* Медленные скорости: 120–280 секунд на пролёт */
+
+.cloud-1 {
+    width: 9vw;
+    height: 2.1vw;
+    top: 15%;
+    animation-duration: 160s;
+    animation-delay: -20s;
+}
+
+.cloud-2 {
+    width: 12vw;
+    height: 2.9vw;
+    top: 28%;
+    animation-duration: 220s;
+    animation-delay: -80s;
+    opacity: 0.85;
+}
+
+.cloud-3 {
+    width: 5.2vw;
+    height: 1.4vw;
+    top: 8%;
+    animation-duration: 120s;
+    animation-delay: -50s;
+    opacity: 0.75;
+}
+
+.cloud-4 {
+    width: 7.3vw;
+    height: 1.7vw;
+    top: 36%;
+    animation-duration: 280s;
+    animation-delay: -200s;
+    opacity: 0.55;
+}
+
+.cloud-5 {
+    width: 10vw;
+    height: 2.4vw;
+    top: 20%;
+    animation-duration: 190s;
+    animation-delay: -110s;
+    opacity: 0.8;
+}
+
+.cloud-6 {
+    width: 6.5vw;
+    height: 1.6vw;
+    top: 5%;
+    animation-duration: 140s;
+    animation-delay: -90s;
+    opacity: 0.7;
+}
+
+.cloud-7 {
+    width: 14vw;
+    height: 3.2vw;
+    top: 32%;
+    animation-duration: 260s;
+    animation-delay: -220s;
+    opacity: 0.5;
+}
+
+.cloud-8 {
+    width: 8vw;
+    height: 2vw;
+    top: 12%;
+    animation-duration: 130s;
+    animation-delay: -60s;
+    opacity: 0.9;
+}
+
+/* Движение через transform — GPU, плавно, без дёрганий */
+@keyframes drift {
+    0% {
+        transform: translateX(-25vw);
+    }
+    100% {
+        transform: translateX(125vw);
+    }
+}
+
+/* =========================================
+   ВОДА В БОЧКЕ И ВЕДРЕ — с редкими порывами ветра
+   ========================================= */
+
+.water {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+
+    background-color: #8ec5e0;
+    border: 0.15vw solid #2a3b4a;
+    box-sizing: border-box;
+    border-radius: 50% 50% 48% 48% / 35% 35% 65% 65%;
+
+    /* Рябь от порыва ветра — редко, с большой паузой */
+    animation-name: waterRipple;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    will-change: transform;
+    transform-origin: center center;
+}
+
+/* Большой блик — «улыбка» на поверхности */
+.water::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 20%;
+    width: 45%;
+    height: 22%;
+    background-color: #ffffff;
+    border-radius: 50%;
+    opacity: 0.9;
+
+    /* Блик пробегает вслед за рябью — синхронно с водой */
+    animation-name: shineSweep;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+/* Маленький блик — точка (статичная) */
+.water::after {
+    content: '';
+    position: absolute;
+    top: 30%;
+    right: 18%;
+    width: 10%;
+    height: 12%;
+    background-color: #ffffff;
+    border-radius: 50%;
+    opacity: 0.85;
+}
+
+/* Вода в большой бочке — порыв примерно раз в 28 секунд */
+.barrel-water {
+    width: 4.1vw;
+    height: 0.73vw;
+    top: 83%;
+    left: 92.2%;
+    transform: translate(-50%, -50%);
+    animation-duration: 28s;
+    animation-delay: 0s;
+}
+
+/* Вода в ведре — порыв раз в 28 секунд, но на 1 секунду позже.
+   Ветер «доходит» до ведра с небольшой задержкой — так естественнее. */
+.bucket-water {
+    width: 2.36vw;
+    height: 0.78vw;
+    top: 93%;
+    left: 88.6%;
+    transform: translate(-50%, -50%);
+    animation-duration: 28s;
+    animation-delay: -27s; /* сдвиг цикла, чтобы рябь пришла на секунду позже */
+}
+
+/* Синхронизируем блик с водой — те же duration, что у родителя */
+.barrel-water::before {
+    animation-duration: 28s;
+    animation-delay: 0s;
+}
+
+.bucket-water::before {
+    animation-duration: 28s;
+    animation-delay: -27s;
+}
+
+/* =========================================
+   АНИМАЦИЯ РЯБИ
+   Первые 85% цикла — полная неподвижность.
+   В последние 15% (≈4 секунды) — короткий порыв
+   и затухание, как круги по воде.
+   ========================================= */
+
+@keyframes waterRipple {
+    0%, 85% {
+        transform: translate(-50%, -50%) scaleX(1) scaleY(1);
+    }
+    87% {
+        /* Ветер ударил: вода сжалась по горизонтали */
+        transform: translate(-50%, -50%) scaleX(1.08) scaleY(0.9);
+    }
+    90% {
+        /* Отдача: чуть раздалась в стороны */
+        transform: translate(-50%, -50%) scaleX(0.96) scaleY(1.03);
+    }
+    93% {
+        /* Второй более слабый всплеск */
+        transform: translate(-50%, -50%) scaleX(1.04) scaleY(0.98);
+    }
+    96% {
+        /* Затухание */
+        transform: translate(-50%, -50%) scaleX(0.99) scaleY(1.01);
+    }
+    100% {
+        transform: translate(-50%, -50%) scaleX(1) scaleY(1);
+    }
+}
+
+/* =========================================
+   БЛИК ПРОБЕГАЕТ ПО ПОВЕРХНОСТИ
+   Одновременно с рябью — сдвигается вправо
+   и обратно, будто отражает порыв.
+   ========================================= */
+
+@keyframes shineSweep {
+    0%, 85% {
+        transform: translateX(0);
+        opacity: 0.9;
+    }
+    88% {
+        transform: translateX(40%);
+        opacity: 0.6;
+    }
+    92% {
+        transform: translateX(70%);
+        opacity: 0.4;
+    }
+    96% {
+        transform: translateX(20%);
+        opacity: 0.75;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 0.9;
+    }
+}
+
+/* =========================================
+   МЕДВЕДЬ-АКТЁР
+   ========================================= */
+
+.ice-bear-actor {
+    position: absolute;
+    width: 9vw;
+    height: 9vw;
+    bottom: 8%; /* высота над землёй */
+    left: 32%; /* ← позиция по горизонтали */
+    z-index: 6;
+    pointer-events: none;
+}
+
+/* Все видео стопкой. Видно только то, у которого .active */
+.bear-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.bear-video.active {
+    opacity: 1;
+}
+
+/* =========================================
+   ПАДАЮЩИЕ ЛИСТЬЯ — мультяшный SVG-лист
+   ========================================= */
+
+.leaves-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.leaf {
+    position: absolute;
+    top: -8vh;
+    width: 1.2vw;
+    height: 1.8vw;
+    will-change: transform;
+    animation-name: leafFall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    /* Цвет листа задаётся через color — SVG берёт его через currentColor */
+    color: #e59449;
+}
+
+.leaf svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+/* =========================================
+   Индивидуальные настройки:
+   цвет (color) + позиция (left) + скорость + задержка
+   ========================================= */
+
+.leaf-1 {
+    color: #e59449;
+    left: 8%;
+    animation-duration: 22s;
+    animation-delay: 0s;
+}
+
+.leaf-2 {
+    color: #d97b3c;
+    left: 18%;
+    animation-duration: 26s;
+    animation-delay: -5s;
+    width: 1vw;
+    height: 1.5vw;
+}
+
+.leaf-3 {
+    color: #f0b86e;
+    left: 28%;
+    animation-duration: 20s;
+    animation-delay: -12s;
+}
+
+.leaf-4 {
+    color: #c96a2d;
+    left: 38%;
+    animation-duration: 28s;
+    animation-delay: -3s;
+    width: 1.4vw;
+    height: 2.1vw;
+}
+
+.leaf-5 {
+    color: #e59449;
+    left: 48%;
+    animation-duration: 24s;
+    animation-delay: -18s;
+}
+
+.leaf-6 {
+    color: #a85520;
+    left: 58%;
+    animation-duration: 30s;
+    animation-delay: -8s;
+    width: 1.1vw;
+    height: 1.65vw;
+}
+
+.leaf-7 {
+    color: #f0b86e;
+    left: 68%;
+    animation-duration: 21s;
+    animation-delay: -14s;
+}
+
+.leaf-8 {
+    color: #d97b3c;
+    left: 78%;
+    animation-duration: 25s;
+    animation-delay: -7s;
+    width: 1.3vw;
+    height: 1.95vw;
+}
+
+.leaf-9 {
+    color: #e59449;
+    left: 88%;
+    animation-duration: 23s;
+    animation-delay: -20s;
+}
+
+.leaf-10 {
+    color: #c96a2d;
+    left: 5%;
+    animation-duration: 27s;
+    animation-delay: -10s;
+    width: 1.2vw;
+    height: 1.8vw;
+}
+
+.leaf-11 {
+    color: #f0b86e;
+    left: 63%;
+    animation-duration: 19s;
+    animation-delay: -16s;
+}
+
+.leaf-12 {
+    color: #a85520;
+    left: 93%;
+    animation-duration: 29s;
+    animation-delay: -22s;
+    width: 1.35vw;
+    height: 2vw;
+}
+
+/* =========================================
+   Полёт: падает + качается + вращается
+   ========================================= */
+
+@keyframes leafFall {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 0;
+    }
+    8% {
+        opacity: 0.95;
+    }
+    25% {
+        transform: translate(-3vw, 25vh) rotate(120deg);
+    }
+    50% {
+        transform: translate(2.5vw, 50vh) rotate(240deg);
+    }
+    75% {
+        transform: translate(-2vw, 75vh) rotate(350deg);
+    }
+    92% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(2vw, 105vh) rotate(460deg);
+        opacity: 0;
+    }
+}
+
+/* =========================================
+   WELCOME PANEL — стеклянное табло
+   ========================================= */
+
+/* Затемнение поверх сцены, чтобы панель читалась */
+.welcome-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            ellipse at center,
+            rgba(15, 20, 30, 0.15) 0%,
+            rgba(10, 15, 25, 0.45) 100%
+    );
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Контейнер панели — центрирует её на экране */
+.welcome-panel {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    pointer-events: none;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Само стекло */
+.panel-glass {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    padding: 44px 40px 28px;
+
+    /* Стеклянность */
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+
+    /* Тонкая грань стекла */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+
+    /* Внутреннее свечение + тень */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
+    color: #f0e6d0;
+    font-family: 'Segoe UI', 'Verdana', sans-serif;
+
+    pointer-events: auto;
+
+    /* Появление */
+    opacity: 0;
+    transform: translateY(20px);
+    animation: panelAppear 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes panelAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Блик сверху стекла — тонкая светлая полоска */
+.panel-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.6),
+            transparent
+    );
+    border-radius: 1px;
+}
+
+/* Заголовок */
+.panel-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.panel-title {
+    margin: 0;
+    font-size: 44px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(255, 200, 130, 0.15);
+}
+
+.panel-subtitle {
+    margin: 12px 0 0;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+    font-weight: 300;
+}
+
+/* Тело — здесь будут формы авторизации позже */
+.panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 32px;
+}
+
+/* Кнопка входа */
+.btn-enter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: 100%;
+    padding: 16px 24px;
+
+    background: linear-gradient(
+            135deg,
+            rgba(230, 126, 34, 0.95),
+            rgba(200, 90, 20, 0.95)
+    );
+    border: 1px solid rgba(255, 200, 130, 0.4);
+    border-radius: 12px;
+
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-enter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(230, 126, 34, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    background: linear-gradient(
+            135deg,
+            rgba(240, 140, 50, 1),
+            rgba(210, 100, 25, 1)
+    );
+}
+
+.btn-enter:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-enter svg {
+    transition: transform 0.25s ease;
+}
+
+.btn-enter:hover svg {
+    transform: translateX(4px);
+}
+
+/* Футер */
+.panel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.4);
+}
+
+.panel-footer .version {
+    color: rgba(240, 230, 208, 0.55);
+}
+
+/* =========================================
+   ВЫКЛЮЧАТЕЛЬ СВЕТА — вписан в стиль картинки
+   ========================================= */
+
+.light-switch {
+    position: absolute;
+    left: 61.3%; /* ← справа от двери */
+    top: 68%; /* ← на уровне руки */
+    width: 1.4vw;
+    height: 2vw;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 7;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Корпус выключателя — кремовый, как окна здания */
+.switch-frame {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #f5ede0 0%, #e8dcc4 100%);
+    border: 0.16vw solid #2a1f18;
+    border-radius: 0.2vw;
+    box-shadow: inset 0 0.1vw 0 rgba(255, 255, 255, 0.6),
+    inset 0 -0.1vw 0 rgba(0, 0, 0, 0.15),
+    0 0.12vw 0.25vw rgba(0, 0, 0, 0.35);
+}
+
+/* Дорожка, по которой ходит рычажок */
+.switch-track {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    width: 0.55vw;
+    height: 70%;
+    transform: translateX(-50%);
+    background: #d4c8b0;
+    border: 0.1vw solid #2a1f18;
+    border-radius: 0.15vw;
+    box-shadow: inset 0 0.1vw 0.15vw rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+/* Сам рычажок — тёмный переключатель */
+.switch-knob {
+    position: absolute;
+    left: 50%;
+    bottom: 0; /* выключено — внизу */
+    width: 0.5vw;
+    height: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #4a4a4a 0%, #1a1a1a 100%);
+    border-radius: 0.1vw;
+    transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Красная точка-индикатор на рычажке */
+.knob-dot {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 0.22vw;
+    height: 0.22vw;
+    background: #8a1e12;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ВКЛЮЧЕНО — рычажок переезжает наверх */
+body.lights-on .switch-knob {
+    bottom: 50%;
+}
+
+/* И красная точка загорается */
+body.lights-on .knob-dot {
+    background: #ff4a3a;
+    box-shadow: 0 0 0.8vw rgba(255, 80, 60, 0.95);
+}
+
+/* Лёгкий отклик на нажатие */
+.light-switch:active {
+    transform: scale(0.95);
+}
+
+/* =========================================
+   СВЕЧЕНИЕ ФОНАРЕЙ
+   ========================================= */
+
+.lamp-glow {
+    position: absolute;
+    /* 12vw в диаметре — мягкое пятно света вокруг лампы */
+    width: 12vw;
+    height: 12vw;
+    pointer-events: none;
+    z-index: 3;
+
+    /* Тёплый свет в стиле ламп накаливания */
+    background: radial-gradient(
+            circle,
+            rgba(255, 220, 130, 0.85) 0%,
+            rgba(255, 190, 90, 0.45) 25%,
+            rgba(255, 160, 60, 0.15) 50%,
+            transparent 75%
+    );
+
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    mix-blend-mode: screen;
+}
+
+/* Позиция — центр первого фонаря (у здания) */
+.lamp-glow-1 {
+    left: 73.5%;
+    top: 55%;
+    transform: translate(-50%, -50%);
+}
+
+/* Позиция — центр второго фонаря (справа, край картинки) */
+.lamp-glow-2 {
+    left: 97%;
+    top: 53%;
+    transform: translate(-50%, -50%);
+}
+
+/* Загораются при включении */
+body.lights-on .lamp-glow {
+    opacity: 1;
+}
+
+/* Лёгкое мерцание — как живой свет */
+@keyframes flicker {
+    0%, 100% {
+        opacity: 1;
+    }
+    45% {
+        opacity: 0.94;
+    }
+    50% {
+        opacity: 0.88;
+    }
+    55% {
+        opacity: 0.96;
+    }
+    80% {
+        opacity: 0.92;
+    }
+}
+
+body.lights-on .lamp-glow-1 {
+    animation: flicker 4.2s ease-in-out infinite;
+}
+
+body.lights-on .lamp-glow-2 {
+    animation: flicker 5.7s ease-in-out infinite;
+    animation-delay: -1.5s;
+}
+
+/* =========================================
+   PANEL BODY — плавная смена высоты
+   ========================================= */
+
+.panel-body {
+    position: relative;
+    width: 100%;
+    /* Плавная смена высоты — как раз то, что убирает "дёргание" */
+    transition: height 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+/* Каждое состояние — абсолютное, но по ширине совпадает с panel-body */
+.panel-state {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+.panel-state.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Кнопка лопается при клике */
+.btn-enter.bursting {
+    animation: btnBurst 0.35s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes btnBurst {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    40% {
+        transform: scale(1.08);
+        opacity: 1;
+        filter: brightness(1.4);
+    }
+    100% {
+        transform: scale(0.2);
+        opacity: 0;
+        filter: brightness(2);
+    }
+}
+
+/* =========================================
+   ЧАСТИЦЫ ВЗРЫВА
+   ========================================= */
+
+.burst-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 8px rgba(255, 160, 80, 0.6);
+    animation: particleFly 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    70% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.2);
+        opacity: 0;
+    }
+}
+
+/* =========================================
+   ПОЛЯ ФОРМЫ ЛОГИНА
+   ========================================= */
+
+.form-field {
+    margin-bottom: 16px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+    font-weight: 400;
+}
+
+.form-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.25s ease;
+    -webkit-appearance: none;
+}
+
+.form-field input::placeholder {
+    color: rgba(240, 230, 208, 0.25);
+}
+
+.form-field input:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.form-field input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn-back {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    background: none;
+    border: none;
+    color: rgba(240, 230, 208, 0.45);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease, letter-spacing 0.2s ease;
+}
+
+.btn-back:hover {
+    color: rgba(240, 230, 208, 0.9);
+    letter-spacing: 3px;
+}
+
+/* =========================================
+   ЛИСТЬЯ, ЛЕЖАЩИЕ НА СТЕКЛЕ
+   Статичная кучка в углу панели.
+   Привязана к стеклу, не к форме.
+   ========================================= */
+
+.panel-leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3; /* поверх стекла */
+    border-radius: inherit;
+    overflow: hidden; /* не вылетают за скруглённые углы */
+}
+
+.p-leaf {
+    position: absolute;
+    width: 34px;
+    height: 48px;
+    color: #e59449;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+    /* Лежат статично, но чуть-чуть «дышат» — чтобы не выглядели мёртвыми */
+    animation: leafRest 7s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+/* Мягкое покачивание лежащих листьев */
+@keyframes leafRest {
+    0%, 100% {
+        transform: rotate(var(--rot, 0deg)) translateY(0);
+    }
+    50% {
+        transform: rotate(var(--rot, 0deg)) translateY(-1.5px);
+    }
+}
+
+/* Листья, разложенные по всему стеклу */
+
+.p-leaf-1 {
+    --rot: 22deg;
+    top: 140px;
+    left: 470px;
+    color: #e59449;
+    width: 36px;
+    height: 50px;
+    animation-delay: 0s;
+}
+
+.p-leaf-2 {
+    --rot: -38deg;
+    top: 140px;
+    left: 470px;
+    color: #d97b3c;
+    width: 30px;
+    height: 42px;
+    animation-delay: -1.4s;
+}
+
+.p-leaf-3 {
+    --rot: 8deg;
+    top: 140px;
+    left: 470px;
+    color: #f0b86e;
+    width: 26px;
+    height: 36px;
+    animation-delay: -3.1s;
+}
+
+.p-leaf-4 {
+    --rot: -62deg;
+    top: 140px;
+    left: 470px;
+    color: #c96a2d;
+    width: 28px;
+    height: 40px;
+    animation-delay: -2.2s;
+}
+
+.p-leaf-5 {
+    --rot: 110deg;
+    top: 145px;
+    left: 470px;
+    color: #a85520;
+    width: 24px;
+    height: 34px;
+    animation-delay: -4.6s;
+}
+
+.p-leaf-6 {
+    --rot: -15deg;
+    top: 48%;
+    right: 22px;
+    color: #e59478;
+    width: 22px;
+    height: 32px;
+    animation-delay: -5.5s;
+}
+
+/* ==========================================
+   LAYOUT — авторизованная зона
+   ========================================== */
+
+.app-panel {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    z-index: 30;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+.app-glass {
+    position: relative;
+    width: 100%;
+    max-width: 1360px;
+    height: 100%;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+
+    background: rgba(20, 25, 35, 0.42);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 24px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+
+    pointer-events: auto;
+    overflow: hidden;
+    color: #f0e6d0;
+    font-family: 'Segoe UI', 'Verdana', sans-serif;
+
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    animation: panelExpand 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+@keyframes panelExpand {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.app-glass::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent,
+    rgba(255, 255, 255, 0.6), transparent);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Навбар внутри стекла */
+.app-glass .navbar {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px 24px 0 0;
+    flex-shrink: 0;
+    margin: 0 !important;
+    backdrop-filter: blur(10px);
+}
+
+.app-glass .navbar .nav-link {
+    color: rgba(240, 230, 208, 0.75) !important;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: color 0.2s ease;
+}
+.app-glass .navbar .nav-link:hover { color: #ffd966 !important; }
+
+.app-glass .navbar .dropdown-menu {
+    background: rgba(20, 25, 35, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+}
+.app-glass .navbar .dropdown-item {
+    color: rgba(240, 230, 208, 0.8);
+    font-size: 13px;
+}
+.app-glass .navbar .dropdown-item:hover {
+    background: rgba(230, 126, 34, 0.18);
+    color: #ffd966;
+}
+
+/* Область контента внутри frame */
+.app-frame {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px 32px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(230, 126, 34, 0.4) transparent;
+}
+.app-frame::-webkit-scrollbar { width: 8px; }
+.app-frame::-webkit-scrollbar-track { background: transparent; }
+.app-frame::-webkit-scrollbar-thumb {
+    background: rgba(230, 126, 34, 0.4);
+    border-radius: 4px;
+}
+
+/* ==========================================
+   HOME CONTENT
+   ========================================== */
+
+.home-content {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.home-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.home-date {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+.home-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.75);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-title i { color: #e67e22; font-size: 14px; }
+
+/* Сетка срочных заказов */
+.urgent-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+@media (max-width: 1200px) { .urgent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px)  { .urgent-grid { grid-template-columns: 1fr; } }
+
+.urgent-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.22s ease;
+}
+.urgent-card:hover {
+    background: rgba(255, 255, 255, 0.11);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.urgent-card.bg-danger {
+    background: rgba(192, 57, 43, 0.35) !important;
+    border-color: rgba(231, 76, 60, 0.55);
+}
+.urgent-card.bg-warning {
+    background: rgba(243, 156, 18, 0.28) !important;
+    border-color: rgba(243, 156, 18, 0.5);
+}
+.urgent-card.bg-light {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.urgent-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffb877;
+    align-self: flex-start;
+    font-weight: 500;
+}
+
+.urgent-company {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f5f1e8 !important;
+    text-decoration: none !important;
+    line-height: 1.25;
+    transition: color 0.2s ease;
+}
+.urgent-company:hover { color: #ffd966 !important; }
+
+.urgent-product {
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.75);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.urgent-product i { color: #e67e22; }
+
+.urgent-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.55);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 6px;
+    margin-top: 2px;
+}
+
+.urgent-days { font-weight: 600; color: #ffb877; }
+.urgent-card.bg-danger  .urgent-days { color: #ffb0a0; }
+.urgent-card.bg-warning .urgent-days { color: #ffd88a; }
+
+/* Журнал */
+.journal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.journal-table thead th {
+    text-align: left;
+    padding: 9px 14px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(230, 126, 34, 0.9);
+    background: rgba(0, 0, 0, 0.28);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.journal-table tbody td {
+    padding: 9px 14px;
+    color: rgba(240, 230, 208, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.journal-table tbody tr:last-child td { border-bottom: none; }
+.journal-table tbody tr { transition: background 0.18s ease; }
+.journal-table tbody tr:hover { background: rgba(230, 126, 34, 0.09); }
+
+.journal-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.8);
+}
+.journal-type i { color: #e67e22; }
+
+.journal-empty {
+    padding: 22px;
+    text-align: center;
+    color: rgba(240, 230, 208, 0.45);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================
+   ЛОГОТИП-ЛИСТ В NAVBAR
+   ========================================== */
+
+.navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+}
+
+.brand-leaf {
+    width: 22px;
+    height: 32px;
+    color: #e67e22;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.navbar-brand:hover .brand-leaf {
+    color: #ffd966;
+    transform: rotate(-12deg) scale(1.08);
+}
+
+/* ==========================================
+   ОШИБКА АВТОРИЗАЦИИ
+   ========================================== */
+
+.auth-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: rgba(231, 76, 60, 0.18);
+    border: 1px solid rgba(231, 76, 60, 0.5);
+    border-radius: 10px;
+    color: #ffb0a0;
+    font-size: 12px;
+    letter-spacing: 1px;
+    animation: authShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+.auth-error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(231, 76, 60, 0.5);
+    color: #fff;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+@keyframes authShake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-6px); }
+    40%, 60% { transform: translateX(6px); }
+}
+
+/* ==========================================
+   ТОНА СРОЧНОСТИ (перебиваем Bootstrap)
+   ========================================== */
+
+.urgent-card.bg-danger {
+    background: linear-gradient(135deg,
+    rgba(192, 57, 43, 0.42),
+    rgba(160, 40, 30, 0.32)) !important;
+    border-color: rgba(255, 100, 80, 0.55) !important;
+}
+.urgent-card.bg-danger .urgent-days { color: #ffb0a0; }
+
+.urgent-card.bg-warning {
+    background: linear-gradient(135deg,
+    rgba(243, 156, 18, 0.30),
+    rgba(210, 130, 10, 0.22)) !important;
+    border-color: rgba(243, 180, 60, 0.5) !important;
+}
+.urgent-card.bg-warning .urgent-days { color: #ffd88a; }
+
+/* bg-light и так уже дефолтный, ничего не трогаем */
