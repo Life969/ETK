@@ -2075,4 +2075,842 @@ body.lights-on .lamp-glow-2 {
 }
 .urgent-card.bg-warning .urgent-days { color: #ffd88a; }
 
-/* bg-light и так уже дефолтный, ничего не трогаем */
+
+/* ==========================================
+   СПРАВОЧНИКИ — общий стиль
+   ========================================== */
+
+.handbook-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.handbook-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.handbook-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.handbook-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.handbook-count {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+}
+
+.hb-actions-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Кнопки в стиле стекла */
+.btn-glass {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.btn-glass-primary {
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.9), rgba(200, 90, 20, 0.9));
+    color: #fff;
+    border-color: rgba(255, 200, 130, 0.4);
+    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.35);
+}
+.btn-glass-primary:hover {
+    background: linear-gradient(135deg, rgba(240, 140, 50, 1), rgba(210, 100, 25, 1));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(230, 126, 34, 0.5);
+}
+
+.btn-glass-danger {
+    background: rgba(192, 57, 43, 0.5);
+    color: #ffb0a0;
+    border-color: rgba(231, 76, 60, 0.5);
+}
+.btn-glass-danger:hover {
+    background: rgba(192, 57, 43, 0.75);
+    color: #fff;
+}
+
+.btn-glass-ghost {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(240, 230, 208, 0.8);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+.btn-glass-ghost:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffd966;
+}
+
+/* Мелкие иконки-кнопки в таблицах */
+.hb-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(240, 230, 208, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+.hb-icon-btn:hover {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffd966;
+    border-color: rgba(230, 126, 34, 0.5);
+}
+.hb-back {
+    font-size: 16px;
+}
+
+/* Уведомления */
+.handbook-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+.handbook-alert-success {
+    background: rgba(46, 204, 113, 0.18);
+    border: 1px solid rgba(46, 204, 113, 0.45);
+    color: #a8f0c0;
+}
+.handbook-alert-danger {
+    background: rgba(231, 76, 60, 0.18);
+    border: 1px solid rgba(231, 76, 60, 0.5);
+    color: #ffb0a0;
+}
+.handbook-alert-info {
+    background: rgba(52, 152, 219, 0.18);
+    border: 1px solid rgba(52, 152, 219, 0.45);
+    color: #a8d8f0;
+}
+
+/* ==========================================
+   Аккордеон для справочников (свой, без Bootstrap)
+   ========================================== */
+
+.hb-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hb-accordion-item {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hb-accordion-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: rgba(0, 0, 0, 0.18);
+    border: none;
+    color: #f0e6d0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.hb-accordion-toggle:hover {
+    background: rgba(230, 126, 34, 0.12);
+}
+.hb-accordion-toggle.open {
+    background: rgba(230, 126, 34, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hb-chev {
+    font-size: 12px;
+    color: #e67e22;
+    transition: transform 0.25s ease;
+}
+.hb-accordion-toggle.open .hb-chev {
+    transform: rotate(90deg);
+}
+
+.hb-accordion-name {
+    flex-grow: 1;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hb-accordion-count {
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.hb-accordion-body {
+    display: none;
+    padding: 0;
+}
+.hb-accordion-body.open {
+    display: block;
+}
+
+/* Таблица внутри аккордеона */
+.hb-table {
+    background: transparent;
+    border-radius: 0;
+}
+.hb-table thead th {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.hb-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+/* ==========================================
+   Форма справочника
+   ========================================== */
+
+.handbook-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.hb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+@media (max-width: 700px) {
+    .hb-grid { grid-template-columns: 1fr; }
+}
+
+.hb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.hb-field-full {
+    grid-column: 1 / -1;
+}
+
+.hb-field label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+    font-weight: 400;
+}
+.hb-field .req {
+    color: #e67e22;
+}
+
+.hb-field input,
+.hb-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.hb-field input:focus,
+.hb-field textarea:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.hb-error {
+    font-size: 11px;
+    color: #ffb0a0;
+    letter-spacing: 0.5px;
+}
+
+.hb-image-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hb-image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    display: block;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.hb-image-preview p {
+    margin: 0;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1px;
+}
+
+.handbook-form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* ==========================================
+   Detail — карточка муфты
+   ========================================== */
+
+.hb-detail {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 22px;
+}
+
+.hb-detail-image {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.hb-detail-image img {
+    max-width: 240px;
+    max-height: 240px;
+    border-radius: 10px;
+}
+
+.hb-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 24px;
+}
+@media (max-width: 700px) {
+    .hb-detail-grid { grid-template-columns: 1fr; }
+}
+
+.hb-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.hb-detail-full {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.hb-detail-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+.hb-detail-value {
+    font-size: 14px;
+    color: #f0e6d0;
+    font-weight: 500;
+}
+.hb-detail-value.accent {
+    color: #ffd966;
+    font-weight: 600;
+}
+
+/* ==========================================
+   Плавность Turbo Frames
+   ========================================== */
+
+.app-frame {
+    transition: opacity 0.2s ease;
+}
+
+/* Страховка: если анимация по какой-то причине не запустилась,
+   панель всё равно видна */
+.app-glass {
+    opacity: 1;
+}
+
+/* Для пользователей с reduced-motion — убираем анимацию вообще */
+@media (prefers-reduced-motion: reduce) {
+    .app-glass,
+    .panel-glass {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* ==========================================
+   ЗАКАЗЫ — единый стеклянный стиль
+   ========================================== */
+
+/* Кнопки-переходы между статусами.
+   ВАЖНО: на всех страницах одинаковые. */
+
+.btn-glass-success {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.85), rgba(39, 174, 96, 0.85));
+    color: #fff;
+    border-color: rgba(150, 255, 180, 0.4);
+    box-shadow: 0 4px 14px rgba(46, 204, 113, 0.3);
+}
+.btn-glass-success:hover {
+    background: linear-gradient(135deg, rgba(60, 220, 130, 1), rgba(50, 190, 110, 1));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.5);
+    color: #fff;
+}
+
+.btn-glass-info {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.85), rgba(41, 128, 185, 0.85));
+    color: #fff;
+    border-color: rgba(150, 200, 255, 0.4);
+    box-shadow: 0 4px 14px rgba(52, 152, 219, 0.3);
+}
+.btn-glass-info:hover {
+    background: linear-gradient(135deg, rgba(60, 170, 235, 1), rgba(50, 140, 200, 1));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.5);
+    color: #fff;
+}
+
+.orders-nav-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Поиск */
+.hb-search {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+}
+
+.hb-search input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 44px 11px 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.hb-search input::placeholder { color: rgba(240, 230, 208, 0.3); }
+.hb-search input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.hb-search-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(230, 126, 34, 0.25);
+    border: none;
+    color: #ffb877;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.hb-search-btn:hover {
+    background: rgba(230, 126, 34, 0.45);
+    color: #fff;
+}
+
+/* Сетка карточек заказов */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+@media (max-width: 1200px) { .orders-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px)  { .orders-grid { grid-template-columns: 1fr; } }
+
+.order-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.22s ease;
+}
+.order-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.order-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+.order-card-head-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.order-company {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f5f1e8 !important;
+    text-decoration: none !important;
+    line-height: 1.25;
+    transition: color 0.2s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.order-company:hover { color: #ffd966 !important; }
+
+.order-type-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    align-self: flex-start;
+}
+.order-type-badge.coupling {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffb877;
+}
+.order-type-badge.adapter {
+    background: rgba(52, 152, 219, 0.22);
+    color: #a8d8f0;
+}
+
+.order-product {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.75);
+    min-height: 26px;
+}
+.order-product > i {
+    color: #e67e22;
+    font-size: 14px;
+}
+
+.order-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+}
+
+.order-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 3px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+.order-meta-row:last-child { border-bottom: none; }
+
+.order-meta-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.45);
+}
+
+.order-meta-value {
+    color: #f0e6d0;
+    font-weight: 500;
+    text-align: right;
+}
+.order-meta-value.accent { color: #ffd966; }
+.order-meta-value.soon { color: #ffb877; }
+.order-meta-value.overdue { color: #ffb0a0; }
+
+.order-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Мини-кнопки внутри карточки */
+.btn-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(240, 230, 208, 0.85);
+    white-space: nowrap;
+}
+.btn-mini:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffd966;
+    transform: translateY(-1px);
+}
+
+.btn-mini-success {
+    background: rgba(46, 204, 113, 0.18);
+    color: #a8f0c0;
+    border-color: rgba(46, 204, 113, 0.4);
+}
+.btn-mini-success:hover {
+    background: rgba(46, 204, 113, 0.32);
+    color: #fff;
+    border-color: rgba(46, 204, 113, 0.6);
+}
+
+.btn-mini-warning {
+    background: rgba(230, 126, 34, 0.18);
+    color: #ffb877;
+    border-color: rgba(230, 126, 34, 0.4);
+}
+.btn-mini-warning:hover {
+    background: rgba(230, 126, 34, 0.32);
+    color: #fff;
+    border-color: rgba(230, 126, 34, 0.6);
+}
+
+.btn-mini-danger {
+    background: rgba(231, 76, 60, 0.18);
+    color: #ffb0a0;
+    border-color: rgba(231, 76, 60, 0.4);
+}
+.btn-mini-danger:hover {
+    background: rgba(231, 76, 60, 0.32);
+    color: #fff;
+    border-color: rgba(231, 76, 60, 0.6);
+}
+
+.btn-mini-info {
+    background: rgba(52, 152, 219, 0.18);
+    color: #a8d8f0;
+    border-color: rgba(52, 152, 219, 0.4);
+}
+.btn-mini-info:hover {
+    background: rgba(52, 152, 219, 0.32);
+    color: #fff;
+    border-color: rgba(52, 152, 219, 0.6);
+}
+
+/* Пагинация */
+.hb-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0 4px;
+}
+
+.hb-page-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(240, 230, 208, 0.8);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.hb-page-btn:hover:not(.disabled) {
+    background: rgba(230, 126, 34, 0.18);
+    border-color: rgba(230, 126, 34, 0.5);
+    color: #ffd966;
+}
+.hb-page-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.hb-page-info {
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0 14px;
+    font-weight: 500;
+}
+
+/* Панель КП */
+.offer-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.18), rgba(46, 204, 113, 0.08));
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.offer-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #a8f0c0;
+}
+.offer-count i { font-size: 16px; color: #2ecc71; }
+.offer-count #offerCount { font-weight: 700; font-size: 15px; }
+
+.offer-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Кнопка добавления в КП (в углу карточки) */
+.order-offer-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    background: rgba(46, 204, 113, 0.12);
+    color: #a8f0c0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+.order-offer-btn:hover {
+    background: rgba(46, 204, 113, 0.3);
+    color: #fff;
+    transform: scale(1.05);
+}
+.order-offer-btn.active {
+    background: rgba(46, 204, 113, 0.85);
+    color: #fff;
+    border-color: rgba(46, 204, 113, 1);
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
+}
+
+/* Детали заказа (view) */
+.order-detail-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 24px;
+}
+
+.order-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.order-status-pill.waiting {
+    background: rgba(52, 152, 219, 0.22);
+    color: #a8d8f0;
+    border: 1px solid rgba(52, 152, 219, 0.5);
+}
+.order-status-pill.production {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffb877;
+    border: 1px solid rgba(230, 126, 34, 0.5);
+}
+.order-status-pill.completed {
+    background: rgba(46, 204, 113, 0.22);
+    color: #a8f0c0;
+    border: 1px solid rgba(46, 204, 113, 0.5);
+}

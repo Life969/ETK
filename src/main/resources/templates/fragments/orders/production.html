@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="content" class="handbook-content orders-content">
+
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <h1 class="handbook-title">Заказы в производстве</h1>
+      <span class="handbook-count" th:text="${ordersPage.totalElements + ' шт.'}">—</span>
+    </div>
+    <div class="orders-nav-btns">
+      <a class="btn-glass btn-glass-primary" data-turbo-frame="app" th:href="@{/orders/create}">
+        <i class="bi bi-plus-circle"></i> Создать заказ
+      </a>
+      <a class="btn-glass btn-glass-info" data-turbo-frame="app" th:href="@{/orders/waiting}">
+        <i class="bi bi-hourglass-split"></i> К ожидающим
+      </a>
+      <a class="btn-glass btn-glass-success" data-turbo-frame="app" th:href="@{/orders/completed}">
+        <i class="bi bi-check2-circle"></i> К выполненным
+      </a>
+    </div>
+  </header>
+
+  <form method="get" th:action="@{/orders/production}" class="hb-search" data-turbo-frame="app">
+    <input type="text" name="search" th:value="${search}"
+           placeholder="Поиск по компании или продукции...">
+    <button type="submit" class="hb-search-btn"><i class="bi bi-search"></i></button>
+  </form>
+
+  <div th:if="${#lists.isEmpty(ordersPage.content)}" class="journal-empty">
+    <i class="bi bi-inbox"></i> Нет заказов в производстве
+  </div>
+
+  <div class="orders-grid" th:unless="${#lists.isEmpty(ordersPage.content)}">
+    <div th:each="order : ${ordersPage.content}" class="order-card">
+
+      <div class="order-card-head">
+        <div class="order-card-head-left">
+          <a class="order-company"
+             data-turbo-frame="app"
+             th:href="@{/orders/{id}(id=${order.id})}"
+             th:text="${order.companyName}">Компания</a>
+          <span class="order-type-badge"
+                th:classappend="${order.productType == 'COUPLING'} ? 'coupling' : 'adapter'"
+                th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'">—</span>
+        </div>
+      </div>
+
+      <div class="order-product">
+        <i th:class="${order.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
+        <span th:text="${order.productName}">—</span>
+      </div>
+
+      <div class="order-meta">
+        <div class="order-meta-row">
+          <span class="order-meta-label">Кол-во</span>
+          <span class="order-meta-value" th:text="${order.quantity} + ' шт.'">0 шт.</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Стоимость</span>
+          <span class="order-meta-value accent"
+                th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">—</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Дедлайн</span>
+          <span class="order-meta-value"
+                th:classappend="${order.daysUntilDeadline != null and order.daysUntilDeadline <= 3} ? 'overdue' : (${order.daysUntilDeadline != null and order.daysUntilDeadline <= 7} ? 'soon' : '')"
+                th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}">—</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Создан</span>
+          <span class="order-meta-value"
+                th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">—</span>
+        </div>
+      </div>
+
+      <div class="order-actions">
+        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="d-inline">
+          <input type="hidden" name="newStatus" value="COMPLETED">
+          <input type="hidden" name="returnTo" value="/orders/production">
+          <button type="submit" class="btn-mini btn-mini-success">
+            <i class="bi bi-check-lg"></i> Завершить
+          </button>
+        </form>
+        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="d-inline">
+          <input type="hidden" name="newStatus" value="WAITING">
+          <input type="hidden" name="returnTo" value="/orders/production">
+          <button type="submit" class="btn-mini btn-mini-warning">
+            <i class="bi bi-arrow-return-left"></i> В ожидание
+          </button>
+        </form>
+        <a class="btn-mini btn-mini-info"
+           data-turbo-frame="app"
+           th:href="@{/orders/{id}(id=${order.id})}">
+          <i class="bi bi-eye"></i> Открыть
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="hb-pagination" th:if="${ordersPage.totalPages > 1}">
+    <a class="hb-page-btn"
+       th:classappend="${!ordersPage.hasPrevious()} ? 'disabled'"
+       data-turbo-frame="app"
+       th:href="@{/orders/production(page=${ordersPage.number - 1}, size=${ordersPage.size}, search=${search})}">
+      <i class="bi bi-chevron-left"></i> Назад
+    </a>
+    <span class="hb-page-info"
+          th:text="${ordersPage.number + 1} + ' / ' + ${ordersPage.totalPages}">1 / 1</span>
+    <a class="hb-page-btn"
+       th:classappend="${!ordersPage.hasNext()} ? 'disabled'"
+       data-turbo-frame="app"
+       th:href="@{/orders/production(page=${ordersPage.number + 1}, size=${ordersPage.size}, search=${search})}">
+      Вперёд <i class="bi bi-chevron-right"></i>
+    </a>
+  </nav>
+</div>
+
+</body>
+</html>

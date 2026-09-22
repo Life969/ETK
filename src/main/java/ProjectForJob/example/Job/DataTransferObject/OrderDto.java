@@ -7,6 +7,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Data
@@ -38,5 +39,10 @@ public class OrderDto {
         return String.format("%.0f*%.0f %.1f м (%.2f кг)",
                 workpieceOuterDiameter, workpieceWallThickness,
                 workpieceLengthMeters, workpieceWeightKg);
+    }
+
+    public Long getDaysUntilDeadline() {
+        if (deadline == null) return null;
+        return ChronoUnit.DAYS.between(LocalDate.now(), deadline);
     }
 }

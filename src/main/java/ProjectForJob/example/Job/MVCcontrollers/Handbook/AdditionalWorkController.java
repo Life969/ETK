@@ -12,80 +12,62 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-
 
 @Controller
 @RequestMapping("/additionalWork")
 @RequiredArgsConstructor
 @Slf4j
 public class AdditionalWorkController {
+
     private final AdditionalWorkService additionalWorkService;
 
+    private static final String FRAGMENT_LIST = "fragments/works/list :: content";
+    private static final String FRAGMENT_FORM = "fragments/works/form :: content";
 
-    // Метод для отображения списка всех станков
     @GetMapping
     public String listAllWork(Model model) {
-        log.info("AdditionalWorkService listAllWork");
-
-        // 1. Получаем данные через существующий сервис
+        log.info("GET /additionalWork");
         List<AdditionalWorkEntity> works = additionalWorkService.findAll();
-
-        // 2. Кладем данные в модель Spring (атрибут "machines")
         model.addAttribute("works", works);
-
-        // 3. Возвращаем имя HTML-шаблона (без расширения .html)
-        return "additionalWork/list";
+        model.addAttribute("contentTemplate", FRAGMENT_LIST);
+        return "welcomeToHome/layout";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        log.info("AdditionalWorkService showCreateFormWork");
-        // Создаём пустой объект, чтобы форма могла к нему привязаться
         model.addAttribute("work", new AdditionalWorkEntity());
-        return "additionalWork/form";
+        model.addAttribute("contentTemplate", FRAGMENT_FORM);
+        return "welcomeToHome/layout";
     }
 
     @PostMapping("/save")
-    public String saveWork(@Valid @ModelAttribute("work")
-                              AdditionalWorkEntity work,
-                              BindingResult bindingResult, Model model,
-                              RedirectAttributes redirectAttributes) {
+    public String saveWork(@Valid @ModelAttribute("work") AdditionalWorkEntity work,
+                           BindingResult bindingResult,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            return "additionalWork/form";
-        } // Реализовать в REST! тоже.
-        log.info("AdditionalWorkService work called: {}", work);
+            model.addAttribute("contentTemplate", FRAGMENT_FORM);
+            return "welcomeToHome/layout";
+        }
         additionalWorkService.save(work);
-        redirectAttributes.addFlashAttribute("message", "Дополнительная работа успешно сохранен");
+        redirectAttributes.addFlashAttribute("message", "Дополнительная работа успешно сохранена");
         redirectAttributes.addFlashAttribute("messageType", "success");
         return "redirect:/additionalWork";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditFormWork(@PathVariable Long id, Model model) {
-        log.info("AdditionalWorkService called showEditFormWork id = {}", id);
         AdditionalWorkEntity work = additionalWorkService.findById(id);
-        if (work == null) {
-            throw new NoSuchElementException("Дополнительная работа с " + id + " не найдена");
-        }
         model.addAttribute("work", work);
-        return "additionalWork/form";
+        model.addAttribute("contentTemplate", FRAGMENT_FORM);
+        return "welcomeToHome/layout";
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteWork(@PathVariable Long id,RedirectAttributes redirectAttributes) {
-        log.info("AdditionalWorkService deleteWork id = {}", id);
+    public String deleteWork(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         additionalWorkService.deleteById(id);
-        redirectAttributes.addFlashAttribute("message", "Работа удалёна.");
+        redirectAttributes.addFlashAttribute("message", "Работа удалена");
         redirectAttributes.addFlashAttribute("messageType", "danger");
         return "redirect:/additionalWork";
     }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public String handleNotFound(NoSuchElementException ex, Model model) {
-        log.info("AdditionalWorkService handleNotFound message = {}", ex.getMessage());
-        model.addAttribute("error", ex.getMessage());
-        return "error/404";
-    }
-
 }

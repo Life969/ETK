@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+    <!-- Заголовок + действия -->
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <h1 class="handbook-title">Справочник переводников</h1>
+            <span class="handbook-count"
+                  th:text="${totalAdapters != null ? totalAdapters : 0} + ' шт.'">0 шт.</span>
+        </div>
+        <a th:href="@{/pipe-adapters/new}" data-turbo-frame="app" class="btn-glass btn-glass-primary">
+            <i class="bi bi-plus-lg"></i> Добавить переводник
+        </a>
+    </header>
+
+    <!-- Уведомления -->
+    <div th:if="${message}" th:class="'handbook-alert handbook-alert-' + ${messageType}">
+        <i class="bi bi-info-circle"></i>
+        <span th:text="${message}">—</span>
+    </div>
+
+    <!-- Пустой список -->
+    <div th:if="${groupedAdapters == null or groupedAdapters.isEmpty()}" class="journal-empty">
+        Список переводников пуст
+    </div>
+
+    <!-- Аккордеон по firstSideType -->
+    <div class="hb-accordion" th:unless="${groupedAdapters == null or groupedAdapters.isEmpty()}">
+        <div th:each="entry, iter : ${groupedAdapters}" class="hb-accordion-item">
+
+            <button type="button" class="hb-accordion-toggle"
+                    th:classappend="${iter.index == 0} ? 'open' : ''"
+                    th:attr="data-target='hb-adapter-body-' + ${iter.index}">
+                <i class="bi bi-chevron-right hb-chev"></i>
+                <span class="hb-accordion-name" th:text="${entry.key}">Тип</span>
+                <span class="hb-accordion-count" th:text="${#lists.size(entry.value)} + ' поз.'">0 поз.</span>
+            </button>
+
+            <div class="hb-accordion-body" th:classappend="${iter.index == 0} ? 'open' : ''"
+                 th:id="'hb-adapter-body-' + ${iter.index}">
+
+                <table class="journal-table hb-table">
+                    <thead>
+                    <tr>
+                        <th>Обозначение</th>
+                        <th>Длина (мм)</th>
+                        <th>Вес (кг)</th>
+                        <th>Наруж. Ø (мм)</th>
+                        <th>Внутр. Ø (мм)</th>
+                        <th>Цена (руб)</th>
+                        <th>Для работника (руб)</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="adapter : ${entry.value}">
+                        <td>
+                            <span class="product-name-wrapper">
+                                <span class="product-tooltip"
+                                      th:attr="data-id=${adapter.id},
+                                               data-name=${adapter.fullName},
+                                               data-first-type=${adapter.firstSideType},
+                                               data-first-diameter=${adapter.firstSideDiameter},
+                                               data-second-type=${adapter.secondSideType},
+                                               data-second-diameter=${adapter.secondSideDiameter},
+                                               data-length=${adapter.lengthMm != null ? adapter.lengthMm : ''},
+                                               data-weight=${adapter.weightKg != null ? adapter.weightKg : ''},
+                                               data-outer-diameter=${adapter.outerDiameterMm != null ? adapter.outerDiameterMm : ''},
+                                               data-inner-diameter=${adapter.innerDiameterMm != null ? adapter.innerDiameterMm : ''},
+                                               data-cost=${adapter.manufacturingCost != null ? adapter.manufacturingCost : ''},
+                                               data-price=${adapter.priceForEmployee != null ? adapter.priceForEmployee : ''},
+                                               data-description=${adapter.description != null ? adapter.description : ''},
+                                               data-image=${adapter.imagePath != null ? adapter.imagePath : ''}"
+                                      th:text="${adapter.firstSideType + ' ' + adapter.firstSideDiameter
+                                              + ' x ' + adapter.secondSideType + ' ' + adapter.secondSideDiameter}">
+                                    Тип x Тип
+                                </span>
+                            </span>
+                        </td>
+                        <td th:text="${adapter.lengthMm}">—</td>
+                        <td th:text="${adapter.weightKg}">—</td>
+                        <td th:text="${adapter.outerDiameterMm}">—</td>
+                        <td th:text="${adapter.innerDiameterMm}">—</td>
+                        <td th:text="${adapter.manufacturingCost}">—</td>
+                        <td th:text="${adapter.priceForEmployee}">—</td>
+                        <td class="hb-actions">
+                            <a th:href="@{/pipe-adapters/{id}(id=${adapter.id})}"
+                               data-turbo-frame="app"
+                               class="hb-icon-btn" title="Открыть">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a th:href="@{/pipe-adapters/edit/{id}(id=${adapter.id})}"
+                               data-turbo-frame="app"
+                               class="hb-icon-btn" title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

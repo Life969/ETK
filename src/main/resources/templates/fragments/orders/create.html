@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <a class="hb-icon-btn hb-back" data-turbo-frame="app" th:href="@{/orders/waiting}" title="Назад">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="handbook-title">Создание заказа</h1>
+    </div>
+  </header>
+
+  <form th:action="@{/orders/create}" th:object="${orderCreateDto}"
+        method="post" class="handbook-form">
+
+    <div th:if="${#fields.hasAnyErrors()}" class="handbook-alert handbook-alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div>
+        <ul style="margin:0; padding-left:18px;">
+          <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hb-grid">
+
+      <!-- Компания -->
+      <div class="hb-field hb-field-full">
+        <label>Компания <span class="req">*</span></label>
+        <input type="text" th:field="*{companyName}" list="companyList" required
+               placeholder="Введите или выберите компанию">
+        <datalist id="companyList">
+          <option th:each="company : ${companies}" th:value="${company.name}"></option>
+        </datalist>
+        <div th:if="${#fields.hasErrors('companyName')}"
+             class="hb-error" th:errors="*{companyName}"></div>
+      </div>
+
+      <!-- Тип продукции -->
+      <div class="hb-field hb-field-full">
+        <label>Тип продукции <span class="req">*</span></label>
+        <div style="display:flex; gap:16px;">
+          <label style="display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0; font-size:13px; color:#f0e6d0; cursor:pointer;">
+            <input type="radio" name="productType" id="typeCoupling" value="COUPLING" required>
+            Муфта
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0; font-size:13px; color:#f0e6d0; cursor:pointer;">
+            <input type="radio" name="productType" id="typeAdapter" value="ADAPTER">
+            Переводник
+          </label>
+        </div>
+      </div>
+
+      <!-- Блок муфты -->
+      <div id="couplingBlock" class="hb-field-full" style="display:none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label>Тип муфты</label>
+            <select id="couplingTypeSelect" class="form-select">
+              <option value="">-- Выберите тип --</option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label>Условный диаметр</label>
+            <select id="couplingDiameterSelect" class="form-select" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden"/>
+      </div>
+
+      <!-- Блок переводника -->
+      <div id="adapterBlock" class="hb-field-full" style="display:none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label>Тип первой стороны</label>
+            <select id="adapterTypeSelect" class="form-select">
+              <option value="">-- Выберите тип --</option>
+              <option th:each="type : ${adapterFirstSideTypes}"
+                      th:value="${type}" th:text="${type}"></option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label>Переводник</label>
+            <select id="adapterSelect" class="form-select" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" th:field="*{adapterId}" id="adapterIdHidden"/>
+      </div>
+
+      <!-- Количество -->
+      <div class="hb-field">
+        <label>Количество <span class="req">*</span></label>
+        <input type="number" th:field="*{quantity}" required min="1">
+        <div th:if="${#fields.hasErrors('quantity')}"
+             class="hb-error" th:errors="*{quantity}"></div>
+      </div>
+
+      <!-- Дедлайн -->
+      <div class="hb-field">
+        <label>Дедлайн (необязательно)</label>
+        <input type="date" th:field="*{deadline}">
+      </div>
+
+      <!-- Доп. работы -->
+      <div class="hb-field hb-field-full">
+        <label>Дополнительные работы</label>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+          <label th:each="work : ${additionalWorks}"
+                 style="display:flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0; font-size:13px; color:#f0e6d0; cursor:pointer;">
+            <input type="checkbox" th:field="*{additionalWorkIds}" th:value="${work.id}">
+            <span th:text="|${work.name} (${#numbers.formatDecimal(work.price, 0, 2)} ₽)|"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="handbook-form-actions">
+      <button type="submit" class="btn-glass btn-glass-primary">
+        <i class="bi bi-save"></i> Создать
+      </button>
+      <a data-turbo-frame="app" th:href="@{/orders/waiting}" class="btn-glass btn-glass-ghost">
+        <i class="bi bi-x-circle"></i> Отмена
+      </a>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const radioCoupling = document.getElementById('typeCoupling');
+    const radioAdapter = document.getElementById('typeAdapter');
+    const couplingBlock = document.getElementById('couplingBlock');
+    const adapterBlock = document.getElementById('adapterBlock');
+
+    const couplingTypeSelect = document.getElementById('couplingTypeSelect');
+    const couplingDiameterSelect = document.getElementById('couplingDiameterSelect');
+    const couplingIdHidden = document.getElementById('couplingIdHidden');
+
+    const adapterTypeSelect = document.getElementById('adapterTypeSelect');
+    const adapterSelect = document.getElementById('adapterSelect');
+    const adapterIdHidden = document.getElementById('adapterIdHidden');
+
+    function toggleProductBlocks() {
+      if (radioCoupling.checked) {
+        couplingBlock.style.display = 'block';
+        adapterBlock.style.display = 'none';
+        adapterIdHidden.value = '';
+      } else if (radioAdapter.checked) {
+        couplingBlock.style.display = 'none';
+        adapterBlock.style.display = 'block';
+        couplingIdHidden.value = '';
+      } else {
+        couplingBlock.style.display = 'none';
+        adapterBlock.style.display = 'none';
+      }
+    }
+
+    radioCoupling.addEventListener('change', toggleProductBlocks);
+    radioAdapter.addEventListener('change', toggleProductBlocks);
+    toggleProductBlocks();
+
+    fetch('/orders/api/couplings/types')
+            .then(r => r.json())
+            .then(types => {
+              couplingTypeSelect.innerHTML = '<option value="">-- Выберите тип --</option>';
+              types.forEach(t => couplingTypeSelect.add(new Option(t, t)));
+            });
+
+    couplingTypeSelect.addEventListener('change', function () {
+      const type = this.value;
+      couplingDiameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
+      couplingIdHidden.value = '';
+      if (!type) { couplingDiameterSelect.disabled = true; return; }
+      couplingDiameterSelect.disabled = false;
+      fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(type)}`)
+              .then(r => r.json())
+              .then(list => list.forEach(c =>
+                      couplingDiameterSelect.add(new Option(c.diameter, c.id))));
+    });
+
+    couplingDiameterSelect.addEventListener('change', function () {
+      couplingIdHidden.value = this.value;
+    });
+
+    adapterTypeSelect.addEventListener('change', function () {
+      const type = this.value;
+      adapterSelect.innerHTML = '<option value="">-- Выберите переводник --</option>';
+      adapterIdHidden.value = '';
+      if (!type) { adapterSelect.disabled = true; return; }
+      adapterSelect.disabled = false;
+      fetch(`/orders/api/adapters/by-first-side-type?type=${encodeURIComponent(type)}`)
+              .then(r => r.json())
+              .then(list => list.forEach(a =>
+                      adapterSelect.add(new Option(a.fullName, a.id))));
+    });
+
+    adapterSelect.addEventListener('change', function () {
+      adapterIdHidden.value = this.value;
+    });
+  })();
+</script>
+
+</body>
+</html>

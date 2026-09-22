@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <a th:href="@{/couplings}" data-turbo-frame="app" class="hb-icon-btn hb-back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="handbook-title"
+                th:text="'Муфта ' + ${coupling.type} + ' ' + ${coupling.conditionalDiameter}">
+                Муфта
+            </h1>
+        </div>
+        <div class="hb-actions-row">
+            <a th:href="@{/couplings/edit/{id}(id=${coupling.id})}"
+               data-turbo-frame="app" class="btn-glass btn-glass-primary">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <form th:action="@{/couplings/delete/{id}(id=${coupling.id})}" method="post"
+                  onsubmit="return confirm('Удалить муфту?');" style="display:inline">
+                <button type="submit" class="btn-glass btn-glass-danger">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <div class="hb-detail">
+
+        <div class="hb-detail-image"
+             th:if="${coupling.imagePath != null and !coupling.imagePath.isEmpty()}">
+            <img th:src="@{${coupling.imagePath}}" alt="Фото муфты"/>
+        </div>
+
+        <div class="hb-detail-grid">
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Тип муфты</span>
+                <span class="hb-detail-value" th:text="${coupling.type}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Условный диаметр</span>
+                <span class="hb-detail-value" th:text="${coupling.conditionalDiameter}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Длина (мм)</span>
+                <span class="hb-detail-value" th:text="${coupling.lengthMm}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Вес (кг)</span>
+                <span class="hb-detail-value" th:text="${coupling.weightKg}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Наружный Ø (мм)</span>
+                <span class="hb-detail-value" th:text="${coupling.outerDiameterMm}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Внутренний Ø (мм)</span>
+                <span class="hb-detail-value" th:text="${coupling.innerDiameterMm}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Цена изготовления (руб)</span>
+                <span class="hb-detail-value accent" th:text="${coupling.manufacturingCost}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Цена для работника (руб)</span>
+                <span class="hb-detail-value accent" th:text="${coupling.priceForEmployee}">—</span>
+            </div>
+            <div class="hb-detail-row" th:if="${coupling.standart != null and !coupling.standart.isEmpty()}">
+                <span class="hb-detail-label">ГОСТ</span>
+                <span class="hb-detail-value" th:text="${coupling.standart}">—</span>
+            </div>
+            <div class="hb-detail-row hb-detail-full"
+                 th:if="${coupling.description != null and !coupling.description.isEmpty()}">
+                <span class="hb-detail-label">Описание</span>
+                <span class="hb-detail-value" th:text="${coupling.description}">—</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

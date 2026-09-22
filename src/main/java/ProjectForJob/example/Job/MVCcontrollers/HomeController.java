@@ -35,18 +35,15 @@ public class HomeController {
     @GetMapping("/layout")
     public String layout(Model model, HttpServletRequest request) {
         populateDashboard(model, request);
+        model.addAttribute("contentTemplate", "fragments/home :: content");
         return "welcomeToHome/layout";
     }
 
-    @GetMapping("/fragments/home")
-    public String homeFragment(Model model, HttpServletRequest request) {
-        populateDashboard(model, request);
-        return "fragments/home";
-    }
-
     @GetMapping("/home")
-    public String home() {
-        return "redirect:/layout";
+    public String home(Model model, HttpServletRequest request) {
+        populateDashboard(model, request);
+        model.addAttribute("contentTemplate", "fragments/home :: content");
+        return "welcomeToHome/layout";
     }
 
     // ===== Публичная зона =====
@@ -99,7 +96,9 @@ public class HomeController {
             dto.setProductName(order.getProductName());
             dto.setQuantity(order.getQuantity());
 
-            long days = ChronoUnit.DAYS.between(today, order.getDeadline());
+            Long days = order.getDeadline() != null
+                    ? ChronoUnit.DAYS.between(today, order.getDeadline())
+                    : null;
             dto.setDaysUntilDeadline(days);
 
             if (order.getCoupling() != null) {
@@ -130,4 +129,5 @@ public class HomeController {
         model.addAttribute("urgentOrders", urgentOrders);
         model.addAttribute("ordersWithProducts", ordersWithProducts);
     }
+
 }

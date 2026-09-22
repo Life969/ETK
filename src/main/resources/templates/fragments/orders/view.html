@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <a class="hb-icon-btn hb-back" data-turbo-frame="app" th:href="@{/orders/waiting}" title="Назад">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="handbook-title">Заказ №<span th:text="${order.id}"></span></h1>
+      <span class="handbook-count" th:text="${order.companyName}">—</span>
+    </div>
+    <div class="orders-nav-btns">
+            <span class="order-status-pill"
+                  th:classappend="${order.status.name() == 'WAITING'} ? 'waiting' :
+                                  (${order.status.name() == 'IN_PRODUCTION'} ? 'production' : 'completed')">
+                <i class="bi"
+                   th:classappend="${order.status.name() == 'WAITING'} ? 'bi-hourglass-split' :
+                                   (${order.status.name() == 'IN_PRODUCTION'} ? 'bi-wrench' : 'bi-check2-circle')"></i>
+                <span th:switch="${order.status}">
+                    <span th:case="'WAITING'">В ожидании</span>
+                    <span th:case="'IN_PRODUCTION'">В производстве</span>
+                    <span th:case="'COMPLETED'">Выполнен</span>
+                </span>
+            </span>
+    </div>
+  </header>
+
+  <div class="order-detail-card">
+    <div class="hb-detail-grid">
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Компания</span>
+        <span class="hb-detail-value" th:text="${order.companyName}">—</span>
+      </div>
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Дата формирования</span>
+        <span class="hb-detail-value"
+              th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">—</span>
+      </div>
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Тип продукции</span>
+        <span class="hb-detail-value"
+              th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'">—</span>
+      </div>
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Продукция</span>
+        <span class="hb-detail-value accent" th:text="${order.productName}">—</span>
+      </div>
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Количество</span>
+        <span class="hb-detail-value" th:text="${order.quantity} + ' шт.'">—</span>
+      </div>
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Дедлайн</span>
+        <span class="hb-detail-value"
+              th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}">—</span>
+      </div>
+      <div class="hb-detail-row hb-detail-full">
+        <span class="hb-detail-label">Дополнительные работы</span>
+        <span class="hb-detail-value">
+                    <span th:if="${order.additionalWorkNames.isEmpty()}" style="opacity:0.5;">— нет —</span>
+                    <ul th:unless="${order.additionalWorkNames.isEmpty()}"
+                        style="margin:6px 0 0 0; padding-left:18px;">
+                        <li th:each="work : ${order.additionalWorkNames}" th:text="${work}"></li>
+                    </ul>
+                </span>
+      </div>
+      <div class="hb-detail-row">
+        <span class="hb-detail-label">Общая стоимость</span>
+        <span class="hb-detail-value accent"
+              th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-actions" style="border:none; padding-top:0;">
+    <a class="btn-glass btn-glass-ghost" data-turbo-frame="app" th:href="@{/orders/waiting}">
+      <i class="bi bi-arrow-left"></i> Назад
+    </a>
+    <a th:if="${order.status.name() == 'WAITING'}"
+       class="btn-glass btn-glass-primary"
+       data-turbo-frame="app"
+       th:href="@{/orders/{id}/edit(id=${order.id})}">
+      <i class="bi bi-pencil"></i> Редактировать
+    </a>
+    <form th:if="${order.status.name() == 'WAITING'}"
+          th:action="@{/orders/{id}/delete(id=${order.id})}"
+          method="post" class="d-inline">
+      <input type="hidden" name="returnTo" value="/orders/waiting">
+      <button type="submit" class="btn-glass btn-glass-danger"
+              onclick="return confirm('Удалить заказ?')">
+        <i class="bi bi-trash"></i> Удалить
+      </button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

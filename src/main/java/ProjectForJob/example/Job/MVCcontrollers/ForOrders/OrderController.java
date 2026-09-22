@@ -36,14 +36,38 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderController {
+
     private final OrderService orderService;
     private final CompanyService companyService;
     private final CouplingService couplingService;
     private final AdditionalWorkService additionalWorkService;
     private final PipeAdapterService pipeAdapterService;
 
+    // ================================================================
+    // Путь к layout — как в CouplingMvcController
+    // ================================================================
+    private static final String LAYOUT = "welcomeToHome/layout";
 
-    // Страница "В ожидании"
+    private static final String FRAGMENT_WAITING    = "fragments/orders/waiting :: content";
+    private static final String FRAGMENT_PRODUCTION = "fragments/orders/production :: content";
+    private static final String FRAGMENT_COMPLETED  = "fragments/orders/completed :: content";
+    private static final String FRAGMENT_VIEW       = "fragments/orders/view :: content";
+    private static final String FRAGMENT_CREATE     = "fragments/orders/create :: content";
+    private static final String FRAGMENT_EDIT       = "fragments/orders/edit :: content";
+
+    // ================================================================
+    // Хелпер — заполняет справочники для формы (create / edit)
+    // ================================================================
+    private void fillFormRefs(Model model) {
+        model.addAttribute("companies", companyService.findAll());
+        model.addAttribute("couplings", couplingService.findAll());
+        model.addAttribute("additionalWorks", additionalWorkService.findAll());
+        model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
+    }
+
+    // ================================================================
+    // Список: В ожидании
+    // ================================================================
     @GetMapping("/waiting")
     public String waitingOrders(Model model,
                                 @RequestParam(defaultValue = "0") int page,
@@ -58,7 +82,6 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<OrderDto> ordersPage = orderService.getOrdersByStatus(OrderStatus.WAITING, search, pageable);
 
-        // 🔧 Обогащаем: подгружаем продукт для каждого заказа
         List<Map<String, Object>> waitingItems = new ArrayList<>();
         for (OrderDto orderDto : ordersPage.getContent()) {
             Map<String, Object> item = new HashMap<>();
@@ -75,19 +98,21 @@ public class OrderController {
             waitingItems.add(item);
         }
 
-        model.addAttribute("ordersPage", ordersPage);          // для пагинации
-        model.addAttribute("waitingItems", waitingItems);      // для карточек
+        model.addAttribute("ordersPage", ordersPage);
+        model.addAttribute("waitingItems", waitingItems);
         model.addAttribute("status", "WAITING");
 
         Set<Long> selectedOrderIds = (Set<Long>) session.getAttribute("commercialOffer");
-        if (selectedOrderIds == null) {
-            selectedOrderIds = Collections.emptySet();
-        }
+        if (selectedOrderIds == null) selectedOrderIds = Collections.emptySet();
         model.addAttribute("selectedOrderIds", selectedOrderIds);
-        return "orders/waiting";
+
+        model.addAttribute("contentTemplate", FRAGMENT_WAITING);
+        return LAYOUT;
     }
 
-    // Страница "В производстве"
+    // ================================================================
+    // Список: В производстве
+    // ================================================================
     @GetMapping("/production")
     public String productionOrders(Model model,
                                    @RequestParam(defaultValue = "0") int page,
@@ -101,13 +126,15 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<OrderDto> ordersPage = orderService.getOrdersByStatus(OrderStatus.IN_PRODUCTION, search, pageable);
 
-
         model.addAttribute("ordersPage", ordersPage);
         model.addAttribute("status", "IN_PRODUCTION");
-        return "orders/production";
+        model.addAttribute("contentTemplate", FRAGMENT_PRODUCTION);
+        return LAYOUT;
     }
 
-    // Страница "Выполненные"
+    // ================================================================
+    // Список: Выполненные
+    // ================================================================
     @GetMapping("/completed")
     public String completedOrders(Model model,
                                   @RequestParam(defaultValue = "0") int page,
@@ -123,18 +150,19 @@ public class OrderController {
 
         model.addAttribute("ordersPage", ordersPage);
         model.addAttribute("status", "COMPLETED");
-        return "orders/completed";
+        model.addAttribute("contentTemplate", FRAGMENT_COMPLETED);
+        return LAYOUT;
     }
 
-    // Форма создания заказа
+    // ================================================================
+    // Создание
+    // ================================================================
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("orderCreateDto", new OrderCreateDto());
-        model.addAttribute("companies", companyService.findAll());
-        model.addAttribute("couplings", couplingService.findAll());
-        model.addAttribute("additionalWorks", additionalWorkService.findAll());
-        model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
-        return "orders/create";
+        fillFormRefs(model);
+        model.addAttribute("contentTemplate", FRAGMENT_CREATE);
+        return LAYOUT;
     }
 
     @PostMapping("/create")
@@ -143,54 +171,57 @@ public class OrderController {
                               Model model) {
         log.info("OrderController create POST orders");
         if (result.hasErrors()) {
-            model.addAttribute("companies", companyService.findAll());
-            model.addAttribute("couplings", couplingService.findAll());
-            model.addAttribute("additionalWorks", additionalWorkService.findAll());
-            return "orders/create";
+            fillFormRefs(model);
+            model.addAttribute("contentTemplate", FRAGMENT_CREATE);
+            return LAYOUT;
         }
         orderService.createOrder(dto);
         return "redirect:/orders/waiting";
     }
 
-    // Просмотр деталей заказа (кликабельный заказ)
+    // ================================================================
+    // Просмотр
+    // ================================================================
     @GetMapping("/{id}")
     public String viewOrder(@PathVariable Long id, Model model) {
         log.info("OrderController viewOrder GET order with id={}", id);
         OrderDto order = orderService.getOrderById(id);
         model.addAttribute("order", order);
-        return "orders/view";
+        model.addAttribute("contentTemplate", FRAGMENT_VIEW);
+        return LAYOUT;
     }
 
-    // Изменение статуса
+    // ================================================================
+    // Смена статуса / удаление — БЕЗ layout (это POST-редиректы)
+    // ================================================================
     @PostMapping("/{id}/status")
     public String changeStatus(@PathVariable Long id,
                                @RequestParam OrderStatus newStatus,
                                @RequestParam(required = false) String returnTo) {
         log.info("OrderController change status with id={}, newStatus={}", id, newStatus);
         if (newStatus == OrderStatus.IN_PRODUCTION) {
-            orderService.startProduction(id, null);  // дедлайн не меняем
+            orderService.startProduction(id, null);
         } else {
             orderService.updateStatus(id, newStatus);
         }
-        if (returnTo != null && !returnTo.isEmpty()) {
-            return "redirect:" + returnTo;
-        }
-        return "redirect:/orders/waiting";
+        return (returnTo != null && !returnTo.isEmpty())
+                ? "redirect:" + returnTo
+                : "redirect:/orders/waiting";
     }
 
-    // Удаление заказа
     @PostMapping("/{id}/delete")
     public String deleteOrder(@PathVariable Long id,
                               @RequestParam(required = false) String returnTo) {
-        log.info("OrderController bу delete order with id={}", id);
+        log.info("OrderController delete order id={}", id);
         orderService.deleteOrder(id);
-        if (returnTo != null && !returnTo.isEmpty()) {
-            return "redirect:" + returnTo;
-        }
-        return "redirect:/orders/waiting";
+        return (returnTo != null && !returnTo.isEmpty())
+                ? "redirect:" + returnTo
+                : "redirect:/orders/waiting";
     }
 
-    // Форма редактирования заказа
+    // ================================================================
+    // Редактирование
+    // ================================================================
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
         OrderDto order = orderService.getOrderById(id);
@@ -208,10 +239,8 @@ public class OrderController {
 
         model.addAttribute("order", order);
         model.addAttribute("orderUpdateDto", dto);
-        model.addAttribute("companies", companyService.findAll());
-        model.addAttribute("additionalWorks", additionalWorkService.findAll());
-        model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
-        // Для муфт можно передать текущий тип и диаметр для JS
+        fillFormRefs(model);
+
         if ("COUPLING".equals(order.getProductType())) {
             CouplingEntity coupling = couplingService.findById(order.getProductId());
             model.addAttribute("currentCouplingType", coupling != null ? coupling.getType() : "");
@@ -221,7 +250,9 @@ public class OrderController {
             model.addAttribute("currentAdapterFirstSideType", adapter.getFirstSideType());
             model.addAttribute("currentAdapterId", adapter.getId());
         }
-        return "orders/edit";
+
+        model.addAttribute("contentTemplate", FRAGMENT_EDIT);
+        return LAYOUT;
     }
 
     @PostMapping("/{id}/edit")
@@ -229,27 +260,27 @@ public class OrderController {
                               @Valid @ModelAttribute("orderUpdateDto") OrderUpdateDto dto,
                               BindingResult result,
                               Model model) {
-        log.info("OrderController update GET order with id={}", id);
+        log.info("OrderController update order id={}", id);
         if (result.hasErrors()) {
-            // при ошибке нужно снова загрузить справочники
-            model.addAttribute("companies", companyService.findAll());
-            model.addAttribute("couplings", couplingService.findAll());
-            model.addAttribute("additionalWorks", additionalWorkService.findAll());
-            return "orders/edit";
+            fillFormRefs(model);
+            model.addAttribute("contentTemplate", FRAGMENT_EDIT);
+            return LAYOUT;
         }
         orderService.updateOrder(id, dto);
         return "redirect:/orders/" + id;
     }
 
+    // ================================================================
+    // AJAX: старт производства с дедлайном
+    // ================================================================
     @PostMapping("/{id}/set-deadline-and-start")
     @ResponseBody
     public Map<String, Object> setDeadlineAndStartProduction(
             @PathVariable Long id,
             @RequestParam("deadline")
-            @DateTimeFormat(pattern = "yyyy-MM-dd")
-            LocalDate deadline) {
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate deadline) {
         Map<String, Object> response = new HashMap<>();
-        log.info("Called method setDeadlineAndStartProduction from order id={}", id);
+        log.info("setDeadlineAndStartProduction id={}", id);
         try {
             orderService.startProduction(id, deadline);
             response.put("success", true);
@@ -261,23 +292,24 @@ public class OrderController {
         return response;
     }
 
+    // ================================================================
+    // REST API — без layout
+    // ================================================================
     @GetMapping("/api/couplings/types")
     @ResponseBody
     public List<String> getCouplingTypes() {
-        log.info("OrderController getCouplingTypes");
         return couplingService.findAllDistinctTypes();
     }
 
     @GetMapping("/api/couplings/by-type")
     @ResponseBody
     public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
-        log.info("OrderController getCouplingsByType GET order by type={}", type);
         List<CouplingEntity> couplings = couplingService.findByType(type);
         return couplings.stream()
                 .map(c -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("id", c.getId());
-                    map.put("diameter", c.getConditionalDiameter()); // условный диаметр
+                    map.put("diameter", c.getConditionalDiameter());
                     return map;
                 })
                 .collect(Collectors.toList());
@@ -302,5 +334,4 @@ public class OrderController {
                 })
                 .collect(Collectors.toList());
     }
-
 }

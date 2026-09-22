@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="content" class="handbook-content orders-content">
+
+  <!-- Заголовок + кнопки статусов -->
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <h1 class="handbook-title">Заказы в ожидании</h1>
+      <span class="handbook-count" th:text="${ordersPage.totalElements + ' шт.'}">—</span>
+    </div>
+    <div class="orders-nav-btns">
+      <a class="btn-glass btn-glass-primary" data-turbo-frame="app" th:href="@{/orders/create}">
+        <i class="bi bi-plus-circle"></i> Создать заказ
+      </a>
+      <a class="btn-glass btn-glass-primary" data-turbo-frame="app" th:href="@{/orders/production}">
+        <i class="bi bi-wrench"></i> В производство
+      </a>
+      <a class="btn-glass btn-glass-success" data-turbo-frame="app" th:href="@{/orders/completed}">
+        <i class="bi bi-check2-circle"></i> К выполненным
+      </a>
+    </div>
+  </header>
+
+  <!-- Панель КП -->
+  <div class="offer-panel" id="offerActions" style="display:none;">
+        <span class="offer-count">
+            <i class="bi bi-cart-check"></i> В КП: <span id="offerCount">0</span>
+        </span>
+    <div class="offer-actions">
+      <a th:href="@{/commercial-offer}" class="btn-glass btn-glass-success" data-turbo-frame="app">
+        <i class="bi bi-file-text"></i> Сформировать КП
+      </a>
+      <button type="button" id="clearOfferBtn" class="btn-glass btn-glass-danger">
+        <i class="bi bi-trash"></i> Очистить
+      </button>
+    </div>
+  </div>
+
+  <!-- Поиск -->
+  <form method="get" th:action="@{/orders/waiting}" class="hb-search" data-turbo-frame="app">
+    <input type="text" name="search" th:value="${search}"
+           placeholder="Поиск по компании или продукции...">
+    <button type="submit" class="hb-search-btn"><i class="bi bi-search"></i></button>
+  </form>
+
+  <!-- Пусто -->
+  <div th:if="${#lists.isEmpty(waitingItems)}" class="journal-empty">
+    <i class="bi bi-inbox"></i> Нет заказов в ожидании
+  </div>
+
+  <!-- Сетка карточек -->
+  <div class="orders-grid" th:unless="${#lists.isEmpty(waitingItems)}">
+    <div th:each="item : ${waitingItems}"
+         th:with="order=${item.order}"
+         class="order-card">
+
+      <div class="order-card-head">
+        <div class="order-card-head-left">
+          <a class="order-company"
+             data-turbo-frame="app"
+             th:href="@{/orders/{id}(id=${order.id})}"
+             th:text="${order.companyName}">Компания</a>
+          <span class="order-type-badge"
+                th:classappend="${order.productType == 'COUPLING'} ? 'coupling' : 'adapter'"
+                th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'">—</span>
+        </div>
+        <button type="button"
+                class="order-offer-btn add-to-offer-btn"
+                th:data-order-id="${order.id}"
+                th:classappend="${selectedOrderIds.contains(order.id)} ? 'active' : ''"
+                title="Добавить в КП">
+          <i class="bi"
+             th:classappend="${selectedOrderIds.contains(order.id)} ? 'bi-check-lg' : 'bi-plus-lg'"></i>
+        </button>
+      </div>
+
+      <!-- Продукция с тултипом -->
+      <div class="order-product">
+        <i th:class="${order.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
+
+        <span th:if="${item.product != null and item.productType == 'COUPLING'}"
+              class="product-name-wrapper">
+                    <span class="product-tooltip"
+                          th:attr="data-id=${item.product.id},
+                                   data-name=${item.product.name},
+                                   data-type=${item.product.type},
+                                   data-diameter=${item.product.conditionalDiameter},
+                                   data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                                   data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                                   data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                                   data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                                   data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                   data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                   data-description=${item.product.description != null ? item.product.description : ''},
+                                   data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                          th:text="${item.product.name}">—</span>
+                </span>
+
+        <span th:if="${item.product != null and item.productType == 'ADAPTER'}"
+              class="product-name-wrapper">
+                    <span class="product-tooltip"
+                          th:attr="data-id=${item.product.id},
+                                   data-name=${item.product.fullName},
+                                   data-first-type=${item.product.firstSideType},
+                                   data-first-diameter=${item.product.firstSideDiameter},
+                                   data-second-type=${item.product.secondSideType},
+                                   data-second-diameter=${item.product.secondSideDiameter},
+                                   data-length=${item.product.lengthMm != null ? item.product.lengthMm : ''},
+                                   data-weight=${item.product.weightKg != null ? item.product.weightKg : ''},
+                                   data-outer-diameter=${item.product.outerDiameterMm != null ? item.product.outerDiameterMm : ''},
+                                   data-inner-diameter=${item.product.innerDiameterMm != null ? item.product.innerDiameterMm : ''},
+                                   data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                   data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                   data-description=${item.product.description != null ? item.product.description : ''},
+                                   data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                          th:text="${item.product.fullName}">—</span>
+                </span>
+
+        <span th:if="${item.product == null}" th:text="${order.productName}"></span>
+      </div>
+
+      <!-- Мета -->
+      <div class="order-meta">
+        <div class="order-meta-row">
+          <span class="order-meta-label">Кол-во</span>
+          <span class="order-meta-value" th:text="${order.quantity} + ' шт.'">0 шт.</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Стоимость</span>
+          <span class="order-meta-value accent"
+                th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">—</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Заготовка</span>
+          <span class="order-meta-value"
+                th:if="${order.workpieceOuterDiameter != null}"
+                th:text="${order.workpieceDescription}">—</span>
+          <span class="order-meta-value"
+                th:unless="${order.workpieceOuterDiameter != null}"
+                style="opacity:0.5;">не рассчитана</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Дедлайн</span>
+          <span class="order-meta-value"
+                th:classappend="${order.daysUntilDeadline != null and order.daysUntilDeadline <= 3} ? 'overdue' : (${order.daysUntilDeadline != null and order.daysUntilDeadline <= 7} ? 'soon' : '')"
+                th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}">—</span>
+        </div>
+        <div class="order-meta-row">
+          <span class="order-meta-label">Создан</span>
+          <span class="order-meta-value"
+                th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">—</span>
+        </div>
+      </div>
+
+      <!-- Действия -->
+      <div class="order-actions">
+        <button class="btn-mini btn-mini-success start-production-btn"
+                th:data-order-id="${order.id}"
+                th:data-has-deadline="${order.deadline != null}">
+          <i class="bi bi-play-fill"></i> В производство
+        </button>
+        <a class="btn-mini btn-mini-warning"
+           data-turbo-frame="app"
+           th:href="@{/orders/{id}/edit(id=${order.id})}">
+          <i class="bi bi-pencil"></i> Ред.
+        </a>
+        <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post" class="d-inline">
+          <input type="hidden" name="returnTo" th:value="@{/orders/waiting}">
+          <button type="submit" class="btn-mini btn-mini-danger"
+                  onclick="return confirm('Удалить заказ?')">
+            <i class="bi bi-trash"></i> Удалить
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Пагинация -->
+  <nav class="hb-pagination" th:if="${ordersPage.totalPages > 1}">
+    <a class="hb-page-btn"
+       th:classappend="${!ordersPage.hasPrevious()} ? 'disabled'"
+       data-turbo-frame="app"
+       th:href="@{/orders/waiting(page=${ordersPage.number - 1}, size=${ordersPage.size}, search=${search})}">
+      <i class="bi bi-chevron-left"></i> Назад
+    </a>
+    <span class="hb-page-info"
+          th:text="${ordersPage.number + 1} + ' / ' + ${ordersPage.totalPages}">1 / 1</span>
+    <a class="hb-page-btn"
+       th:classappend="${!ordersPage.hasNext()} ? 'disabled'"
+       data-turbo-frame="app"
+       th:href="@{/orders/waiting(page=${ordersPage.number + 1}, size=${ordersPage.size}, search=${search})}">
+      Вперёд <i class="bi bi-chevron-right"></i>
+    </a>
+  </nav>
+</div>
+
+<!-- Модалка дедлайна -->
+<div class="modal fade" id="deadlineModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Укажите дедлайн</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; opacity:0.8;">Для перевода заказа в производство нужно указать дедлайн.</p>
+        <label for="deadlineInput" class="form-label"
+               style="font-size:11px; letter-spacing:2px; text-transform:uppercase; opacity:0.6;">Дедлайн</label>
+        <input type="date" id="deadlineInput" class="form-control" required>
+        <input type="hidden" id="orderIdForDeadline" value="">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-primary" id="confirmDeadlineBtn">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Скрипты -->
+<script th:src="@{/js/waiting-orders.js}"></script>
+<script>
+  // Инициализация после подгрузки во фрейм.
+  // turbo:frame-load уже ловит layout.html — здесь только локальные штуки.
+  (function () {
+    if (window.WaitingOrders && typeof WaitingOrders.init === 'function') {
+      WaitingOrders.init();
+    }
+    if (window.WowTooltip) WowTooltip.init('.product-tooltip');
+  })();
+</script>
+
+</body>
+</html>
