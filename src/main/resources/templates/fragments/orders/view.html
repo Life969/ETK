@@ -88,7 +88,7 @@
     </a>
     <form th:if="${order.status.name() == 'WAITING'}"
           th:action="@{/orders/{id}/delete(id=${order.id})}"
-          method="post" class="d-inline">
+          method="post" data-turbo="false" class="d-inline">
       <input type="hidden" name="returnTo" value="/orders/waiting">
       <button type="submit" class="btn-glass btn-glass-danger"
               onclick="return confirm('Удалить заказ?')">

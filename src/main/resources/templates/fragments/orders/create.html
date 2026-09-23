@@ -42,14 +42,14 @@
       <!-- Тип продукции -->
       <div class="hb-field hb-field-full">
         <label>Тип продукции <span class="req">*</span></label>
-        <div style="display:flex; gap:16px;">
-          <label style="display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0; font-size:13px; color:#f0e6d0; cursor:pointer;">
+        <div class="hb-radio-row">
+          <label class="hb-radio">
             <input type="radio" name="productType" id="typeCoupling" value="COUPLING" required>
-            Муфта
+            <span><i class="bi bi-box-seam"></i> Муфта</span>
           </label>
-          <label style="display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0; font-size:13px; color:#f0e6d0; cursor:pointer;">
+          <label class="hb-radio">
             <input type="radio" name="productType" id="typeAdapter" value="ADAPTER">
-            Переводник
+            <span><i class="bi bi-arrow-left-right"></i> Переводник</span>
           </label>
         </div>
       </div>
@@ -108,15 +108,45 @@
         <input type="date" th:field="*{deadline}">
       </div>
 
-      <!-- Доп. работы -->
+      <!-- Доп. работы — чипами -->
       <div class="hb-field hb-field-full">
         <label>Дополнительные работы</label>
-        <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
-          <label th:each="work : ${additionalWorks}"
-                 style="display:flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0; font-size:13px; color:#f0e6d0; cursor:pointer;">
-            <input type="checkbox" th:field="*{additionalWorkIds}" th:value="${work.id}">
-            <span th:text="|${work.name} (${#numbers.formatDecimal(work.price, 0, 2)} ₽)|"></span>
-          </label>
+
+        <div class="hb-works-picker" id="worksPicker">
+
+          <div class="hb-works-search">
+            <i class="bi bi-search hb-works-search-icon"></i>
+            <input type="text" class="hb-works-search-input"
+                   placeholder="Поиск работы по названию...">
+          </div>
+
+          <div class="hb-works-chips">
+            <button type="button" class="work-chip"
+                    th:each="work : ${additionalWorks}"
+                    th:data-work-id="${work.id}"
+                    th:data-work-name="${work.name}"
+                    th:data-work-price="${work.price}">
+              <i class="bi bi-check-lg chip-check"></i>
+              <span th:text="${work.name}">Работа</span>
+              <span class="chip-price"
+                    th:text="${#numbers.formatDecimal(work.price, 0, 0)} + ' ₽'"></span>
+            </button>
+          </div>
+
+          <div class="hb-works-selected">
+            <div class="hb-works-selected-header">
+              <span><i class="bi bi-list-check"></i> Выбрано: <span class="selected-count">0</span></span>
+              <span>Итого: <span class="hb-works-selected-total">0 ₽</span></span>
+            </div>
+            <div class="hb-works-selected-list"></div>
+          </div>
+
+          <!-- Скрытые чекбоксы — источник данных для формы -->
+          <div class="hb-works-hidden">
+            <input type="checkbox" th:each="work : ${additionalWorks}"
+                   th:field="*{additionalWorkIds}" th:value="${work.id}"
+                   class="work-hidden-checkbox" style="display:none;">
+          </div>
         </div>
       </div>
     </div>
@@ -131,81 +161,6 @@
     </div>
   </form>
 </div>
-
-<script>
-  (function () {
-    const radioCoupling = document.getElementById('typeCoupling');
-    const radioAdapter = document.getElementById('typeAdapter');
-    const couplingBlock = document.getElementById('couplingBlock');
-    const adapterBlock = document.getElementById('adapterBlock');
-
-    const couplingTypeSelect = document.getElementById('couplingTypeSelect');
-    const couplingDiameterSelect = document.getElementById('couplingDiameterSelect');
-    const couplingIdHidden = document.getElementById('couplingIdHidden');
-
-    const adapterTypeSelect = document.getElementById('adapterTypeSelect');
-    const adapterSelect = document.getElementById('adapterSelect');
-    const adapterIdHidden = document.getElementById('adapterIdHidden');
-
-    function toggleProductBlocks() {
-      if (radioCoupling.checked) {
-        couplingBlock.style.display = 'block';
-        adapterBlock.style.display = 'none';
-        adapterIdHidden.value = '';
-      } else if (radioAdapter.checked) {
-        couplingBlock.style.display = 'none';
-        adapterBlock.style.display = 'block';
-        couplingIdHidden.value = '';
-      } else {
-        couplingBlock.style.display = 'none';
-        adapterBlock.style.display = 'none';
-      }
-    }
-
-    radioCoupling.addEventListener('change', toggleProductBlocks);
-    radioAdapter.addEventListener('change', toggleProductBlocks);
-    toggleProductBlocks();
-
-    fetch('/orders/api/couplings/types')
-            .then(r => r.json())
-            .then(types => {
-              couplingTypeSelect.innerHTML = '<option value="">-- Выберите тип --</option>';
-              types.forEach(t => couplingTypeSelect.add(new Option(t, t)));
-            });
-
-    couplingTypeSelect.addEventListener('change', function () {
-      const type = this.value;
-      couplingDiameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
-      couplingIdHidden.value = '';
-      if (!type) { couplingDiameterSelect.disabled = true; return; }
-      couplingDiameterSelect.disabled = false;
-      fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(type)}`)
-              .then(r => r.json())
-              .then(list => list.forEach(c =>
-                      couplingDiameterSelect.add(new Option(c.diameter, c.id))));
-    });
-
-    couplingDiameterSelect.addEventListener('change', function () {
-      couplingIdHidden.value = this.value;
-    });
-
-    adapterTypeSelect.addEventListener('change', function () {
-      const type = this.value;
-      adapterSelect.innerHTML = '<option value="">-- Выберите переводник --</option>';
-      adapterIdHidden.value = '';
-      if (!type) { adapterSelect.disabled = true; return; }
-      adapterSelect.disabled = false;
-      fetch(`/orders/api/adapters/by-first-side-type?type=${encodeURIComponent(type)}`)
-              .then(r => r.json())
-              .then(list => list.forEach(a =>
-                      adapterSelect.add(new Option(a.fullName, a.id))));
-    });
-
-    adapterSelect.addEventListener('change', function () {
-      adapterIdHidden.value = this.value;
-    });
-  })();
-</script>
 
 </body>
 </html>

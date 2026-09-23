@@ -76,7 +76,8 @@
             </div>
 
             <div class="order-actions">
-                <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="d-inline">
+                <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post"
+                      data-turbo="false" class="d-inline">
                     <input type="hidden" name="newStatus" value="IN_PRODUCTION">
                     <input type="hidden" name="returnTo" value="/orders/completed">
                     <button type="submit" class="btn-mini btn-mini-warning">

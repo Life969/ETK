@@ -77,14 +77,16 @@
       </div>
 
       <div class="order-actions">
-        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="d-inline">
+        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post"
+              data-turbo="false" class="d-inline">
           <input type="hidden" name="newStatus" value="COMPLETED">
           <input type="hidden" name="returnTo" value="/orders/production">
           <button type="submit" class="btn-mini btn-mini-success">
             <i class="bi bi-check-lg"></i> Завершить
           </button>
         </form>
-        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="d-inline">
+        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post"
+              data-turbo="false" class="d-inline">
           <input type="hidden" name="newStatus" value="WAITING">
           <input type="hidden" name="returnTo" value="/orders/production">
           <button type="submit" class="btn-mini btn-mini-warning">

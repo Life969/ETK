@@ -199,11 +199,17 @@ public class OrderController {
                                @RequestParam OrderStatus newStatus,
                                @RequestParam(required = false) String returnTo) {
         log.info("OrderController change status with id={}, newStatus={}", id, newStatus);
-        if (newStatus == OrderStatus.IN_PRODUCTION) {
+
+        OrderDto order = orderService.getOrderById(id);
+        OrderStatus currentStatus = order.getStatus();
+
+        if (newStatus == OrderStatus.IN_PRODUCTION
+                && currentStatus == OrderStatus.WAITING) {
             orderService.startProduction(id, null);
         } else {
             orderService.updateStatus(id, newStatus);
         }
+
         return (returnTo != null && !returnTo.isEmpty())
                 ? "redirect:" + returnTo
                 : "redirect:/orders/waiting";

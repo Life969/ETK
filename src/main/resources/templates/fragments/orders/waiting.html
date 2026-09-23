@@ -5,7 +5,6 @@
 
 <div th:fragment="content" class="handbook-content orders-content">
 
-  <!-- Заголовок + кнопки статусов -->
   <header class="handbook-header">
     <div class="handbook-title-wrap">
       <h1 class="handbook-title">Заказы в ожидании</h1>
@@ -46,12 +45,10 @@
     <button type="submit" class="hb-search-btn"><i class="bi bi-search"></i></button>
   </form>
 
-  <!-- Пусто -->
   <div th:if="${#lists.isEmpty(waitingItems)}" class="journal-empty">
     <i class="bi bi-inbox"></i> Нет заказов в ожидании
   </div>
 
-  <!-- Сетка карточек -->
   <div class="orders-grid" th:unless="${#lists.isEmpty(waitingItems)}">
     <div th:each="item : ${waitingItems}"
          th:with="order=${item.order}"
@@ -77,7 +74,6 @@
         </button>
       </div>
 
-      <!-- Продукция с тултипом -->
       <div class="order-product">
         <i th:class="${order.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
 
@@ -122,7 +118,6 @@
         <span th:if="${item.product == null}" th:text="${order.productName}"></span>
       </div>
 
-      <!-- Мета -->
       <div class="order-meta">
         <div class="order-meta-row">
           <span class="order-meta-label">Кол-во</span>
@@ -145,7 +140,6 @@
         <div class="order-meta-row">
           <span class="order-meta-label">Дедлайн</span>
           <span class="order-meta-value"
-                th:classappend="${order.daysUntilDeadline != null and order.daysUntilDeadline <= 3} ? 'overdue' : (${order.daysUntilDeadline != null and order.daysUntilDeadline <= 7} ? 'soon' : '')"
                 th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}">—</span>
         </div>
         <div class="order-meta-row">
@@ -155,9 +149,9 @@
         </div>
       </div>
 
-      <!-- Действия -->
       <div class="order-actions">
-        <button class="btn-mini btn-mini-success start-production-btn"
+        <button type="button"
+                class="btn-mini btn-mini-success start-production-btn"
                 th:data-order-id="${order.id}"
                 th:data-has-deadline="${order.deadline != null}">
           <i class="bi bi-play-fill"></i> В производство
@@ -167,8 +161,9 @@
            th:href="@{/orders/{id}/edit(id=${order.id})}">
           <i class="bi bi-pencil"></i> Ред.
         </a>
-        <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post" class="d-inline">
-          <input type="hidden" name="returnTo" th:value="@{/orders/waiting}">
+        <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post"
+              data-turbo="false" class="d-inline">
+          <input type="hidden" name="returnTo" value="/orders/waiting">
           <button type="submit" class="btn-mini btn-mini-danger"
                   onclick="return confirm('Удалить заказ?')">
             <i class="bi bi-trash"></i> Удалить
@@ -178,7 +173,6 @@
     </div>
   </div>
 
-  <!-- Пагинация -->
   <nav class="hb-pagination" th:if="${ordersPage.totalPages > 1}">
     <a class="hb-page-btn"
        th:classappend="${!ordersPage.hasPrevious()} ? 'disabled'"
@@ -195,43 +189,34 @@
       Вперёд <i class="bi bi-chevron-right"></i>
     </a>
   </nav>
-</div>
 
-<!-- Модалка дедлайна -->
-<div class="modal fade" id="deadlineModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Укажите дедлайн</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size:13px; opacity:0.8;">Для перевода заказа в производство нужно указать дедлайн.</p>
-        <label for="deadlineInput" class="form-label"
-               style="font-size:11px; letter-spacing:2px; text-transform:uppercase; opacity:0.6;">Дедлайн</label>
-        <input type="date" id="deadlineInput" class="form-control" required>
-        <input type="hidden" id="orderIdForDeadline" value="">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-        <button type="button" class="btn btn-primary" id="confirmDeadlineBtn">Подтвердить</button>
+  <!-- ⚠️ МОДАЛКА ВНУТРИ ФРАГМЕНТА — иначе Turbo её не загрузит -->
+  <div class="modal fade" id="deadlineModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Укажите дедлайн</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:13px; opacity:0.8;">
+            Для перевода заказа в производство нужно указать дедлайн.
+          </p>
+          <label for="deadlineInput" class="form-label"
+                 style="font-size:11px; letter-spacing:2px; text-transform:uppercase; opacity:0.6;">
+            Дедлайн
+          </label>
+          <input type="date" id="deadlineInput" class="form-control" required>
+          <input type="hidden" id="orderIdForDeadline" value="">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-primary" id="confirmDeadlineBtn">Подтвердить</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Скрипты -->
-<script th:src="@{/js/waiting-orders.js}"></script>
-<script>
-  // Инициализация после подгрузки во фрейм.
-  // turbo:frame-load уже ловит layout.html — здесь только локальные штуки.
-  (function () {
-    if (window.WaitingOrders && typeof WaitingOrders.init === 'function') {
-      WaitingOrders.init();
-    }
-    if (window.WowTooltip) WowTooltip.init('.product-tooltip');
-  })();
-</script>
 
 </body>
 </html>
