@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductionRecordRepository extends JpaRepository<ProductionRecordEntity, Long>, JpaSpecificationExecutor<ProductionRecordEntity> {
@@ -26,4 +27,7 @@ public interface ProductionRecordRepository extends JpaRepository<ProductionReco
 
     @EntityGraph(attributePaths = {"employee", "machine", "coupling", "adapter"})
     List<ProductionRecordEntity> findTop5ByOrderByCreatedAtDesc();
+
+    @EntityGraph(attributePaths = {"coupling", "adapter", "employee", "machine"})
+    Optional<ProductionRecordEntity> findById(Long id);
 }

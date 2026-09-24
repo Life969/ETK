@@ -19,7 +19,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
     Optional<OrderEntity> findById(Long id);
 
-    @EntityGraph(attributePaths = {"coupling", "additionalWorks", "company"})
+    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
     List<OrderEntity> findByIdIn(List<Long> ids);
 
     @EntityGraph(attributePaths = {"company", "coupling", "adapter"})

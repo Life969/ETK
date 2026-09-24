@@ -1,5 +1,6 @@
 package ProjectForJob.example.Job.MVCcontrollers;
 
+import ProjectForJob.example.Job.DataTransferObject.ProductionRecordListDto;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
@@ -42,6 +43,10 @@ public class ProductionRecordMvcController {
     private final MachinesService machineService;
     private final PipeAdapterService adapterService;
 
+    private static final String LAYOUT = "welcomeToHome/layout";
+    private static final String FRAGMENT_LIST = "fragments/production-records/list :: content";
+    private static final String FRAGMENT_FORM = "fragments/production-records/form :: content";
+
 
     @GetMapping
     public String listAll(@RequestParam(required = false) String productType,
@@ -57,26 +62,22 @@ public class ProductionRecordMvcController {
         log.info("GET /production-records with filters, page={}, size={}", page, size);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ProductionRecordEntity> pageResult = recordService.findAllByFilters(
-                productType,
-                couplingId,
-                adapterId,
-                employeeId,
-                machineId,
-                startDate,
-                endDate,
-                pageable);
+
+        // 1) тянем entity
+        Page<ProductionRecordEntity> entityPage = recordService.findAllByFilters(
+                productType, couplingId, adapterId, employeeId, machineId,
+                startDate, endDate, pageable);
+
+        // 2) маппим в DTO — вот это и было пропущено
+        Page<ProductionRecordListDto> pageResult = entityPage.map(this::toListDto);
 
         model.addAttribute("recordsPage", pageResult);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", pageResult.getTotalPages());
 
-
-        // для выпадающих списков фильтров
         addReferenceData(model);
         model.addAttribute("adapterFirstSideTypes", adapterService.findAllDistinctFirstSideTypes());
 
-        // сохраняем выбранные фильтры для формы
         model.addAttribute("selectedProductType", productType);
         model.addAttribute("selectedCouplingId", couplingId);
         model.addAttribute("selectedAdapterId", adapterId);
@@ -85,19 +86,21 @@ public class ProductionRecordMvcController {
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
-        return "production-records/list";
+        model.addAttribute("contentTemplate", FRAGMENT_LIST);
+        return LAYOUT;
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         prepareFormModel(model);
         model.addAttribute("record", new ProductionRecordEntity());
-        model.addAttribute("productTypes", List.of("COUPLING", "ADAPTER"));
-        // Для JS: текущие значения пустые
         model.addAttribute("currentProductType", "");
         model.addAttribute("currentCouplingId", null);
         model.addAttribute("currentAdapterId", null);
-        return "production-records/form";
+        model.addAttribute("currentCouplingType", null);
+        model.addAttribute("currentAdapterFirstSideType", null);
+        model.addAttribute("contentTemplate", FRAGMENT_FORM);
+        return LAYOUT;
     }
 
     @GetMapping("/edit/{id}")
@@ -105,63 +108,80 @@ public class ProductionRecordMvcController {
         ProductionRecordEntity record = recordService.findById(id);
         prepareFormModel(model);
         model.addAttribute("record", record);
-        model.addAttribute("productTypes", List.of("COUPLING", "ADAPTER"));
 
         String productType = record.getProductType();
         model.addAttribute("currentProductType", productType);
-        if ("COUPLING".equals(productType)) {
-            model.addAttribute("currentCouplingId", record.getCoupling().getId());
-        } else if ("ADAPTER".equals(productType)) {
-            model.addAttribute("currentAdapterId", record.getAdapter().getId());
+
+        if ("COUPLING".equals(productType) && record.getCoupling() != null) {
+            // сходим в сервис — вернёт полностью загруженную муфту
+            Long couplingId = record.getCoupling().getId();
+            CouplingEntity c = couplingService.findById(couplingId);
+            model.addAttribute("currentCouplingId", couplingId);
+            model.addAttribute("currentCouplingType", c != null ? c.getType() : null);
+        } else if ("ADAPTER".equals(productType) && record.getAdapter() != null) {
+            Long adapterId = record.getAdapter().getId();
+            PipeAdapterEntity a = adapterService.findById(adapterId);
+            model.addAttribute("currentAdapterId", adapterId);
+            model.addAttribute("currentAdapterFirstSideType", a != null ? a.getFirstSideType() : null);
         }
-        return "production-records/form";
+
+        model.addAttribute("contentTemplate", FRAGMENT_FORM);
+        return LAYOUT;
     }
 
-   @PostMapping("/save")
-public String save(@Valid @ModelAttribute("record") ProductionRecordEntity record,
-                   BindingResult bindingResult,
-                   @RequestParam(value = "productType", required = false) String productType,
-                   Model model,
-                   RedirectAttributes redirectAttributes) {
-    log.info("POST /production-records/save, productType={}", productType);
+    @PostMapping("/save")
+    public String save(@Valid @ModelAttribute("record") ProductionRecordEntity record,
+                       BindingResult bindingResult,
+                       @RequestParam(value = "productType", required = false) String productType,
+                       Model model,
+                       RedirectAttributes redirectAttributes) {
+        log.info("POST /production-records/save, productType={}", productType);
 
-    // Проверяем, что тип изделия указан
-    if (productType == null || productType.isBlank()) {
-        bindingResult.reject("error.record", "Выберите тип изделия");
-    }
-
-    // Валидация соответствующего ID
-    if ("COUPLING".equals(productType) && record.getCoupling() == null) {
-        bindingResult.rejectValue("coupling", "error.record", "Выберите муфту");
-    }
-    if ("ADAPTER".equals(productType) && record.getAdapter() == null) {
-        bindingResult.rejectValue("adapter", "error.record", "Выберите переводник");
-    }
-
-    // Обнуляем неиспользуемое поле
-    if ("COUPLING".equals(productType)) {
-        record.setAdapter(null);
-    } else if ("ADAPTER".equals(productType)) {
-        record.setCoupling(null);
-    }
-
-    if (bindingResult.hasErrors()) {
-        prepareFormModel(model);
-        // Чтобы радиокнопки отобразили выбранный тип после ошибки
-        model.addAttribute("currentProductType", productType);
-        if ("COUPLING".equals(productType)) {
-            model.addAttribute("currentCouplingId", record.getCoupling() != null ? record.getCoupling().getId() : null);
-        } else if ("ADAPTER".equals(productType)) {
-            model.addAttribute("currentAdapterId", record.getAdapter() != null ? record.getAdapter().getId() : null);
+        // Проверяем, что тип изделия указан
+        if (productType == null || productType.isBlank()) {
+            bindingResult.reject("error.record", "Выберите тип изделия");
         }
-        return "production-records/form";
-    }
 
-    recordService.save(record);
-    redirectAttributes.addFlashAttribute("message", "Запись успешно сохранена");
-    redirectAttributes.addFlashAttribute("messageType", "success");
-    return "redirect:/production-records";
-}
+        // Валидация соответствующего ID
+        if ("COUPLING".equals(productType) && record.getCoupling() == null) {
+            bindingResult.rejectValue("coupling", "error.record", "Выберите муфту");
+        }
+        if ("ADAPTER".equals(productType) && record.getAdapter() == null) {
+            bindingResult.rejectValue("adapter", "error.record", "Выберите переводник");
+        }
+
+        // Обнуляем неиспользуемое поле
+        if ("COUPLING".equals(productType)) {
+            record.setAdapter(null);
+        } else if ("ADAPTER".equals(productType)) {
+            record.setCoupling(null);
+        }
+
+        if (bindingResult.hasErrors()) {
+            prepareFormModel(model);
+            model.addAttribute("currentProductType", productType);
+
+            if ("COUPLING".equals(productType) && record.getCoupling() != null) {
+                Long couplingId = record.getCoupling().getId();
+                CouplingEntity c = couplingService.findById(couplingId);
+                model.addAttribute("currentCouplingId", couplingId);
+                model.addAttribute("currentCouplingType", c != null ? c.getType() : null);
+            } else if ("ADAPTER".equals(productType) && record.getAdapter() != null) {
+                Long adapterId = record.getAdapter().getId();
+                PipeAdapterEntity a = adapterService.findById(adapterId);
+                model.addAttribute("currentAdapterId", adapterId);
+                model.addAttribute("currentAdapterFirstSideType", a != null ? a.getFirstSideType() : null);
+            }
+
+            model.addAttribute("contentTemplate", FRAGMENT_FORM);
+            return LAYOUT;
+        }
+
+        recordService.save(record);
+        redirectAttributes.addFlashAttribute("message", "Запись успешно сохранена");
+        redirectAttributes.addFlashAttribute("messageType", "success");
+        return "redirect:/production-records";
+    }
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -179,12 +199,11 @@ public String save(@Valid @ModelAttribute("record") ProductionRecordEntity recor
     }
 
 
-
     @GetMapping("/api/couplings/types")
     @ResponseBody
     public List<String> getCouplingTypes() {
         log.info("ReportController getCouplingTypes");
-        return couplingService.findAllDistinctTypes(); // нужно добавить метод в CouplingService и CouplingRepository
+        return couplingService.findAllDistinctTypes();
     }
 
     @GetMapping("/api/couplings/by-type")
@@ -258,6 +277,7 @@ public String save(@Valid @ModelAttribute("record") ProductionRecordEntity recor
         map.put("secondSideDiameter", a.getSecondSideDiameter());
         return map;
     }
+
     @GetMapping("/api/adapters")
     @ResponseBody
     public List<Map<String, Object>> getAllAdapters() {
@@ -270,5 +290,25 @@ public String save(@Valid @ModelAttribute("record") ProductionRecordEntity recor
                     return map;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private ProductionRecordListDto toListDto(ProductionRecordEntity e) {
+        String productName = "—";
+        if ("COUPLING".equals(e.getProductType()) && e.getCoupling() != null) {
+            productName = "Муфта " + e.getCoupling().getConditionalDiameter();
+        } else if ("ADAPTER".equals(e.getProductType()) && e.getAdapter() != null) {
+            productName = e.getAdapter().getFullName();
+        }
+
+        return new ProductionRecordListDto(
+                e.getId(),
+                e.getProductionDate(),
+                productName,
+                e.getQuantity(),
+                e.getEmployee() != null ? e.getEmployee().getName() : "—",
+                e.getMachine()  != null ? e.getMachine().getName()  : "—",
+                e.getCreatedAt(),
+                e.getComment()
+        );
     }
 }

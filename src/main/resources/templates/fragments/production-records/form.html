@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+  <!-- ================= HEADER ================= -->
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <a class="hb-icon-btn hb-back"
+         data-turbo-frame="app"
+         th:href="@{/production-records}"
+         title="К журналу">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="handbook-title"
+          th:text="${record.id == null} ? 'Новая запись' : 'Редактирование'">
+        Новая запись
+      </h1>
+    </div>
+  </header>
+
+  <!-- ================= FORM ================= -->
+  <form th:action="@{/production-records/save}"
+        th:object="${record}"
+        method="post"
+        id="recordForm"
+        class="handbook-form"
+        data-turbo-frame="app"
+        th:attr="data-current-coupling-type=${currentCouplingType},
+                   data-current-adapter-first-side-type=${currentAdapterFirstSideType}">
+
+    <input type="hidden" th:field="*{id}"/>
+    <input type="hidden" name="productType" id="productTypeHidden"/>
+
+    <div class="hb-grid">
+
+      <!-- Дата изготовления -->
+      <div class="hb-field">
+        <label for="productionDate">Дата изготовления <span class="req">*</span></label>
+        <input type="date" id="productionDate" th:field="*{productionDate}" required/>
+      </div>
+
+      <!-- Тип изделия -->
+      <div class="hb-field">
+        <label>Тип изделия <span class="req">*</span></label>
+        <div class="hb-radio-row">
+          <label class="hb-radio">
+            <input type="radio" name="productTypeRadio" id="typeCoupling" value="COUPLING"
+                   th:checked="${currentProductType == 'COUPLING'}"/>
+            <span>Муфта</span>
+          </label>
+          <label class="hb-radio">
+            <input type="radio" name="productTypeRadio" id="typeAdapter" value="ADAPTER"
+                   th:checked="${currentProductType == 'ADAPTER'}"/>
+            <span>Переводник</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Муфта -->
+      <div class="hb-field hb-field-full" id="couplingBlock" style="display: none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label>Тип муфты <span class="req">*</span></label>
+            <select id="typeSelect">
+              <option value="">-- Выберите тип --</option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label>Условный диаметр <span class="req">*</span></label>
+            <select id="diameterSelect" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" th:field="*{coupling.id}" id="couplingIdHidden"/>
+      </div>
+
+      <!-- Переводник -->
+      <div class="hb-field hb-field-full" id="adapterBlock" style="display: none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label>Тип первой стороны <span class="req">*</span></label>
+            <select id="adapterFirstSideTypeSelect">
+              <option value="">-- Выберите тип --</option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label>Переводник <span class="req">*</span></label>
+            <select id="adapterSelect" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" th:field="*{adapter.id}" id="adapterIdHidden"/>
+      </div>
+
+      <!-- Количество -->
+      <div class="hb-field">
+        <label for="quantity">Количество <span class="req">*</span></label>
+        <input type="number" id="quantity" th:field="*{quantity}" min="1" required/>
+      </div>
+
+      <!-- Сотрудник -->
+      <div class="hb-field">
+        <label for="employee">Сотрудник <span class="req">*</span></label>
+        <select id="employee" th:field="*{employee.id}" required>
+          <option value="">Выберите сотрудника</option>
+          <option th:each="e : ${employees}" th:value="${e.id}" th:text="${e.name}"></option>
+        </select>
+      </div>
+
+      <!-- Станок -->
+      <div class="hb-field">
+        <label for="machine">Станок <span class="req">*</span></label>
+        <select id="machine" th:field="*{machine.id}" required>
+          <option value="">Выберите станок</option>
+          <option th:each="m : ${machines}" th:value="${m.id}" th:text="${m.name}"></option>
+        </select>
+      </div>
+
+      <!-- Комментарий -->
+      <div class="hb-field hb-field-full">
+        <label for="comment">Комментарий</label>
+        <textarea id="comment" th:field="*{comment}" rows="3"
+                  placeholder="Дополнительная информация..."></textarea>
+      </div>
+    </div>
+
+    <!-- Ошибки -->
+    <div th:if="${#fields.hasAnyErrors()}" class="handbook-alert handbook-alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>Проверьте правильность заполнения полей</span>
+    </div>
+
+    <!-- Действия -->
+    <div class="handbook-form-actions">
+      <button type="submit" class="btn-glass btn-glass-success">
+        <i class="bi bi-check-lg"></i> Сохранить
+      </button>
+      <a class="btn-glass btn-glass-ghost"
+         data-turbo-frame="app"
+         th:href="@{/production-records}">
+        <i class="bi bi-x-lg"></i> Отмена
+      </a>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>>

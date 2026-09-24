@@ -21,6 +21,10 @@ public class CommercialOfferController {
 
     private final OrderService orderService;
 
+    // ==== layout + фрагмент (единый стиль с остальными страницами) ====
+    private static final String LAYOUT = "welcomeToHome/layout";
+    private static final String FRAGMENT_OFFER = "fragments/offer/commercial-offer :: content";
+
     // Отображение страницы КП
     @GetMapping
     public String showCommercialOffer(HttpSession session, Model model) {
@@ -31,7 +35,6 @@ public class CommercialOfferController {
         }
 
         List<OrderEntity> orders = orderService.getOrdersByIdsWithDetails(new ArrayList<>(orderIds));
-        // Оставляем только заказы в статусе WAITING (на случай, если статус изменился после добавления)
         List<OrderEntity> validOrders = orders.stream()
                 .filter(o -> o.getStatus() == OrderStatus.WAITING)
                 .toList();
@@ -41,46 +44,44 @@ public class CommercialOfferController {
             return "redirect:/orders/waiting?error=empty";
         }
 
-        // Проверка принадлежности одной компании
         Long firstCompanyId = validOrders.get(0).getCompany().getId();
         boolean sameCompany = validOrders.stream()
                 .allMatch(o -> o.getCompany().getId().equals(firstCompanyId));
 
         if (!sameCompany) {
-            model.addAttribute("error", "В КП добавлены заказы разных компаний. Очистите КП и добавляйте заказы только одной компании.");
+            model.addAttribute("error",
+                    "В КП добавлены заказы разных компаний. Очистите КП и добавляйте заказы только одной компании.");
         }
 
-        // Итоговые значения
         BigDecimal totalPrice = validOrders.stream()
                 .map(OrderEntity::getTotalCost)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
 
         model.addAttribute("orders", validOrders);
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("companyName", validOrders.get(0).getCompany().getName());
 
-        return "offer/commercial-offer";
+        model.addAttribute("contentTemplate", FRAGMENT_OFFER);
+        return LAYOUT;
     }
 
     // AJAX: добавить/удалить заказ в КП
     @PostMapping("/add/{orderId}")
     @ResponseBody
     public Map<String, Object> toggleOrder(@PathVariable Long orderId, HttpSession session) {
-        log.info("OrderController toggleOrder");
         Set<Long> orderIds = getOrderIdsFromSession(session);
         Map<String, Object> response = new HashMap<>();
-        String error = null;
+        String error;
         boolean added = false;
 
         try {
-            // Проверка компании, если КП не пусто
             if (!orderIds.isEmpty()) {
                 Long firstOrderId = orderIds.iterator().next();
                 OrderEntity firstOrder = orderService.getOrderEntityById(firstOrderId);
                 OrderEntity newOrder = orderService.getOrderEntityById(orderId);
                 if (!firstOrder.getCompany().getId().equals(newOrder.getCompany().getId())) {
-                    error = "Нельзя добавить заказ другой компании. Текущее КП для компании: " + firstOrder.getCompany().getName();
+                    error = "Нельзя добавить заказ другой компании. Текущее КП для компании: "
+                            + firstOrder.getCompany().getName();
                     response.put("error", error);
                     return response;
                 }
@@ -109,29 +110,28 @@ public class CommercialOfferController {
         return response;
     }
 
-    // Очистка всей КП (редирект на страницу ожидания)
+    // Очистка всей КП
     @PostMapping("/clear")
     public String clearCommercialOffer(HttpSession session) {
-        log.info("OrderController clearCommercialOffer");
         session.removeAttribute("commercialOffer");
         return "redirect:/orders/waiting";
     }
 
-    // Удаление одного заказа из КП (со страницы КП)
+    // Удаление одного заказа из КП
     @PostMapping("/remove/{orderId}")
     public String removeOrder(@PathVariable Long orderId, HttpSession session) {
-        log.info("OrderController removeOrder");
         Set<Long> orderIds = getOrderIdsFromSession(session);
         orderIds.remove(orderId);
         if (orderIds.isEmpty()) {
             session.removeAttribute("commercialOffer");
-        } else {
-            session.setAttribute("commercialOffer", orderIds);
+            return "redirect:/orders/waiting";
         }
+        session.setAttribute("commercialOffer", orderIds);
         return "redirect:/commercial-offer";
     }
 
     private Set<Long> getOrderIdsFromSession(HttpSession session) {
+        @SuppressWarnings("unchecked")
         Set<Long> orderIds = (Set<Long>) session.getAttribute("commercialOffer");
         if (orderIds == null) {
             orderIds = new LinkedHashSet<>();

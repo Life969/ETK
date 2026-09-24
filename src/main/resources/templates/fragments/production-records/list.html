@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content journal-content">
+
+    <!-- ================= HEADER ================= -->
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <h1 class="handbook-title">
+                <i class="bi bi-journal-text"></i> Журнал производства
+            </h1>
+            <span class="handbook-count"
+                  th:text="${recordsPage.totalElements + ' зап.'}">0 зап.</span>
+        </div>
+        <div class="hb-actions-row">
+            <a class="btn-glass btn-glass-primary"
+               data-turbo-frame="app"
+               th:href="@{/production-records/new}">
+                <i class="bi bi-plus-circle"></i> Добавить запись
+            </a>
+        </div>
+    </header>
+
+    <!-- ================= FLASH ================= -->
+    <div th:if="${message}"
+         class="handbook-alert"
+         th:classappend="${messageType == 'success'} ? 'handbook-alert-success' : 'handbook-alert-danger'">
+        <i class="bi"
+           th:classappend="${messageType == 'success'} ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+        <span th:text="${message}">Сообщение</span>
+    </div>
+
+    <!-- ================= FILTERS ================= -->
+    <div class="journal-filters open" id="journalFilters">
+
+        <button type="button" class="journal-filters-toggle" id="filtersToggle">
+            <i class="bi bi-funnel-fill"></i>
+            <span>Фильтры</span>
+            <i class="bi bi-chevron-down journal-filters-chev"></i>
+        </button>
+
+        <form method="get" th:action="@{/production-records}"
+              class="journal-filters-body"
+              data-turbo-frame="app">
+
+            <div class="journal-filters-grid">
+
+                <!-- Тип изделия -->
+                <div class="hb-field">
+                    <label>Тип изделия</label>
+                    <select id="filterProductType" name="productType">
+                        <option value="">Все</option>
+                        <option value="COUPLING" th:selected="${selectedProductType == 'COUPLING'}">Муфта</option>
+                        <option value="ADAPTER"  th:selected="${selectedProductType == 'ADAPTER'}">Переводник</option>
+                    </select>
+                </div>
+
+                <!-- Муфта: тип -->
+                <div class="hb-field" id="filterCouplingBlock" style="display: none;">
+                    <label>Тип муфты</label>
+                    <select id="filterTypeSelect">
+                        <option value="">-- Все типы --</option>
+                    </select>
+                </div>
+
+                <!-- Муфта: диаметр -->
+                <div class="hb-field" id="filterDiameterBlock" style="display: none;">
+                    <label>Условный диаметр</label>
+                    <select id="filterDiameterSelect" disabled>
+                        <option value="">-- Сначала тип --</option>
+                    </select>
+                    <input type="hidden" name="couplingId" id="filterCouplingIdHidden"
+                           th:value="${selectedCouplingId}"/>
+                </div>
+
+                <!-- Переводник -->
+                <div class="hb-field" id="filterAdapterBlock" style="display: none;">
+                    <label>Переводник</label>
+                    <select id="filterAdapterSelect" name="adapterId">
+                        <option value="">-- Все переводники --</option>
+                    </select>
+                </div>
+
+                <!-- Сотрудник -->
+                <div class="hb-field">
+                    <label>Сотрудник</label>
+                    <select name="employeeId" id="employeeId">
+                        <option value="">Все</option>
+                        <option th:each="e : ${employees}"
+                                th:value="${e.id}"
+                                th:text="${e.name}"
+                                th:selected="${e.id == selectedEmployeeId}"></option>
+                    </select>
+                </div>
+
+                <!-- Станок -->
+                <div class="hb-field">
+                    <label>Станок</label>
+                    <select name="machineId" id="machineId">
+                        <option value="">Все</option>
+                        <option th:each="m : ${machines}"
+                                th:value="${m.id}"
+                                th:text="${m.name}"
+                                th:selected="${m.id == selectedMachineId}"></option>
+                    </select>
+                </div>
+
+                <!-- Дата с -->
+                <div class="hb-field">
+                    <label>Дата с</label>
+                    <input type="date" name="startDate" id="startDate"
+                           th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}"/>
+                </div>
+
+                <!-- Дата по -->
+                <div class="hb-field">
+                    <label>Дата по</label>
+                    <input type="date" name="endDate" id="endDate"
+                           th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}"/>
+                </div>
+
+            </div>
+
+            <div class="journal-filters-actions">
+                <button type="submit" class="btn-glass btn-glass-primary">
+                    <i class="bi bi-search"></i> Применить
+                </button>
+                <a class="btn-glass btn-glass-ghost"
+                   data-turbo-frame="app"
+                   th:href="@{/production-records}">
+                    <i class="bi bi-x-lg"></i> Сбросить
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ================= EMPTY ================= -->
+    <div th:if="${recordsPage.isEmpty()}" class="journal-empty">
+        <i class="bi bi-inbox"></i>
+        <span>Записей пока нет</span>
+    </div>
+
+    <!-- ================= LIST ================= -->
+    <div class="journal-list" th:unless="${recordsPage.isEmpty()}">
+
+        <article th:each="rec : ${recordsPage.content}" class="journal-entry">
+
+            <!-- Дата -->
+            <div class="journal-date">
+                <span class="journal-date-month"
+                      th:text="${rec.productionDate != null
+                ? #temporals.format(rec.productionDate, 'MMM').toUpperCase()
+                : '—'}">—</span>
+                <span class="journal-date-day"
+                      th:text="${rec.productionDate != null ? #temporals.format(rec.productionDate, 'dd') : '—'}">—</span>
+                <span class="journal-date-year"
+                      th:text="${rec.productionDate != null ? #temporals.format(rec.productionDate, 'yyyy') : ''}"></span>
+            </div>
+
+            <!-- Тело -->
+            <div class="journal-entry-body">
+                <div class="journal-entry-head">
+                    <span class="journal-entry-title" th:text="${rec.productName}">Название</span>
+                    <span class="journal-entry-qty" th:text="'× ' + ${rec.quantity}">× 10</span>
+                </div>
+
+                <div class="journal-entry-meta">
+                    <span><i class="bi bi-person"></i> <span th:text="${rec.employeeName}">Иванов И.И.</span></span>
+                    <span class="journal-meta-sep">•</span>
+                    <span><i class="bi bi-gear"></i> <span th:text="${rec.machineName}">Станок</span></span>
+                    <span class="journal-meta-sep">•</span>
+                    <span class="journal-entry-created"
+                          th:text="${rec.createdAt != null ? #temporals.format(rec.createdAt, 'dd.MM.yyyy HH:mm') : ''}"></span>
+                </div>
+
+                <div th:if="${rec.comment != null and !rec.comment.isEmpty()}"
+                     class="journal-entry-comment">
+                    <i class="bi bi-chat-left-text"></i>
+                    <span th:text="${rec.comment}">Комментарий</span>
+                </div>
+            </div>
+
+            <!-- Действия -->
+            <div class="journal-entry-actions">
+                <a class="hb-icon-btn"
+                   data-turbo-frame="app"
+                   th:href="@{/production-records/edit/{id}(id=${rec.id})}"
+                   title="Редактировать">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <form th:action="@{/production-records/delete/{id}(id=${rec.id})}"
+                      method="post"
+                      data-turbo="false"
+                      class="m-0">
+                    <button type="submit"
+                            class="hb-icon-btn hb-icon-btn-danger"
+                            onclick="return confirm('Удалить запись?')"
+                            title="Удалить">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </article>
+    </div>
+
+    <!-- ================= PAGINATION ================= -->
+    <nav class="hb-pagination" th:if="${recordsPage.totalPages > 1}">
+        <a class="hb-page-btn"
+           th:classappend="${recordsPage.first} ? 'disabled'"
+           data-turbo-frame="app"
+           th:href="@{/production-records(
+                productType=${selectedProductType},
+                couplingId=${selectedCouplingId},
+                adapterId=${selectedAdapterId},
+                employeeId=${selectedEmployeeId},
+                machineId=${selectedMachineId},
+                startDate=${startDate},
+                endDate=${endDate},
+                page=${currentPage - 1},
+                size=${recordsPage.size})}">
+            <i class="bi bi-chevron-left"></i> Назад
+        </a>
+        <span class="hb-page-info"
+              th:text="${currentPage + 1} + ' / ' + ${recordsPage.totalPages}">1 / 1</span>
+        <a class="hb-page-btn"
+           th:classappend="${recordsPage.last} ? 'disabled'"
+           data-turbo-frame="app"
+           th:href="@{/production-records(
+                productType=${selectedProductType},
+                couplingId=${selectedCouplingId},
+                adapterId=${selectedAdapterId},
+                employeeId=${selectedEmployeeId},
+                machineId=${selectedMachineId},
+                startDate=${startDate},
+                endDate=${endDate},
+                page=${currentPage + 1},
+                size=${recordsPage.size})}">
+            Вперёд <i class="bi bi-chevron-right"></i>
+        </a>
+    </nav>
+
+</div>
+
+</body>
+</html>

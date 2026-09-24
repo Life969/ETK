@@ -3408,3 +3408,753 @@ body.lights-on .lamp-glow-2 {
     from { stroke-dashoffset: var(--beam-start, 0); }
     to   { stroke-dashoffset: var(--beam-end, -1000); }
 }
+
+/* ==========================================
+   КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ
+   ========================================== */
+
+.offer-content {
+    /* просто наследуем handbook-content, тут ничего не нужно */
+}
+
+/* Карточка компании */
+.offer-company-card {
+    position: relative;
+    padding: 18px 22px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.14),
+    rgba(200, 90, 20, 0.06));
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.offer-company-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right,
+    transparent,
+    rgba(255, 200, 130, 0.6),
+    transparent);
+}
+
+.offer-company-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.85);
+    margin-bottom: 6px;
+}
+
+.offer-company-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: #f5f1e8;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    margin-bottom: 8px;
+}
+
+.offer-company-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.65);
+}
+
+.offer-company-meta i {
+    color: #e67e22;
+    margin-right: 4px;
+}
+
+.offer-company-sep {
+    color: rgba(240, 230, 208, 0.25);
+}
+
+/* Обёртка таблицы, чтобы не выходила за скруглённые углы */
+.offer-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.offer-table {
+    margin: 0;
+    min-width: 680px;
+}
+
+/* Номер строки */
+.offer-row-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(240, 230, 208, 0.4);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Ячейка с продуктом */
+.offer-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.offer-product-name {
+    color: #f5f1e8;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+/* Числа — табличные, чтобы колонки не «прыгали» */
+.offer-num {
+    font-variant-numeric: tabular-nums;
+    color: rgba(240, 230, 208, 0.85);
+    font-size: 13px;
+}
+
+.offer-num-accent {
+    color: #ffd966;
+    font-weight: 600;
+}
+
+/* Строка «Итого» */
+.offer-total-row {
+    background: linear-gradient(180deg,
+    rgba(230, 126, 34, 0.10),
+    rgba(230, 126, 34, 0.04));
+    border-top: 1px solid rgba(230, 126, 34, 0.35);
+}
+
+.offer-total-row td {
+    padding: 16px 14px !important;
+    border-bottom: none !important;
+}
+
+.offer-total-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.9);
+    font-weight: 500;
+}
+
+.offer-total-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 12px rgba(255, 200, 120, 0.35);
+}
+
+.offer-total-value i {
+    font-size: 15px;
+    margin-right: 4px;
+    color: #ffb877;
+}
+
+.offer-currency {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-left: 4px;
+    letter-spacing: 1px;
+}
+
+/* Внутри offer-table journal-table уже даёт hover — оставляем */
+.offer-table tbody tr:hover {
+    background: rgba(230, 126, 34, 0.07);
+}
+
+/* Адаптив: на узких экранах делаем таблицу скроллируемой */
+@media (max-width: 900px) {
+    .offer-company-name {
+        font-size: 18px;
+    }
+}
+
+/* ==========================================
+   Select внутри .hb-field — в стиле инпутов
+   ========================================== */
+.hb-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 38px 12px 14px;
+    background-color: rgba(0, 0, 0, 0.25);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23e67e22' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.hb-field select:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background-color: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.hb-field select option {
+    background: #1a1410;
+    color: #f0e6d0;
+}
+
+/* ==========================================
+   ЖУРНАЛ ПРОИЗВОДСТВА
+   ========================================== */
+
+/* ---------- Фильтры ---------- */
+.journal-filters {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.journal-filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    color: #f0e6d0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-align: left;
+}
+
+.journal-filters-toggle:hover {
+    background: rgba(230, 126, 34, 0.10);
+}
+
+.journal-filters-toggle i:first-child {
+    color: #e67e22;
+    font-size: 14px;
+}
+
+.journal-filters-chev {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+    color: rgba(240, 230, 208, 0.5);
+    font-size: 12px;
+}
+
+.journal-filters.open .journal-filters-chev {
+    transform: rotate(180deg);
+}
+
+.journal-filters-body {
+    display: none;
+    padding: 18px 20px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.journal-filters.open .journal-filters-body {
+    display: block;
+    animation: filtersOpen 0.28s ease;
+}
+
+@keyframes filtersOpen {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.journal-filters-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 1100px) {
+    .journal-filters-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .journal-filters-grid { grid-template-columns: 1fr; }
+}
+
+.journal-filters-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Пусто ---------- */
+.journal-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px dashed rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    color: rgba(240, 230, 208, 0.45);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.journal-empty i {
+    font-size: 32px;
+    color: rgba(230, 126, 34, 0.5);
+}
+
+/* ---------- Лента ---------- */
+.journal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.journal-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 14px 18px 14px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    transition: all 0.22s ease;
+}
+
+.journal-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #e67e22, #a85520);
+    opacity: 0.55;
+    transition: opacity 0.22s ease;
+}
+
+.journal-entry:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.35);
+    transform: translateX(2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.journal-entry:hover::before {
+    opacity: 1;
+}
+
+/* Дата-бейдж */
+.journal-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.20),
+    rgba(168, 85, 32, 0.10));
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.journal-date-day {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffd966;
+    letter-spacing: -0.5px;
+}
+
+.journal-date-month {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.9);
+    margin-top: 4px;
+}
+
+.journal-date-year {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(240, 230, 208, 0.4);
+    margin-top: 2px;
+}
+
+/* Тело */
+.journal-entry-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.journal-entry-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.journal-entry-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f5f1e8;
+    letter-spacing: 0.3px;
+}
+
+.journal-entry-qty {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: rgba(46, 204, 113, 0.20);
+    color: #c8ffd9;
+    border: 1px solid rgba(46, 204, 113, 0.40);
+}
+
+.journal-entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.7);
+}
+
+.journal-entry-meta i {
+    color: #e67e22;
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.journal-meta-sep {
+    color: rgba(240, 230, 208, 0.2);
+}
+
+.journal-entry-created {
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    color: rgba(240, 230, 208, 0.4);
+    text-transform: uppercase;
+}
+
+.journal-entry-comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.55);
+    font-style: italic;
+    padding-top: 4px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.06);
+    margin-top: 1px;
+}
+
+.journal-entry-comment i {
+    color: rgba(230, 126, 34, 0.55);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Действия */
+.journal-entry-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.hb-icon-btn-danger:hover {
+    background: rgba(231, 76, 60, 0.30) !important;
+    color: #ffc4b8 !important;
+    border-color: rgba(231, 76, 60, 0.55) !important;
+}
+
+/* Мобильная адаптация карточки */
+@media (max-width: 640px) {
+    .journal-entry {
+        grid-template-columns: 58px 1fr;
+    }
+    .journal-date {
+        width: 58px;
+        height: 58px;
+    }
+    .journal-date-day { font-size: 20px; }
+    .journal-entry-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        margin-top: 4px;
+    }
+}
+
+/* ==========================================
+   ОТЧЁТЫ
+   ========================================== */
+
+.report-content {
+    /* просто наследуем handbook-content */
+}
+
+/* ---------- Фильтры ---------- */
+.report-filters {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 18px 20px;
+}
+
+.report-filters-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+}
+
+@media (max-width: 1000px) {
+    .report-filters-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .report-filters-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .report-filters-grid { grid-template-columns: 1fr; }
+}
+
+.report-filters-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ---------- Обёртка результата ---------- */
+.report-result {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ---------- Большая карточка-итог ---------- */
+.report-summary {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    padding: 22px 26px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.14),
+    rgba(200, 90, 20, 0.05));
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.report-summary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right,
+    transparent,
+    rgba(255, 200, 130, 0.6),
+    transparent);
+}
+
+/* Машинный отчёт — чуть холоднее, синий акцент */
+.report-summary--machine {
+    background: linear-gradient(135deg,
+    rgba(52, 152, 219, 0.14),
+    rgba(41, 128, 185, 0.05));
+    border-color: rgba(52, 152, 219, 0.35);
+}
+
+.report-summary--machine::before {
+    background: linear-gradient(to right,
+    transparent,
+    rgba(150, 210, 255, 0.6),
+    transparent);
+}
+
+.report-summary-left {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.report-summary-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.85);
+    margin-bottom: 6px;
+}
+
+.report-summary--machine .report-summary-label {
+    color: rgba(168, 216, 240, 0.9);
+}
+
+.report-summary-name {
+    font-size: 26px;
+    font-weight: 600;
+    color: #f5f1e8;
+    letter-spacing: 0.4px;
+    margin-bottom: 8px;
+    line-height: 1.15;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.report-summary-period {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: rgba(240, 230, 208, 0.6);
+    font-variant-numeric: tabular-nums;
+}
+
+.report-summary-period i {
+    color: #e67e22;
+}
+
+.report-summary--machine .report-summary-period i {
+    color: #3498db;
+}
+
+/* Правая часть — большая цифра */
+.report-summary-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.report-summary-total {
+    font-size: 38px;
+    font-weight: 700;
+    color: #ffd966;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(255, 200, 120, 0.35);
+}
+
+.report-summary--machine .report-summary-total {
+    color: #a8d8f0;
+    text-shadow: 0 0 20px rgba(120, 200, 255, 0.35);
+}
+
+.report-summary-currency {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.report-summary-caption {
+    margin-top: 6px;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+/* ---------- Мини-статистика в ряд ---------- */
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+@media (max-width: 600px) {
+    .report-stats { grid-template-columns: 1fr; }
+}
+
+.report-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.report-stat:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.35);
+    transform: translateY(-2px);
+}
+
+.report-stat i {
+    font-size: 16px;
+    color: #e67e22;
+    margin-bottom: 2px;
+}
+
+.report-stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f5f1e8;
+    font-variant-numeric: tabular-nums;
+}
+
+.report-stat-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+/* ---------- Таблица отчёта ---------- */
+.report-table .report-product-name {
+    color: #f5f1e8;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.report-table tbody td {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Excel-кнопка — в стиле success, но заглушенная */
+.btn-glass-success[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: saturate(0.6);
+}
