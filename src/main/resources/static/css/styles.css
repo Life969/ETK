@@ -1567,7 +1567,7 @@ body.lights-on .lamp-glow-2 {
     z-index: 1;
 }
 
-/* --- Заливка (растёт из середины нижней грани) --- */
+/* --- Базовая оранжевая заливка (растёт при hover и active) --- */
 .app-glass .navbar .nav-link::before {
     content: '';
     position: absolute;
@@ -1581,7 +1581,43 @@ body.lights-on .lamp-glow-2 {
     );
     transform: scale(0, 0);
     transform-origin: center bottom;
-    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* --- Глянцевый слой поверх заливки (только при .active) --- */
+.app-glass .navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    /* Стеклянный блик сверху + плотный градиент */
+    background: linear-gradient(180deg,
+    rgba(255, 245, 220, 0.55) 0%,
+    rgba(255, 240, 200, 0.22) 18%,
+    rgba(255, 235, 190, 0.04) 42%,
+    rgba(0, 0, 0, 0.00) 55%),
+    linear-gradient(180deg,
+            #d99a5c 0%,
+            #a86a34 30%,
+            #7a4620 62%,
+            #4a2812 100%);
+
+    box-shadow:
+            inset 0 2px 0 rgba(255, 250, 235, 1),
+            inset 0 3px 4px rgba(255, 235, 200, 0.35),
+            inset 0 -3px 8px rgba(0, 0, 0, 0.7),
+            inset 0 -1px 0 rgba(255, 200, 140, 0.20),
+            0 5px 14px rgba(0, 0, 0, 0.55),
+            0 1px 0 rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    transform: scale(0.88);
+    transform-origin: center center;
+    transition: opacity 0.34s ease,
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: -1;
     pointer-events: none;
 }
@@ -1614,29 +1650,17 @@ body.lights-on .lamp-glow-2 {
     0 0 8px rgba(255, 200, 120, 0.35);
 }
 
+/* Hover / open dropdown / active — базовая заливка растёт */
+.app-glass .navbar .nav-link:hover::before,
+.app-glass .navbar .nav-link.show::before,
 .app-glass .navbar .nav-link.active::before {
     transform: scale(1, 1);
+}
 
-    /* Верх — стеклянный блик, низ — плотный градиент */
-    background: linear-gradient(180deg,
-    rgba(255, 245, 220, 0.55) 0%,
-    rgba(255, 240, 200, 0.22) 18%,
-    rgba(255, 235, 190, 0.04) 42%,
-    rgba(0, 0, 0, 0.00) 55%),
-    linear-gradient(180deg,
-            #d99a5c 0%,
-            #a86a34 30%,
-            #7a4620 62%,
-            #4a2812 100%);
-
-    box-shadow: /* верхний блик — яркая грань */ inset 0 2px 0 rgba(255, 250, 235, 1),
-    inset 0 3px 4px rgba(255, 235, 200, 0.35),
-        /* тёмная нижняя грань — объём */ inset 0 -3px 8px rgba(0, 0, 0, 0.7),
-    inset 0 -1px 0 rgba(255, 200, 140, 0.20),
-        /* внешняя тень */ 0 5px 14px rgba(0, 0, 0, 0.55),
-    0 1px 0 rgba(0, 0, 0, 0.5);
-
-    border-radius: 10px;
+/* Только active — поверх проявляется глянец */
+.app-glass .navbar .nav-link.active::after {
+    opacity: 1;
+    transform: scale(1);
 }
 
 /* Обёртка, в которой будет жить SVG-луч */
@@ -1952,27 +1976,116 @@ body.lights-on .lamp-glow-2 {
     border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
+
 /* ==========================================
-   ЛОГОТИП-ЛИСТ В NAVBAR
+   ЛОГОТИП-ЛИСТ В NAVBAR — картинка + анимация
    ========================================== */
 
 .navbar-brand {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    padding: 0;
+    justify-content: center;
+    padding: 4px 8px;
+    margin-right: 4px;
+    border-radius: 12px;
+    transition: background 0.3s ease;
 }
 
+/* Мягкая подложка-свечение под листом */
+.navbar-brand::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+    rgba(255, 180, 80, 0.45),
+    rgba(255, 140, 40, 0.15) 45%,
+    transparent 72%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.navbar-brand:hover::before {
+    opacity: 1;
+}
+
+/* Сам лист */
 .brand-leaf {
-    width: 22px;
-    height: 32px;
-    color: #e67e22;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-    transition: color 0.25s ease, transform 0.25s ease;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+    transform-origin: 70% 15%;   /* точка вращения — у стебля (в верхнем правом углу) */
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.35s ease;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 4px rgba(230, 126, 34, 0.25));
+    z-index: 1;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
+/* ─── HOVER: покачивание + яркое свечение ─── */
 .navbar-brand:hover .brand-leaf {
-    color: #ffd966;
-    transform: rotate(-12deg) scale(1.08);
+    animation: brandLeafSway 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 12px rgba(255, 180, 80, 0.9))
+    drop-shadow(0 0 26px rgba(230, 126, 34, 0.6));
+}
+
+@keyframes brandLeafSway {
+    0%, 100% { transform: rotate(-8deg) scale(1.10); }
+    50%      { transform: rotate(-20deg) scale(1.16); }
+}
+
+/* ─── ACTIVE: когда мы на главной — постоянное «дыхание» ─── */
+.navbar-brand.active::before {
+    opacity: 1;
+    animation: brandGlowPulse 3.6s ease-in-out infinite;
+}
+
+.navbar-brand.active .brand-leaf {
+    animation: brandLeafGlow 3.6s ease-in-out infinite;
+}
+
+.navbar-brand.active:hover .brand-leaf {
+    animation: brandLeafSway 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 16px rgba(255, 180, 80, 1))
+    drop-shadow(0 0 32px rgba(230, 126, 34, 0.75));
+}
+
+@keyframes brandLeafGlow {
+    0%, 100% {
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+        drop-shadow(0 0 6px rgba(255, 180, 80, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+        drop-shadow(0 0 16px rgba(255, 180, 80, 1))
+        drop-shadow(0 0 30px rgba(230, 126, 34, 0.7));
+    }
+}
+
+@keyframes brandGlowPulse {
+    0%, 100% { transform: scale(1);    opacity: 0.6; }
+    50%      { transform: scale(1.20); opacity: 1;   }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .navbar-brand .brand-leaf,
+    .navbar-brand.active .brand-leaf,
+    .navbar-brand:hover .brand-leaf,
+    .navbar-brand::before,
+    .navbar-brand.active::before {
+        animation: none !important;
+        transform: none !important;
+    }
 }
 
 /* ==========================================
@@ -2618,7 +2731,7 @@ body.lights-on .lamp-glow-2 {
     color: #f5f1e8 !important;
     text-decoration: none !important;
     line-height: 1.25;
-    transition: color 0.2s ease;
+    transition: color 0.32s ease, text-shadow 0.32s ease;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -4157,4 +4270,71 @@ body.lights-on .lamp-glow-2 {
     opacity: 0.55;
     cursor: not-allowed;
     filter: saturate(0.6);
+}
+
+/* ==========================================
+   ДЕДЛАЙН В СРОЧНЫХ ЗАКАЗАХ (ДЭШБОРД)
+   ========================================== */
+
+.urgent-meta {
+    gap: 8px;   /* чтобы 3 элемента дышали, а не слипались */
+}
+
+.urgent-qty {
+    flex-shrink: 0;
+    color: rgba(240, 230, 208, 0.6);
+}
+
+.urgent-qty strong {
+    color: #f5f1e8;
+    font-weight: 600;
+}
+
+/* Группа "дата + дни" справа, прижата к краю */
+.urgent-deadline-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;   /* ← прижимает группу к правому краю */
+    flex-wrap: nowrap;
+}
+
+.urgent-deadline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.75);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.urgent-deadline i {
+    color: #e67e22;
+    font-size: 11px;
+}
+
+.urgent-card:hover .urgent-deadline i {
+    color: #ffd966;
+}
+
+.urgent-no-deadline {
+    margin-left: auto;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.3);
+    font-style: italic;
+    white-space: nowrap;
+}
+
+/* На узких карточках — компактнее */
+@media (max-width: 700px) {
+    .urgent-meta {
+        font-size: 10.5px;
+    }
+    .urgent-deadline {
+        font-size: 10.5px;
+    }
 }

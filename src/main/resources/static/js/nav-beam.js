@@ -1,25 +1,25 @@
 // ============================================================
 // КОМЕТА по контуру активной кнопки навбара.
-// 30 перекрывающихся сегментов с интерполяцией цвета,
-// толщины и прозрачности → визуально сплошной градиентный хвост.
+// Медленная, мягкая, с плавным появлением при turbo-навигации.
 // ============================================================
 (function () {
     const NS = 'http://www.w3.org/2000/svg';
-    const SPEED   = 55;    // px/сек по контуру
-    const N       = 30;    // число сегментов
-    const TAIL    = 0.25;  // длина хвоста как доля периметра
-    const OVERLAP = 1.6;   // перекрытие соседних сегментов
+    const SPEED   = 34;    // ← было 55 — теперь медленнее в ~2 раза
+    const N       = 32;    // сегментов чуть больше — хвост плавнее
+    const TAIL    = 0.25;  // ← было 0.25 — хвост длиннее
+    const OVERLAP = 2.0;   // ← было 1.6 — больше перекрытие
 
     // Опорные точки градиента: [t, r, g, b, alpha, width]
-    // t=0 — голова, t=1 — кончик хвоста
+    // t=0 — голова, t=1 — кончик хвоста.
+    // Голова — не чисто-белая, а тёплая бежевая: мягче, не «режет» глаз.
     const STOPS = [
-        [0.00, 255, 255, 255, 1.00, 3.0],  // белая голова
-        [0.05, 255, 243, 200, 0.98, 2.8],  // тёплый блик
-        [0.15, 255, 217, 102, 0.85, 2.5],  // жёлтый
-        [0.35, 235, 168,  70, 0.55, 2.1],  // оранжевый
-        [0.60, 175, 105,  40, 0.28, 1.8],  // тёмный янтарь
-        [0.82, 110,  60,  20, 0.10, 1.5],  // коричневый
-        [1.00,  60,  30,   8, 0.00, 1.2],  // растворяется
+        [0.00, 255, 245, 220, 0.78, 2.4],  // тёплая голова
+        [0.06, 255, 230, 170, 0.62, 2.2],
+        [0.18, 255, 205, 110, 0.44, 2.0],
+        [0.38, 235, 160,  70, 0.26, 1.8],
+        [0.62, 175, 100,  40, 0.13, 1.5],
+        [0.84, 110,  60,  20, 0.05, 1.3],
+        [1.00,  60,  30,   8, 0.00, 1.1],
     ];
 
     function sample(t) {
@@ -54,11 +54,15 @@
         svg.setAttribute('class', 'nav-beam');
         svg.setAttribute('preserveAspectRatio', 'none');
 
-        // Одно свечение на всю комету — быстрее, чем фильтр на каждом сегменте
+        // Мягкое свечение — три слоя, но слабее и уже
         svg.style.filter =
-            'drop-shadow(0 0 3px rgba(255, 220, 130, 0.85))' +
-            ' drop-shadow(0 0 9px rgba(230, 126, 34, 0.55))' +
-            ' drop-shadow(0 0 18px rgba(230, 126, 34, 0.30))';
+            'drop-shadow(0 0 2px rgba(255, 220, 130, 0.45))' +
+            ' drop-shadow(0 0 6px rgba(230, 126, 34, 0.28))' +
+            ' drop-shadow(0 0 12px rgba(230, 126, 34, 0.14))';
+
+        // Плавное появление при turbo-навигации
+        svg.style.opacity = '0';
+        svg.style.transition = 'opacity 1.2s ease-out';
 
         const rects = [];
         for (let i = 0; i < N; i++) {
@@ -80,14 +84,18 @@
             rects.push(r);
         }
 
-        // Если всё утонуло в прозрачности (не должно, но на всякий случай) — выходим
         if (rects.length === 0) return;
 
         link.appendChild(svg);
 
+        // Запускаем fade-in на следующем кадре, чтобы transition сработал
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                svg.style.opacity = '1';
+            });
+        });
+
         function layout() {
-            // Страховки: элемент может быть уже отключён от DOM
-            // или скрыт (display:none у родителя) — тогда getTotalLength падает.
             if (!link.isConnected) return;
             if (!svg.isConnected) return;
             if (!link.offsetWidth || !link.offsetHeight) return;
@@ -122,20 +130,17 @@
 
             rects.forEach(r => {
                 const t = parseFloat(r.dataset.t);
-                const d = t * tailPx;   // насколько сегмент отстаёт от головы
+                const d = t * tailPx;
 
-                // Один короткий отрезок на весь периметр — второго
-                // («параллельного») не появится ни при каких условиях.
                 r.setAttribute('stroke-dasharray',
                     `${segLen.toFixed(2)} ${(perim - segLen + 0.01).toFixed(2)}`);
 
-                // Смещение сегмента на d назад — и тот же проход на -perim.
                 r.style.setProperty('--beam-start', d.toFixed(2));
                 r.style.setProperty('--beam-end',   (d - perim).toFixed(2));
 
                 r.style.animationDuration = duration + 's';
                 r.style.animationName = 'none';
-                void r.getBoundingClientRect();    // рестарт анимации
+                void r.getBoundingClientRect();
                 r.style.animationName = 'navBeamRun';
             });
         }

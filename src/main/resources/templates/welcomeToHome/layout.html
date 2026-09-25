@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 
+
+
     <script src="https://unpkg.com/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.js"></script>
 </head>
 <body class="factory-page">
@@ -36,90 +38,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/tooltip.js(v=6)}"></script>
 <script th:src="@{/js/bear-scene.js(v=6)}"></script>
-<script th:src="@{/js/orders-form.js(v=2)}"></script>
-<script th:src="@{/js/nav-beam.js(v=1)}"></script>
-
-<script>
-    // ============================================================
-    // Тултипы + инициализация страниц заказов
-    // ============================================================
-    function initPageScripts() {
-        if (window.WowTooltip) WowTooltip.init('.product-tooltip');
-        if (window.OrdersForm) OrdersForm.init();
-        if (window.refreshNavBeam) window.refreshNavBeam();
-    }
-
-    document.addEventListener('DOMContentLoaded', initPageScripts);
-    document.addEventListener('turbo:load', initPageScripts);
-    document.addEventListener('turbo:frame-load', (e) => {
-        if (e.target.id === 'app') initPageScripts();
-    });
-    if (document.readyState !== 'loading') initPageScripts();
-
-    // ============================================================
-    // ПОДСВЕТКА АКТИВНОЙ ВКЛАДКИ В НАВБАРЕ
-    // ============================================================
-    function setNavActive(section) {
-        document.querySelectorAll('.app-glass .navbar .nav-link[data-nav]').forEach(link => {
-            link.classList.toggle('active', link.dataset.nav === section);
-        });
-        if (window.refreshNavBeam) window.refreshNavBeam();
-    }
-
-    document.addEventListener('click', (e) => {
-        // 1. Клик по верхней ссылке БЕЗ дропдауна (Главная, Журнал) — активируем её
-        const topLink = e.target.closest('.app-glass .navbar .nav-link[data-nav]');
-        if (topLink && !topLink.classList.contains('dropdown-toggle')) {
-            setNavActive(topLink.dataset.nav);
-            return;
-        }
-
-        // 2. Клик по пункту дропдауна — активируем родителя
-        const dropdownItem = e.target.closest('.app-glass .navbar .dropdown-item');
-        if (dropdownItem) {
-            const parentItem = dropdownItem.closest('.nav-item.dropdown');
-            const parentLink = parentItem?.querySelector('.nav-link[data-nav]');
-            if (parentLink) setNavActive(parentLink.dataset.nav);
-        }
-
-        // 3. Клик по .dropdown-toggle — ничего не делаем
-    });
-
-    // Стартовая точка — «Главная»
-    document.addEventListener('DOMContentLoaded', () => setNavActive('home'));
-    document.addEventListener('turbo:load', () => setNavActive('home'));
-
-    // ============================================================
-    // Обработчики: файл и аккордеон
-    // ============================================================
-    document.addEventListener('change', (e) => {
-        if (e.target && e.target.id === 'imageFileInput') {
-            const file = e.target.files[0];
-            if (!file) return;
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Файл слишком большой. Максимальный размер 5 МБ.');
-                e.target.value = '';
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function (ev) {
-                const hidden = document.getElementById('imageBase64');
-                if (hidden) hidden.value = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        const toggle = e.target.closest('.hb-accordion-toggle');
-        if (!toggle) return;
-        const targetId = toggle.dataset.target;
-        const body = document.getElementById(targetId);
-        if (!body) return;
-        toggle.classList.toggle('open');
-        body.classList.toggle('open');
-    });
-</script>
+<script th:src="@{/js/orders-form.js(v=3)}"></script>
+<script th:src="@{/js/nav-beam.js(v=3)}"></script>
+<script th:src="@{/js/app.js(v=1)}"></script>
 
 </body>
 </html>

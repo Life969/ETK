@@ -339,11 +339,27 @@ window.OrdersForm = (function () {
     }
 
     // ================= КП: добавление/удаление/очистка =================
+    function refreshOfferPanelFromDom() {
+        const count = document.querySelectorAll('.add-to-offer-btn.active').length;
+        const panel = document.getElementById('offerActions');
+        const counter = document.getElementById('offerCount');
+        if (!panel) return;
+        if (count > 0) {
+            panel.style.display = '';
+            if (counter) counter.textContent = count;
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
     function initCommercialOffer() {
+        // 1. Сначала всегда синхронизируем панель с текущим DOM
+        refreshOfferPanelFromDom();
+
+        // 2. Обработчики вешаем только один раз
         if (document.body.dataset.offerWired === 'true') return;
         document.body.dataset.offerWired = 'true';
 
-        // --- Хелпер: CSRF ---
         function csrfHeaders(extra) {
             const headers = Object.assign({ 'Accept': 'application/json' }, extra || {});
             const tokenMeta = document.querySelector('meta[name="_csrf"]');
@@ -354,23 +370,9 @@ window.OrdersForm = (function () {
             return headers;
         }
 
-        // --- Хелпер: обновить панель "В КП: N" ---
-        function refreshOfferPanel(count) {
-            const panel = document.getElementById('offerActions');
-            const counter = document.getElementById('offerCount');
-            if (!panel) return;
-            if (count > 0) {
-                panel.style.display = '';
-                if (counter) counter.textContent = count;
-            } else {
-                panel.style.display = 'none';
-            }
-        }
-
-        // --- Делегированный клик: всё, что связано с КП ---
         document.addEventListener('click', function (e) {
 
-            // === Кнопка "+" на карточке заказа ===
+            // === Кнопка "+" / "✓" на карточке заказа ===
             const addBtn = e.target.closest('.add-to-offer-btn');
             if (addBtn) {
                 e.preventDefault();
@@ -396,7 +398,6 @@ window.OrdersForm = (function () {
                             return;
                         }
 
-                        // Меняем визуал кнопки
                         if (data.added) {
                             addBtn.classList.add('active');
                             addBtn.innerHTML = '<i class="bi bi-check-lg"></i>';
@@ -407,7 +408,7 @@ window.OrdersForm = (function () {
                             addBtn.title = 'Добавить в КП';
                         }
 
-                        refreshOfferPanel(data.count || 0);
+                        refreshOfferPanelFromDom();
                     })
                     .catch(err => {
                         addBtn.disabled = false;
@@ -433,14 +434,13 @@ window.OrdersForm = (function () {
                     .then(() => {
                         clearBtn.disabled = false;
 
-                        // Сбрасываем визуал всех кнопок "+"
                         document.querySelectorAll('.add-to-offer-btn.active').forEach(b => {
                             b.classList.remove('active');
                             b.innerHTML = '<i class="bi bi-plus-lg"></i>';
                             b.title = 'Добавить в КП';
                         });
 
-                        refreshOfferPanel(0);
+                        refreshOfferPanelFromDom();
                     })
                     .catch(err => {
                         clearBtn.disabled = false;
@@ -450,10 +450,6 @@ window.OrdersForm = (function () {
                 return;
             }
         });
-
-        // --- Восстанавливаем состояние панели при init ---
-        const actives = document.querySelectorAll('.add-to-offer-btn.active').length;
-        refreshOfferPanel(actives);
     }
 
     // ================= ЖУРНАЛ: форма =================

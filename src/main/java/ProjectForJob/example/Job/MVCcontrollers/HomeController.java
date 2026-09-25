@@ -100,6 +100,7 @@ public class HomeController {
                     ? ChronoUnit.DAYS.between(today, order.getDeadline())
                     : null;
             dto.setDaysUntilDeadline(days);
+            dto.setDeadline(order.getDeadline());
 
             if (order.getCoupling() != null) {
                 dto.setProductId(order.getCoupling().getId());

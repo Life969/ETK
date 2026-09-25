@@ -80,9 +80,25 @@
                 </div>
 
                 <div class="urgent-meta">
-                    <span><strong th:text="${item.order.quantity}">0</strong> шт.</span>
-                    <span class="urgent-days">
-                        <span th:text="${item.order.daysUntilDeadline}">0</span> дн.
+                    <span class="urgent-qty">
+                        <strong th:text="${item.order.quantity}">0</strong> шт.
+                    </span>
+
+                    <!-- Дедлайн + остаток дней -->
+                    <span class="urgent-deadline-group" th:if="${item.order.deadline != null}">
+                        <span class="urgent-deadline"
+                              th:title="'Дедлайн: ' + ${#temporals.format(item.order.deadline, 'dd.MM.yyyy')}">
+                            <i class="bi bi-calendar-event"></i>
+                            <span th:text="${#temporals.format(item.order.deadline, 'dd.MM.yyyy')}">—</span>
+                        </span>
+                        <span class="urgent-days" th:if="${item.order.daysUntilDeadline != null}">
+                            <span th:text="${item.order.daysUntilDeadline}">0</span> дн.
+                        </span>
+                    </span>
+
+                    <!-- Если дедлайна нет -->
+                    <span class="urgent-no-deadline" th:if="${item.order.deadline == null}">
+                        без дедлайна
                     </span>
                 </div>
             </div>
@@ -163,7 +179,9 @@
                 <td th:text="${record.quantity}">0</td>
                 <td th:text="${record.employee != null ? record.employee.name : '—'}">—</td>
                 <td th:text="${record.machine != null ? record.machine.name : '—'}">—</td>
-                <td th:text="${record.createdAt != null ? #temporals.format(record.createdAt, 'dd.MM.yyyy HH:mm') : '—'}">—</td>
+                <td th:text="${record.createdAt != null ? #temporals.format(record.createdAt, 'dd.MM.yyyy HH:mm') : '—'}">
+                    —
+                </td>
             </tr>
             </tbody>
         </table>

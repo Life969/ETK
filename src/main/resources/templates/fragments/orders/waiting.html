@@ -24,13 +24,16 @@
   </header>
 
   <!-- Панель КП -->
-  <div class="offer-panel" id="offerActions" style="display:none;">
-        <span class="offer-count">
-            <i class="bi bi-cart-check"></i> В КП: <span id="offerCount">0</span>
-        </span>
+  <div class="offer-panel" id="offerActions"
+       th:style="${selectedOrderIds != null and !selectedOrderIds.isEmpty()} ? '' : 'display:none;'">
+    <span class="offer-count">
+        <i class="bi bi-cart-check"></i> В КП:
+        <span id="offerCount"
+              th:text="${selectedOrderIds != null} ? ${selectedOrderIds.size()} : 0">0</span>
+    </span>
     <div class="offer-actions">
       <a th:href="@{/commercial-offer}" class="btn-glass btn-glass-success" data-turbo-frame="app">
-        <i class="bi bi-file-text"></i> Сформировать КП
+        <i class="bi bi-file-text"></i> Коммерческое предложение
       </a>
       <button type="button" id="clearOfferBtn" class="btn-glass btn-glass-danger">
         <i class="bi bi-trash"></i> Очистить
