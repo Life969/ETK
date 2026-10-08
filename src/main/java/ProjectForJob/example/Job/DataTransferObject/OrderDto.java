@@ -31,6 +31,30 @@ public class OrderDto {
     private Double workpieceLengthMeters;
     private Double workpieceWeightKg;
 
+    // Трубы и патрубки и резьбы к ним
+    private Long externalThreadId;
+    private String externalThreadName;           // "НКТ 73"
+    private String pipeProductKind;
+    private Double wallThicknessMm;
+    private Double averagePipeLengthM;
+    private Double orderTotalLengthMeters;
+    private Double orderTotalWeightKg;
+    private BigDecimal pricePerTon;
+    private Double pieceLengthMm;
+
+    private String externalThreadDiameter;       // "73" — для тултипа
+    private BigDecimal externalThreadManufacturingCost;  // цена 1 нарезки — для тултипа
+
+
+
+    // === Группа прочности и марка стали ===
+    private Long strengthGroupId;
+    private String strengthGroupCode;
+    private String strengthGroupName;
+    private Long steelGradeId;
+    private String steelGradeName;
+    private BigDecimal appliedMarkupPercent;
+
     public String getWorkpieceDescription() {
         if (workpieceOuterDiameter == null || workpieceWallThickness == null
                 || workpieceLengthMeters == null || workpieceWeightKg == null) {

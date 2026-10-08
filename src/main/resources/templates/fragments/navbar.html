@@ -27,22 +27,24 @@
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-nav="handbooks"
-                           href="#" role="button"
+                           href="#" role="button" data-turbo="false"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-database"></i> Справочники
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" data-turbo-frame="app" href="/couplings">Муфты</a></li>
                             <li><a class="dropdown-item" data-turbo-frame="app" href="/pipe-adapters">Переводники</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/external-threads">Наружные резьбы</a></li>
                             <li><a class="dropdown-item" data-turbo-frame="app" href="/employees">Сотрудники</a></li>
                             <li><a class="dropdown-item" data-turbo-frame="app" href="/machines">Станки</a></li>
                             <li><a class="dropdown-item" data-turbo-frame="app" href="/additionalWork">Доп. работы</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/steel-groups">Группы прочности стали</a></li>
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-nav="orders"
-                           href="#" role="button"
+                           href="#" role="button" data-turbo="false"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-cart"></i> Заказы
                         </a>
@@ -60,7 +62,7 @@
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-nav="reports"
-                           href="#" role="button"
+                           href="#" role="button" data-turbo="false"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-file-text"></i> Отчёты
                         </a>
@@ -74,6 +76,7 @@
                 <ul class="navbar-nav ms-auto" sec:authorize="isAuthenticated()">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-turbo="false"
                            data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                             <i class="bi bi-person-circle"></i> <span sec:authentication="name"></span>
                         </a>

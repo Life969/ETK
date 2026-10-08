@@ -2514,6 +2514,103 @@ body.lights-on .lamp-glow-2 {
 }
 
 /* ==========================================
+   КАСТОМНЫЕ ЧЕКБОКСЫ (.hb-check)
+   ========================================== */
+
+.hb-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    transition: background 0.18s ease, border-color 0.18s ease;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    font-family: inherit;
+}
+
+.hb-check:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(230, 126, 34, 0.4);
+}
+
+/* Сам чекбокс — рисуем свой, нативный скрываем */
+.hb-check input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    margin-top: 1px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.35);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 13px 13px;
+    cursor: pointer;
+    transition: background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.hb-check input[type="checkbox"]:hover {
+    border-color: rgba(230, 126, 34, 0.7);
+}
+
+.hb-check input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.3);
+}
+
+/* Отмечен — оранжевая заливка + тёмная галочка по центру.
+   Галочка — инлайн-SVG, идеально центрируется background-position. */
+.hb-check input[type="checkbox"]:checked {
+    background-color: #E67E22;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231a0e00' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.4' d='M3.5 8.5l3 3 6-6.5'/%3E%3C/svg%3E");
+    border-color: #F5A65B;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 8px rgba(230, 126, 34, 0.35);
+}
+
+/* Disabled — приглушаем */
+.hb-check input[type="checkbox"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Тело чекбокса (текст + описание) */
+.hb-check-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.hb-check-label {
+    font-size: 13px;
+    color: #f0e6d0;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+}
+
+.hb-check-desc {
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    line-height: 1.45;
+    letter-spacing: 0.3px;
+    font-weight: 400;
+}
+
+/* ==========================================
    Detail — карточка муфты
    ========================================== */
 
@@ -2760,6 +2857,18 @@ body.lights-on .lamp-glow-2 {
 .order-type-badge.adapter {
     background: rgba(52, 152, 219, 0.22);
     color: #a8d8f0;
+}
+
+.order-type-badge.pipe {
+    background: rgba(30, 255, 0, 0.18);
+    color: #b8ffb0;
+    border: 1px solid rgba(30, 255, 0, 0.4);
+}
+
+.order-type-badge.nipple {
+    background: rgba(30, 255, 0, 0.18);
+    color: #b8ffb0;
+    border: 1px solid rgba(30, 255, 0, 0.4);
 }
 
 .order-product {
@@ -3060,6 +3169,186 @@ body.lights-on .lamp-glow-2 {
     border: 1px solid rgba(46, 204, 113, 0.5);
 }
 
+/* ==========================================
+   КАСТОМНАЯ МОДАЛКА (.hb-modal-overlay)
+   Не Bootstrap — своя, чтобы не конфликтовать
+   со stacking context от .app-panel
+   ========================================== */
+
+.hb-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+}
+
+.hb-modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hb-modal {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    padding: 22px 24px 20px;
+
+    background: linear-gradient(145deg, #1e1a15 0%, #14110d 100%);
+    border: 1px solid rgba(230, 126, 34, 0.45);
+    border-radius: 16px;
+
+    box-shadow:
+            0 24px 60px rgba(0, 0, 0, 0.75),
+            0 0 0 1px rgba(255, 200, 130, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    transform: translateY(12px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #f0e6d0;
+    font-family: inherit;
+}
+
+.hb-modal-overlay.show .hb-modal {
+    transform: translateY(0) scale(1);
+}
+
+.hb-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 200, 130, 0.6), transparent);
+    border-radius: 1px;
+    pointer-events: none;
+}
+
+.hb-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hb-modal-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+}
+
+.hb-modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(240, 230, 208, 0.7);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-size: 13px;
+    padding: 0;
+}
+
+.hb-modal-close:hover {
+    background: rgba(231, 76, 60, 0.25);
+    color: #ffb0a0;
+    border-color: rgba(231, 76, 60, 0.5);
+}
+
+.hb-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.hb-modal-hint {
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: rgba(240, 230, 208, 0.7);
+    line-height: 1.5;
+}
+
+.hb-modal-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+}
+
+.hb-modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.18s ease;
+}
+
+.hb-modal-input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+/* Значок календаря в тёмной теме (Chrome/Safari) */
+.hb-modal-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.75) sepia(1) saturate(4) hue-rotate(-10deg);
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.hb-modal-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.hb-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 500px) {
+    .hb-modal {
+        max-width: 100%;
+        padding: 20px;
+    }
+    .hb-modal-footer {
+        flex-direction: column-reverse;
+    }
+    .hb-modal-footer .btn-glass {
+        width: 100%;
+        justify-content: center;
+    }
+}
 
 /* ==========================================
    УЛУЧШЕНИЕ КОНТРАСТА КНОПОК
@@ -3724,6 +4013,28 @@ body.lights-on .lamp-glow-2 {
     color: #f0e6d0;
 }
 
+/* Disabled select — тот же тёмный стиль, но приглушённый.
+   Перебиваем Bootstrap-овский .form-select:disabled, который
+   подсовывает светлый фон. */
+.hb-field select:disabled,
+.hb-field select[disabled] {
+    background-color: rgba(0, 0, 0, 0.18);
+    color: rgba(240, 230, 208, 0.35);
+    border-color: rgba(255, 255, 255, 0.08);
+    cursor: not-allowed;
+    opacity: 1; /* убираем браузерное «затухание» */
+    -webkit-text-fill-color: rgba(240, 230, 208, 0.35); /* Safari */
+
+    /* Приглушённая стрелка вместо оранжевой */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666055' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+}
+
+/* В disabled-селекте option-ы тоже приглушаем */
+.hb-field select:disabled option {
+    background: #1a1410;
+    color: rgba(240, 230, 208, 0.45);
+}
+
 /* ==========================================
    ЖУРНАЛ ПРОИЗВОДСТВА
    ========================================== */
@@ -4338,3 +4649,791 @@ body.lights-on .lamp-glow-2 {
         font-size: 10.5px;
     }
 }
+
+/* ==========================================
+   ИКОНКИ ПРОДУКЦИИ (МУФТА / ПЕРЕВОДНИК)
+   ========================================== */
+
+.product-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.18);
+    padding: 2px;
+    box-sizing: border-box;
+
+    /* Мягкая тень, чтобы тёмный силуэт не растворялся на стекле */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+
+    transition: transform 0.35s ease, filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Больший размер — для журнала (карточки выше и текст крупнее) */
+.product-icon--lg {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    padding: 3px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+/* ─── Покачивание при наведении на карточку ───
+   Очень лёгкое (±3°), медленное (2.4s) — не отвлекает, но оживляет */
+.urgent-card:hover .product-icon,
+.journal-entry:hover .product-icon {
+    animation: productIconSway 2.4s ease-in-out infinite;
+    filter:
+            drop-shadow(0 2px 6px rgba(230, 126, 34, 0.55))
+            drop-shadow(0 0 10px rgba(230, 126, 34, 0.35));
+}
+
+@keyframes productIconSway {
+    0%, 100% { transform: rotate(-3deg) scale(1.06); }
+    50%      { transform: rotate(3deg)  scale(1.10); }
+}
+
+/* В срочных заказах чуть больше воздуха в ряду */
+.urgent-product {
+    gap: 8px;
+}
+
+/* В журнале — иконка первой, но чуть отступ справа */
+.journal-entry-head .product-icon {
+    margin-right: 4px;
+}
+
+/* Reduced motion — без анимации */
+@media (prefers-reduced-motion: reduce) {
+    .urgent-card:hover .product-icon,
+    .journal-entry:hover .product-icon {
+        animation: none !important;
+    }
+}
+
+/* ==========================================
+   ДЭШБОРД — компактный журнал
+   ========================================== */
+
+.dashboard-journal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dashboard-journal-entry {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 14px 9px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.dashboard-journal-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+    background: linear-gradient(180deg, #e67e22, #a85520);
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.dashboard-journal-entry:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.35);
+    transform: translateX(2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-journal-entry:hover::before {
+    opacity: 1;
+}
+
+/* ==========================================
+   ДЭШБОРД — иконки продукции с цветовыми подложками
+   ========================================== */
+
+.dj-icon {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    padding: 3px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+/* ─── МУФТА — фиолетовая подложка (легендарное качество, #a335ee) ─── */
+.dj-icon--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.24),
+    rgba(110, 25, 170, 0.10));
+    border: 1px solid rgba(163, 53, 238, 0.48);
+    box-shadow:
+            inset 0 0 10px rgba(163, 53, 238, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── ПЕРЕВОДНИК — оранжевая подложка (легендарное качество, #ff8000) ─── */
+.dj-icon--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 128, 0, 0.28),
+    rgba(200, 90, 10, 0.12));
+    border: 1px solid rgba(255, 160, 50, 0.60);
+    box-shadow:
+            inset 0 0 12px rgba(255, 140, 30, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35),
+            0 0 10px rgba(255, 128, 0, 0.20);
+}
+
+/* Картинка внутри подложки */
+.dj-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    transition: transform 0.35s ease, filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER на карточку: подложка вспыхивает, иконка покачивается ─── */
+
+.dashboard-journal-entry:hover .dj-icon--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.42),
+    rgba(120, 30, 190, 0.22));
+    border-color: rgba(200, 110, 255, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(163, 53, 238, 0.40),
+            0 0 16px rgba(163, 53, 238, 0.45);
+}
+
+.dashboard-journal-entry:hover .dj-icon--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 140, 20, 0.50),
+    rgba(220, 100, 15, 0.26));
+    border-color: rgba(255, 200, 90, 0.95);
+    box-shadow:
+            inset 0 0 14px rgba(255, 160, 40, 0.45),
+            0 0 20px rgba(255, 128, 0, 0.60),
+            0 0 40px rgba(255, 100, 0, 0.30);
+}
+
+.dashboard-journal-entry:hover .dj-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+/* Reduced motion — без анимации картинки */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-journal-entry:hover .dj-icon-img {
+        animation: none !important;
+    }
+}
+
+/* Текстовая часть */
+.dj-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dj-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Компактная обёртка тултипа */
+.dj-head .product-name-wrapper {
+    padding: 1px 7px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.dj-head .product-name-wrapper .product-tooltip {
+    font-size: 13px;
+}
+
+.dj-product-plain {
+    font-size: 13px;
+    color: #f5f1e8;
+    font-weight: 500;
+}
+
+.dj-qty {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(46, 204, 113, 0.20);
+    color: #c8ffd9;
+    border: 1px solid rgba(46, 204, 113, 0.40);
+}
+
+.dj-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: rgba(240, 230, 208, 0.65);
+    flex-wrap: wrap;
+}
+
+.dj-meta i {
+    color: #e67e22;
+    font-size: 11px;
+    margin-right: 2px;
+}
+
+.dj-sep {
+    color: rgba(240, 230, 208, 0.2);
+}
+
+/* Дата справа */
+.dj-date-block {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    padding-left: 10px;
+    border-left: 1px dashed rgba(255, 255, 255, 0.08);
+    min-width: 72px;
+}
+
+.dj-date {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: rgba(255, 184, 119, 0.9);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.dj-time {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(240, 230, 208, 0.4);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .dj-date-block { display: none; }
+    .dj-icon { width: 30px; height: 30px; font-size: 14px; }
+}
+
+/* ==========================================
+   ИКОНКА ПРОДУКЦИИ В ПОДЛОЖКЕ
+   (журнал + срочные заказы)
+   ========================================== */
+
+.product-icon-tile {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+/* Маленькая — для срочных заказов на дашборде */
+.product-icon-tile--sm {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    padding: 2px;
+}
+
+/* Большая — для журнала (там карточка выше и текст крупнее) */
+.product-icon-tile--lg {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    padding: 3px;
+    margin-right: 4px;
+}
+
+/* ─── МУФТА — фиолетовая подложка (epic, #a335ee) ─── */
+.product-icon-tile--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.24),
+    rgba(110, 25, 170, 0.10));
+    border: 1px solid rgba(163, 53, 238, 0.48);
+    box-shadow:
+            inset 0 0 10px rgba(163, 53, 238, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── ПЕРЕВОДНИК — оранжевая подложка (legendary, #ff8000) ─── */
+.product-icon-tile--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 128, 0, 0.28),
+    rgba(200, 90, 10, 0.12));
+    border: 1px solid rgba(255, 160, 50, 0.60);
+    box-shadow:
+            inset 0 0 12px rgba(255, 140, 30, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35),
+            0 0 10px rgba(255, 128, 0, 0.20);
+}
+
+/* ─── ТРУБА / ПАТРУБОК — зелёная подложка (uncommon, #1eff00) ─── */
+.product-icon-tile--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.20),
+    rgba(20, 170, 0, 0.08));
+    border: 1px solid rgba(30, 255, 0, 0.45);
+    box-shadow:
+            inset 0 0 10px rgba(30, 255, 0, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* Картинка внутри подложки */
+.product-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    transition: transform 0.35s ease, filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER: подложка вспыхивает, иконка покачивается ─── */
+
+.urgent-card:hover .product-icon-tile--coupling,
+.journal-entry:hover .product-icon-tile--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.42),
+    rgba(120, 30, 190, 0.22));
+    border-color: rgba(200, 110, 255, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(163, 53, 238, 0.40),
+            0 0 16px rgba(163, 53, 238, 0.45);
+}
+
+.urgent-card:hover .product-icon-tile--adapter,
+.journal-entry:hover .product-icon-tile--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 140, 20, 0.50),
+    rgba(220, 100, 15, 0.26));
+    border-color: rgba(255, 200, 90, 0.95);
+    box-shadow:
+            inset 0 0 14px rgba(255, 160, 40, 0.45),
+            0 0 20px rgba(255, 128, 0, 0.60),
+            0 0 40px rgba(255, 100, 0, 0.30);
+}
+
+.urgent-card:hover .product-icon-tile--pipe,
+.journal-entry:hover .product-icon-tile--pipe,
+.order-card:hover .product-icon-tile--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.40),
+    rgba(20, 200, 0, 0.20));
+    border-color: rgba(80, 255, 60, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(30, 255, 0, 0.40),
+            0 0 16px rgba(30, 255, 0, 0.45);
+}
+
+.urgent-card:hover .product-icon-img,
+.journal-entry:hover .product-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .urgent-card:hover .product-icon-img,
+    .journal-entry:hover .product-icon-img {
+        animation: none !important;
+    }
+}
+/* Иконка продукции внутри текстовой строки (view.html) */
+.product-icon-tile--inline {
+    vertical-align: middle;
+    margin-right: 6px;
+    margin-top: -2px;   /* компенсирует baseline, чтобы линия смотрелась ровно */
+}
+
+/* Hover-анимация в карточках заказов — такая же как в срочных и журнале */
+.order-card:hover .product-icon-tile--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.42),
+    rgba(120, 30, 190, 0.22));
+    border-color: rgba(200, 110, 255, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(163, 53, 238, 0.40),
+            0 0 16px rgba(163, 53, 238, 0.45);
+}
+
+.order-card:hover .product-icon-tile--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 140, 20, 0.50),
+    rgba(220, 100, 15, 0.26));
+    border-color: rgba(255, 200, 90, 0.95);
+    box-shadow:
+            inset 0 0 14px rgba(255, 160, 40, 0.45),
+            0 0 20px rgba(255, 128, 0, 0.60),
+            0 0 40px rgba(255, 100, 0, 0.30);
+}
+
+.order-card:hover .product-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+}
+
+/* Чуть больше воздуха между иконкой и названием в карточке заказа */
+.order-product {
+    gap: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-card:hover .product-icon-img {
+        animation: none !important;
+    }
+}
+
+/* ==========================================
+   МАГИЯ ПЕРЕВОДА ЗАКАЗА — ЛИСТОК-КУРЬЕР
+   ========================================== */
+
+/* --- Уезжающая карточка — НЕ исчезает полностью, просто тускнеет и сжимается --- */
+.order-card--departing {
+    pointer-events: none;
+    animation: orderCardDepart 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes orderCardDepart {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0) saturate(1);
+    }
+    55% {
+        opacity: 0.7;
+        transform: scale(0.98) translateY(-1px);
+        filter: blur(0.4px) saturate(0.8);
+    }
+    100% {
+        /* ВАЖНО: не в 0 — оставляем «призрак», чтобы место не пустовало,
+           пока Turbo не подменит фрейм */
+        opacity: 0.42;
+        transform: scale(0.955) translateY(2px);
+        filter: blur(1.4px) saturate(0.55);
+    }
+}
+
+/* --- Слой для летящего листка --- */
+.leaf-flight-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1500; /* выше навбара, ниже модалок (2000) */
+}
+
+.leaf-flyer {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity, filter;
+    pointer-events: none;
+    filter:
+            drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))
+            drop-shadow(0 0 22px rgba(255, 170, 70, 0.85))
+            drop-shadow(0 0 48px rgba(230, 126, 34, 0.5));
+}
+
+/* Свечение-аура вокруг листа */
+.leaf-flyer::before {
+    content: '';
+    position: absolute;
+    inset: -55%;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+    rgba(255, 180, 80, 0.55) 0%,
+    rgba(230, 126, 34, 0.25) 35%,
+    transparent 70%);
+    filter: blur(6px);
+    z-index: -1;
+    animation: leafAuraPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes leafAuraPulse {
+    0%, 100% { transform: scale(1);    opacity: 0.85; }
+    50%      { transform: scale(1.25); opacity: 1;    }
+}
+
+.leaf-flyer img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* --- Пульс на кнопке-цели, когда лист «влетает» в неё --- */
+.btn-glass.leaf-target-pulse,
+.orders-nav-btns a.leaf-target-pulse {
+    animation: leafTargetPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes leafTargetPulse {
+    0% {
+        box-shadow:
+                0 0 0 0 rgba(255, 180, 80, 0.9),
+                0 4px 14px rgba(230, 126, 34, 0.4);
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.06);
+    }
+    100% {
+        box-shadow:
+                0 0 0 22px rgba(255, 180, 80, 0),
+                0 4px 14px rgba(230, 126, 34, 0.4);
+        transform: scale(1);
+    }
+}
+
+/* --- Дополнительная плавность подмены фрейма --- */
+.app-frame {
+    transition: opacity 0.22s ease;
+}
+
+
+/* reduced-motion — не мучаем людей */
+@media (prefers-reduced-motion: reduce) {
+    .order-card--departing,
+    .leaf-flyer,
+    .leaf-flyer::before,
+    .leaf-target-pulse {
+        animation: leafTargetPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .order-card--departing { opacity: 0; }
+}
+
+/* ==========================================
+   УДАЛЕНИЕ ЗАКАЗА — ПУЗЫРЬ + ВЕТЕР
+   ========================================== */
+
+/* --- Карточка лопается как пузырь --- */
+.order-card--popping,
+.order-detail-card--popping {
+    pointer-events: none;
+    animation: orderCardPop 0.32s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+    transform-origin: center center;
+}
+
+@keyframes orderCardPop {
+    0% {
+        transform: scale(1, 1) rotate(0deg);
+        opacity: 1;
+        filter: blur(0) brightness(1);
+    }
+    18% {
+        /* Сжатие по вертикали — «воздух вышел» */
+        transform: scale(1.02, 0.86) rotate(-1.5deg);
+        opacity: 0.96;
+        filter: blur(0) brightness(1.05);
+    }
+    38% {
+        /* Отскок — пузырь ещё держится, чуть распух */
+        transform: scale(1.06, 1.04) rotate(1.2deg);
+        opacity: 0.93;
+        filter: blur(0.2px) brightness(1.12);
+    }
+    58% {
+        /* Быстрое схлопывание */
+        transform: scale(0.55, 0.5) rotate(-2.5deg);
+        opacity: 0.78;
+        filter: blur(1px) brightness(1.35);
+    }
+    82% {
+        /* Почти точка — вот-вот лопнет */
+        transform: scale(0.18, 0.14) rotate(3deg);
+        opacity: 0.6;
+        filter: blur(2px) brightness(1.75);
+    }
+    100% {
+        /* Лопнула — исчезла во вспышке */
+        transform: scale(0.02, 0.02) rotate(0deg);
+        opacity: 0;
+        filter: blur(6px) brightness(2.4);
+    }
+}
+
+/* --- Слой пузырьковых брызг --- */
+.bubble-burst-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1490;   /* выше карточек, ниже листика (1500) и модалок (2000) */
+}
+
+.bubble-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 32%,
+    rgba(255, 248, 220, 1) 0%,
+    rgba(255, 210, 140, 0.9) 28%,
+    rgba(230, 126, 34, 0.7) 62%,
+    rgba(230, 126, 34, 0) 100%);
+    box-shadow:
+            0 0 10px rgba(255, 200, 120, 0.7),
+            inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    transform: translate(-50%, -50%);
+    animation: bubblePop 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes bubblePop {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.4);
+        opacity: 1;
+    }
+    55% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%)
+        translate(var(--dx), var(--dy))
+        scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* --- Круговая ударная волна в момент лопания --- */
+.bubble-shockwave {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 205, 130, 0.95);
+    box-shadow:
+            0 0 18px rgba(255, 180, 80, 0.75),
+            inset 0 0 10px rgba(255, 210, 140, 0.6);
+    transform: translate(-50%, -50%) scale(0.15);
+    transform-origin: center;
+    opacity: 0;
+    pointer-events: none;
+    animation: shockwaveExpand 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes shockwaveExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.15);
+        opacity: 1;
+        border-width: 4px;
+    }
+    60% {
+        opacity: 0.85;
+        border-width: 3px;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(9);
+        opacity: 0;
+        border-width: 1px;
+    }
+}
+
+/* --- Листик, уносимый ветром --- */
+.leaf-flyer--wind {
+    /* Лёгкий наклон вперёд — «ветер в спину» */
+    animation: windShake 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes windShake {
+    0%   { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 26px rgba(255, 170, 70, 0.95))
+    drop-shadow(0 0 58px rgba(230, 126, 34, 0.6)); }
+    100% { filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 34px rgba(255, 190, 90, 1))
+    drop-shadow(0 0 70px rgba(255, 140, 40, 0.75)); }
+}
+
+/* --- Искорки ветра в шлейфе --- */
+.wind-spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+    rgba(255, 240, 200, 1) 0%,
+    rgba(255, 190, 90, 0.7) 45%,
+    rgba(255, 140, 40, 0) 100%);
+    box-shadow: 0 0 10px rgba(255, 190, 90, 0.85);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: windSparkFly 1.55s cubic-bezier(0.3, 0.55, 0.4, 1) forwards;
+}
+
+@keyframes windSparkFly {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.35);
+    }
+    15% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%)
+        translate(var(--dx), var(--dy))
+        scale(0.3);
+    }
+}
+
+/* reduced-motion — не мучаем людей */
+@media (prefers-reduced-motion: reduce) {
+    .order-card--popping,
+    .order-detail-card--popping,
+    .bubble-particle,
+    .bubble-shockwave
+    .leaf-flyer--wind,
+    .wind-spark {
+        animation: none !important;
+    }
+    .order-card--popping,
+    .order-detail-card--popping {
+        opacity: 0;
+    }
+}
+

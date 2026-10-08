@@ -8,26 +8,26 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface ProductionRecordRepository extends JpaRepository<ProductionRecordEntity, Long>, JpaSpecificationExecutor<ProductionRecordEntity> {
-    @Query("SELECT pr FROM ProductionRecordEntity pr " +
-            "JOIN FETCH pr.coupling " +
-            "JOIN FETCH pr.employee " +
-            "JOIN FETCH pr.machine")
+public interface ProductionRecordRepository
+        extends JpaRepository<ProductionRecordEntity, Long>,
+        JpaSpecificationExecutor<ProductionRecordEntity> {
+
+    /**
+     * Явный @Query — иначе Spring пытается вывести запрос из имени метода
+     * и ищет свойство "withDetails" в сущности.
+     */
+    @EntityGraph(value = "ProductionRecord.details", type = EntityGraph.EntityGraphType.LOAD)
+    @Query("SELECT p FROM ProductionRecordEntity p")
     List<ProductionRecordEntity> findAllWithDetails();
 
-    Page<ProductionRecordEntity> findAll(Pageable pageable);
-    @EntityGraph("ProductionRecord.details")
-    Page<ProductionRecordEntity> findAll(Specification<ProductionRecordEntity> spec, Pageable pageable);
-
-    @EntityGraph(attributePaths = {"employee", "machine", "coupling", "adapter"})
+    @EntityGraph(value = "ProductionRecord.details", type = EntityGraph.EntityGraphType.LOAD)
     List<ProductionRecordEntity> findTop5ByOrderByCreatedAtDesc();
 
-    @EntityGraph(attributePaths = {"coupling", "adapter", "employee", "machine"})
-    Optional<ProductionRecordEntity> findById(Long id);
+    /** Переопределяем базовый findAll, чтобы подтянуть связи. */
+    @Override
+    @EntityGraph(value = "ProductionRecord.details", type = EntityGraph.EntityGraphType.LOAD)
+    Page<ProductionRecordEntity> findAll(Specification<ProductionRecordEntity> spec, Pageable pageable);
 }

@@ -10,7 +10,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 
 # Собираем проект. Флаг -DskipTests экономит время.
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 # ---------- Этап 2: Запуск ----------
 FROM amazoncorretto:17-alpine

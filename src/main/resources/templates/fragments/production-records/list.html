@@ -4,7 +4,6 @@
 
 <div th:fragment="content" class="handbook-content journal-content">
 
-    <!-- ================= HEADER ================= -->
     <header class="handbook-header">
         <div class="handbook-title-wrap">
             <h1 class="handbook-title">
@@ -22,7 +21,7 @@
         </div>
     </header>
 
-    <!-- ================= FLASH ================= -->
+    <!-- FLASH -->
     <div th:if="${message}"
          class="handbook-alert"
          th:classappend="${messageType == 'success'} ? 'handbook-alert-success' : 'handbook-alert-danger'">
@@ -31,7 +30,7 @@
         <span th:text="${message}">Сообщение</span>
     </div>
 
-    <!-- ================= FILTERS ================= -->
+    <!-- FILTERS -->
     <div class="journal-filters open" id="journalFilters">
 
         <button type="button" class="journal-filters-toggle" id="filtersToggle">
@@ -53,6 +52,8 @@
                         <option value="">Все</option>
                         <option value="COUPLING" th:selected="${selectedProductType == 'COUPLING'}">Муфта</option>
                         <option value="ADAPTER"  th:selected="${selectedProductType == 'ADAPTER'}">Переводник</option>
+                        <option value="PIPE"     th:selected="${selectedProductType == 'PIPE'}">Труба</option>
+                        <option value="NIPPLE"   th:selected="${selectedProductType == 'NIPPLE'}">Патрубок</option>
                     </select>
                 </div>
 
@@ -80,6 +81,26 @@
                     <select id="filterAdapterSelect" name="adapterId">
                         <option value="">-- Все переводники --</option>
                     </select>
+                </div>
+
+                <!-- Труба/патрубок: тип резьбы -->
+                <div class="hb-field" id="filterExternalThreadTypeBlock" style="display: none;">
+                    <label>Тип резьбы</label>
+                    <select id="filterExternalThreadTypeSelect">
+                        <option value="">-- Все типы --</option>
+                        <option th:each="t : ${externalThreadTypes}"
+                                th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+
+                <!-- Труба/патрубок: диаметр резьбы -->
+                <div class="hb-field" id="filterExternalThreadDiameterBlock" style="display: none;">
+                    <label>Условный диаметр</label>
+                    <select id="filterExternalThreadDiameterSelect" disabled>
+                        <option value="">-- Сначала тип --</option>
+                    </select>
+                    <input type="hidden" name="externalThreadId" id="filterExternalThreadIdHidden"
+                           th:value="${selectedExternalThreadId}"/>
                 </div>
 
                 <!-- Сотрудник -->
@@ -135,13 +156,13 @@
         </form>
     </div>
 
-    <!-- ================= EMPTY ================= -->
+    <!-- EMPTY -->
     <div th:if="${recordsPage.isEmpty()}" class="journal-empty">
         <i class="bi bi-inbox"></i>
         <span>Записей пока нет</span>
     </div>
 
-    <!-- ================= LIST ================= -->
+    <!-- LIST -->
     <div class="journal-list" th:unless="${recordsPage.isEmpty()}">
 
         <article th:each="rec : ${recordsPage.content}" class="journal-entry">
@@ -150,8 +171,8 @@
             <div class="journal-date">
                 <span class="journal-date-month"
                       th:text="${rec.productionDate != null
-                ? #temporals.format(rec.productionDate, 'MMM').toUpperCase()
-                : '—'}">—</span>
+                          ? #temporals.format(rec.productionDate, 'MMM').toUpperCase()
+                          : '—'}">—</span>
                 <span class="journal-date-day"
                       th:text="${rec.productionDate != null ? #temporals.format(rec.productionDate, 'dd') : '—'}">—</span>
                 <span class="journal-date-year"
@@ -161,6 +182,17 @@
             <!-- Тело -->
             <div class="journal-entry-body">
                 <div class="journal-entry-head">
+                    <span class="product-icon-tile product-icon-tile--lg"
+                          th:classappend="${rec.productType == 'COUPLING'} ? 'product-icon-tile--coupling'
+                              : (${rec.productType == 'ADAPTER'} ? 'product-icon-tile--adapter'
+                              : 'product-icon-tile--pipe')">
+                        <img class="product-icon-img"
+                             th:src="${rec.productType == 'COUPLING'} ? @{/images/product-coupling.png}
+                                 : (${rec.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
+                                 : @{/images/product-pipe.png})"
+                             alt="" aria-hidden="true">
+                    </span>
+
                     <span class="journal-entry-title" th:text="${rec.productName}">Название</span>
                     <span class="journal-entry-qty" th:text="'× ' + ${rec.quantity}">× 10</span>
                 </div>
@@ -204,7 +236,7 @@
         </article>
     </div>
 
-    <!-- ================= PAGINATION ================= -->
+    <!-- PAGINATION -->
     <nav class="hb-pagination" th:if="${recordsPage.totalPages > 1}">
         <a class="hb-page-btn"
            th:classappend="${recordsPage.first} ? 'disabled'"
@@ -213,6 +245,7 @@
                 productType=${selectedProductType},
                 couplingId=${selectedCouplingId},
                 adapterId=${selectedAdapterId},
+                externalThreadId=${selectedExternalThreadId},
                 employeeId=${selectedEmployeeId},
                 machineId=${selectedMachineId},
                 startDate=${startDate},
@@ -230,6 +263,7 @@
                 productType=${selectedProductType},
                 couplingId=${selectedCouplingId},
                 adapterId=${selectedAdapterId},
+                externalThreadId=${selectedExternalThreadId},
                 employeeId=${selectedEmployeeId},
                 machineId=${selectedMachineId},
                 startDate=${startDate},

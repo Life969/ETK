@@ -5,15 +5,21 @@
 
 <div th:fragment="content" class="handbook-content">
 
-  <header class="handbook-header">
-    <div class="handbook-title-wrap">
-      <a class="hb-icon-btn hb-back" data-turbo-frame="app" th:href="@{/orders/waiting}" title="Назад">
-        <i class="bi bi-arrow-left"></i>
-      </a>
-      <h1 class="handbook-title">Заказ №<span th:text="${order.id}"></span></h1>
-      <span class="handbook-count" th:text="${order.companyName}">—</span>
-    </div>
-    <div class="orders-nav-btns">
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <a class="hb-icon-btn hb-back"
+               data-turbo-frame="app"
+               data-smart-back
+               th:data-back-fallback="${order.status.name() == 'WAITING'} ? '/orders/waiting'
+                                : (${order.status.name() == 'IN_PRODUCTION'} ? '/orders/production' : '/orders/completed')"
+               th:href="@{/orders/waiting}"
+               title="Назад">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="handbook-title">Заказ №<span th:text="${order.id}"></span></h1>
+            <span class="handbook-count" th:text="${order.companyName}">—</span>
+        </div>
+        <div class="orders-nav-btns">
             <span class="order-status-pill"
                   th:classappend="${order.status.name() == 'WAITING'} ? 'waiting' :
                                   (${order.status.name() == 'IN_PRODUCTION'} ? 'production' : 'completed')">
@@ -26,76 +32,160 @@
                     <span th:case="'COMPLETED'">Выполнен</span>
                 </span>
             </span>
-    </div>
-  </header>
+        </div>
+    </header>
 
-  <div class="order-detail-card">
-    <div class="hb-detail-grid">
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Компания</span>
-        <span class="hb-detail-value" th:text="${order.companyName}">—</span>
-      </div>
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Дата формирования</span>
-        <span class="hb-detail-value"
-              th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">—</span>
-      </div>
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Тип продукции</span>
-        <span class="hb-detail-value"
-              th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'">—</span>
-      </div>
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Продукция</span>
-        <span class="hb-detail-value accent" th:text="${order.productName}">—</span>
-      </div>
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Количество</span>
-        <span class="hb-detail-value" th:text="${order.quantity} + ' шт.'">—</span>
-      </div>
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Дедлайн</span>
-        <span class="hb-detail-value"
-              th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}">—</span>
-      </div>
-      <div class="hb-detail-row hb-detail-full">
-        <span class="hb-detail-label">Дополнительные работы</span>
-        <span class="hb-detail-value">
+    <div class="order-detail-card">
+        <div class="hb-detail-grid">
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Компания</span>
+                <span class="hb-detail-value" th:text="${order.companyName}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Дата формирования</span>
+                <span class="hb-detail-value"
+                      th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Тип продукции</span>
+                <span class="hb-detail-value">
+                        <span class="product-icon-tile product-icon-tile--sm product-icon-tile--inline"
+                              th:classappend="${order.productType == 'COUPLING'} ? 'product-icon-tile--coupling'
+                                  : (${order.productType == 'ADAPTER'} ? 'product-icon-tile--adapter'
+                                  : 'product-icon-tile--pipe')">
+                            <img class="product-icon-img"
+                                 th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png}
+                                     : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
+                                     : @{/images/product-pipe.png})"
+                                 alt="" aria-hidden="true">
+                        </span>
+                        <span th:switch="${order.productType}">
+                            <span th:case="'COUPLING'">Муфта</span>
+                            <span th:case="'ADAPTER'">Переводник</span>
+                            <span th:case="'PIPE'">Труба</span>
+                            <span th:case="'NIPPLE'">Патрубок</span>
+                        </span>
+                </span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Продукция</span>
+                <span class="hb-detail-value accent" th:text="${order.productName}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Количество</span>
+                <span class="hb-detail-value" th:text="${order.quantity} + ' шт.'">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Дедлайн</span>
+                <span class="hb-detail-value"
+                      th:text="${order.deadline != null ? #temporals.format(order.deadline, 'dd.MM.yyyy') : 'не указан'}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Группа прочности</span>
+                <span class="hb-detail-value">
+                    <th:block th:if="${order.strengthGroupCode != null}">
+                        <strong th:text="${order.strengthGroupCode}">Е</strong>
+                        <span style="opacity:0.7;"
+                              th:text="' (+' + ${order.appliedMarkupPercent} + '%)'"> (+10%)</span>
+                    </th:block>
+                    <span th:if="${order.strengthGroupCode == null}"
+                          style="opacity:0.5;">— не указана —</span>
+                </span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Марка стали</span>
+                <span class="hb-detail-value">
+                    <span th:if="${order.steelGradeName != null}" th:text="${order.steelGradeName}">30ХГСА</span>
+                    <span th:if="${order.steelGradeName == null}"
+                          style="opacity:0.5;">— не указана —</span>
+                </span>
+            </div>
+
+            <!-- === Труба / патрубок === -->
+            <th:block th:if="${order.pipeProductKind != null}">
+                <div class="hb-detail-row">
+                    <span class="hb-detail-label">Вид продукции</span>
+                    <span class="hb-detail-value">
+                        <span class="product-icon-tile product-icon-tile--sm product-icon-tile--inline product-icon-tile--pipe">
+                            <img class="product-icon-img"
+                                 src="/images/product-pipe.png"
+                                 alt="" aria-hidden="true">
+                        </span>
+                        <span th:text="${order.pipeProductKind == 'PIPE'} ? 'Труба' : 'Патрубок'">—</span>
+                    </span>
+                </div>
+                <div class="hb-detail-row">
+                    <span class="hb-detail-label">Резьба</span>
+                    <span class="hb-detail-value accent"
+                          th:text="${order.externalThreadName}">—</span>
+                </div>
+                <div class="hb-detail-row">
+                    <span class="hb-detail-label">Толщина стенки</span>
+                    <span class="hb-detail-value"
+                          th:text="${order.wallThicknessMm} + ' мм'">—</span>
+                </div>
+                <div class="hb-detail-row" th:if="${order.pipeProductKind == 'PIPE'}">
+                    <span class="hb-detail-label">Средняя длина трубы</span>
+                    <span class="hb-detail-value"
+                          th:text="${order.averagePipeLengthM} + ' м'">—</span>
+                </div>
+                <div class="hb-detail-row" th:if="${order.pipeProductKind == 'NIPPLE'}">
+                    <span class="hb-detail-label">Длина патрубка</span>
+                    <span class="hb-detail-value"
+                          th:text="${order.pieceLengthMm} + ' мм'">—</span>
+                </div>
+                <div class="hb-detail-row">
+                    <span class="hb-detail-label">Общий метраж</span>
+                    <span class="hb-detail-value"
+                          th:text="${#numbers.formatDecimal(order.orderTotalLengthMeters, 0, 'COMMA', 2, 'POINT')} + ' м'">—</span>
+                </div>
+                <div class="hb-detail-row">
+                    <span class="hb-detail-label">Общий вес</span>
+                    <span class="hb-detail-value"
+                          th:text="${#numbers.formatDecimal(order.orderTotalWeightKg, 0, 'COMMA', 2, 'POINT')} + ' кг'">—</span>
+                </div>
+                <div class="hb-detail-row">
+                    <span class="hb-detail-label">Цена за тонну</span>
+                    <span class="hb-detail-value"
+                          th:text="${#numbers.formatDecimal(order.pricePerTon, 0, 'COMMA', 2, 'POINT')} + ' ₽'">—</span>
+                </div>
+            </th:block>
+
+            <div class="hb-detail-row hb-detail-full">
+                <span class="hb-detail-label">Дополнительные работы</span>
+                <span class="hb-detail-value">
                     <span th:if="${order.additionalWorkNames.isEmpty()}" style="opacity:0.5;">— нет —</span>
                     <ul th:unless="${order.additionalWorkNames.isEmpty()}"
                         style="margin:6px 0 0 0; padding-left:18px;">
                         <li th:each="work : ${order.additionalWorkNames}" th:text="${work}"></li>
                     </ul>
                 </span>
-      </div>
-      <div class="hb-detail-row">
-        <span class="hb-detail-label">Общая стоимость</span>
-        <span class="hb-detail-value accent"
-              th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">—</span>
-      </div>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Общая стоимость</span>
+                <span class="hb-detail-value accent"
+                      th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">—</span>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="order-actions" style="border:none; padding-top:0;">
-    <a class="btn-glass btn-glass-ghost" data-turbo-frame="app" th:href="@{/orders/waiting}">
-      <i class="bi bi-arrow-left"></i> Назад
-    </a>
-    <a th:if="${order.status.name() == 'WAITING'}"
-       class="btn-glass btn-glass-primary"
-       data-turbo-frame="app"
-       th:href="@{/orders/{id}/edit(id=${order.id})}">
-      <i class="bi bi-pencil"></i> Редактировать
-    </a>
-    <form th:if="${order.status.name() == 'WAITING'}"
-          th:action="@{/orders/{id}/delete(id=${order.id})}"
-          method="post" data-turbo="false" class="d-inline">
-      <input type="hidden" name="returnTo" value="/orders/waiting">
-      <button type="submit" class="btn-glass btn-glass-danger"
-              onclick="return confirm('Удалить заказ?')">
-        <i class="bi bi-trash"></i> Удалить
-      </button>
-    </form>
-  </div>
+    <div class="order-actions"
+         th:if="${order.status.name() == 'WAITING'}"
+         style="border:none; padding-top:0;">
+        <a class="btn-glass btn-glass-primary"
+           data-turbo-frame="app"
+           th:href="@{/orders/{id}/edit(id=${order.id})}">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <form th:action="@{/orders/{id}/delete(id=${order.id})}"
+              method="post" data-turbo-frame="app" class="d-inline">
+            <input type="hidden" name="returnTo" value="/orders/waiting">
+            <button type="submit" class="btn-glass btn-glass-danger"
+                    data-delete-btn>
+                <i class="bi bi-trash"></i> Удалить
+            </button>
+        </form>
+    </div>
 </div>
 
 </body>

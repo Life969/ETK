@@ -2,6 +2,7 @@ package ProjectForJob.example.Job.entityJob.ForOrders;
 
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.ExternalThreadEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import jakarta.persistence.*;
@@ -27,7 +28,8 @@ import java.time.LocalDateTime;
                 @NamedAttributeNode("employee"),
                 @NamedAttributeNode("machine"),
                 @NamedAttributeNode("coupling"),
-                @NamedAttributeNode("adapter")
+                @NamedAttributeNode("adapter"),
+                @NamedAttributeNode("externalThread")
         }
 )
 public class ProductionRecordEntity {
@@ -51,6 +53,27 @@ public class ProductionRecordEntity {
     @JoinColumn(name = "adapter_id")
     private PipeAdapterEntity adapter;
 
+    // ================================================================
+    // Трубы и патрубки
+    // ================================================================
+
+    /** Наружная резьба. Nullable: null для муфт и переводников. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "external_thread_id")
+    private ExternalThreadEntity externalThread;
+
+    /** PIPE / NIPPLE. Nullable: null для муфт и переводников. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pipe_product_kind")
+    private PipeProductKind pipeProductKind;
+
+    /** Длина патрубка, мм. Заполняется только для NIPPLE. */
+    @Positive(message = "Длина патрубка должна быть положительной")
+    @Column(name = "piece_length_mm")
+    private Double pieceLengthMm;
+
+    // ================================================================
+
     @Min(value = 1, message = "Количество должно быть не менее 1")
     @Max(value = 999999, message = "Количество не может превышать 999999")
     @NotNull(message = "Количество обязательно")
@@ -66,37 +89,40 @@ public class ProductionRecordEntity {
 
     private String comment;
 
-    // Автоматическая установка даты записи @PrePersist — метод, который срабатывает перед сохранением в БД, устанавливает текущую дату.
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
+    /** Тип продукции: COUPLING / ADAPTER / PIPE / NIPPLE. */
     public String getProductType() {
         if (coupling != null) return "COUPLING";
         if (adapter != null) return "ADAPTER";
+        if (pipeProductKind != null) return pipeProductKind.name();
         return null;
     }
 
-    // Метод для отображения названия изделия в таблице
+    /** Цена для работника за 1 изделие (для отчёта по сотруднику). */
     public BigDecimal getUnitPriceForEmployee() {
         if (coupling != null) return coupling.getPriceForEmployee();
         if (adapter != null) return adapter.getPriceForEmployee();
+        if (externalThread != null) return externalThread.getPriceForEmployee();
         return BigDecimal.ZERO;
     }
 
+    /** Цена изготовления за 1 изделие (для отчёта по станку). */
     public BigDecimal getUnitManufacturingCost() {
         if (coupling != null) return coupling.getManufacturingCost();
         if (adapter != null) return adapter.getManufacturingCost();
+        if (externalThread != null) return externalThread.getManufacturingCost();
         return BigDecimal.ZERO;
     }
 
+    /** Название изделия для отображения в таблице. */
     public String getProductName() {
         if (coupling != null) return coupling.getName();
         if (adapter != null) return adapter.getFullName();
+        if (externalThread != null) return externalThread.getName();  // "НКТ 73"
         return "";
     }
-
-
-
 }

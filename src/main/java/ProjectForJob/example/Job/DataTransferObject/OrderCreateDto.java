@@ -3,6 +3,8 @@ package ProjectForJob.example.Job.DataTransferObject;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,8 +20,7 @@ public class OrderCreateDto {
     private Long couplingId;
     private Long adapterId;
 
-    @NotNull(message = "Количество обязательно")
-    @Positive(message = "Количество должно быть больше 0")
+
     private Integer quantity;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -27,13 +28,42 @@ public class OrderCreateDto {
 
     private List<Long> additionalWorkIds; // id выбранных доп. работ
 
-    @AssertTrue(message = "Необходимо выбрать продукцию соответствующего типа")
+    // --- для труб / патрубков ---
+    private Long externalThreadId;
+    private String pipeProductKind;              // "PIPE" / "NIPPLE" / null
+    private Double wallThicknessMm;
+    private Double averagePipeLengthM;           // для PIPE, дефолт 10
+    private Double orderTotalLengthMeters;       // для PIPE
+    private Double orderTotalWeightKg;           // для PIPE
+    private BigDecimal pricePerTon;              // для PIPE и NIPPLE
+    private Double pieceLengthMm;                // для NIPPLE
+
+    // === Группа прочности и марка стали — оба опциональны ===
+    private Long strengthGroupId;
+    private Long steelGradeId;
+
+    @AssertTrue(message = "Выберите ровно один продукт: муфту, переводник, трубу или патрубок")
     public boolean isProductValid() {
-        if ("COUPLING".equals(productType)) {
-            return couplingId != null && adapterId == null;
-        } else if ("ADAPTER".equals(productType)) {
-            return adapterId != null && couplingId == null;
+        boolean c = couplingId != null;
+        boolean a = adapterId != null;
+        boolean t = externalThreadId != null;
+
+        int count = (c ? 1 : 0) + (a ? 1 : 0) + (t ? 1 : 0);
+        return count == 1;
+    }
+
+    @AssertTrue(message = "Количество обязательно для муфты, переводника и патрубка")
+    public boolean isQuantityValid() {
+        // Для трубы (PIPE) количество вычисляется на сервере — не проверяем.
+        if ("PIPE".equals(productType)) {
+            return true;
         }
-        return false;
+        return quantity != null && quantity > 0;
+    }
+
+    @AssertTrue(message = "Для трубы/патрубка укажите вид продукции (PIPE/NIPPLE)")
+    public boolean isPipeKindValid() {
+        if (externalThreadId == null) return true;
+        return "PIPE".equals(pipeProductKind) || "NIPPLE".equals(pipeProductKind);
     }
 }

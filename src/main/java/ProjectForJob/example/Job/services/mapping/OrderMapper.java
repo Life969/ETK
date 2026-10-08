@@ -7,6 +7,7 @@ import ProjectForJob.example.Job.DataTransferObject.kafkaDto.OrderStartedEvent;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.ExternalThreadEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +43,36 @@ public class OrderMapper {
         dto.setWorkpieceWallThickness(order.getWorkpieceWallThickness());
         dto.setWorkpieceLengthMeters(order.getWorkpieceLengthMeters());
         dto.setWorkpieceWeightKg(order.getWorkpieceWeightKg());
+
+        // === Трубы / патрубки ===
+        if (order.getExternalThread() != null) {
+            ExternalThreadEntity t = order.getExternalThread();
+            dto.setExternalThreadId(t.getId());
+            dto.setExternalThreadName(t.getName());
+            dto.setExternalThreadDiameter(t.getConditionalDiameter());
+            dto.setExternalThreadManufacturingCost(t.getManufacturingCost());
+        }
+        if (order.getPipeProductKind() != null) {
+            dto.setPipeProductKind(order.getPipeProductKind().name());
+        }
+        dto.setWallThicknessMm(order.getWallThicknessMm());
+        dto.setAveragePipeLengthM(order.getAveragePipeLengthM());
+        dto.setOrderTotalLengthMeters(order.getOrderTotalLengthMeters());
+        dto.setOrderTotalWeightKg(order.getOrderTotalWeightKg());
+        dto.setPricePerTon(order.getPricePerTon());
+        dto.setPieceLengthMm(order.getPieceLengthMm());
+
+        // === Группа прочности и марка стали ===
+        if (order.getStrengthGroup() != null) {
+            dto.setStrengthGroupId(order.getStrengthGroup().getId());
+            dto.setStrengthGroupCode(order.getStrengthGroup().getCode());
+            dto.setStrengthGroupName(order.getStrengthGroup().getName());
+        }
+        if (order.getSteelGrade() != null) {
+            dto.setSteelGradeId(order.getSteelGrade().getId());
+            dto.setSteelGradeName(order.getSteelGrade().getName());
+        }
+        dto.setAppliedMarkupPercent(order.getAppliedMarkupPercent());
 
         return dto;
     }
@@ -102,9 +133,8 @@ public class OrderMapper {
     // Выделенный метод, чтобы не дублировать проверки на тип продукта
     private ProductInfo extractProductInfo(OrderEntity order) {
         ProductInfo info = new ProductInfo();
-        // Определяем тип и имя продукта (методы сущности)
-        info.productType = order.getProductType();   // вернёт "COUPLING"/"ADAPTER"/null
-        info.productName = order.getProductName();   // вернёт название или ""
+        info.productType = order.getProductType();   // COUPLING / ADAPTER / null
+        info.productName = order.getProductName();   // "" для труб/патрубков
 
         if (order.getCoupling() != null) {
             CouplingEntity c = order.getCoupling();
@@ -114,6 +144,7 @@ public class OrderMapper {
             info.weightKg = c.getWeightKg() != null ? BigDecimal.valueOf(c.getWeightKg()) : BigDecimal.ZERO;
             info.lengthMm = c.getLengthMm();
             info.imagePath = c.getImagePath();
+
         } else if (order.getAdapter() != null) {
             PipeAdapterEntity a = order.getAdapter();
             info.productId = a.getId();
@@ -122,6 +153,23 @@ public class OrderMapper {
             info.weightKg = a.getWeightKg() != null ? BigDecimal.valueOf(a.getWeightKg()) : BigDecimal.ZERO;
             info.lengthMm = a.getLengthMm();
             info.imagePath = a.getImagePath();
+
+        } else if (order.getExternalThread() != null) {
+            // Труба или патрубок — productType уже известен из order.getProductType()
+            ExternalThreadEntity t = order.getExternalThread();
+            info.productType = order.getPipeProductKind() != null
+                    ? order.getPipeProductKind().name()
+                    : "PIPE";
+            info.productName = t.getName();
+            info.productId = t.getId();
+            info.productDetails = t.getName();
+            info.unitCost = t.getManufacturingCost();
+            info.weightKg = order.getOrderTotalWeightKg() != null
+                    ? BigDecimal.valueOf(order.getOrderTotalWeightKg())
+                    : BigDecimal.ZERO;
+            info.lengthMm = null;
+            info.imagePath = t.getImagePath();
+
         } else {
             // нет продукта
             info.productId = null;
@@ -134,7 +182,6 @@ public class OrderMapper {
         return info;
     }
 
-    // Внутренний класс (или можно статический)
     private static class ProductInfo {
         String productType;
         String productName;

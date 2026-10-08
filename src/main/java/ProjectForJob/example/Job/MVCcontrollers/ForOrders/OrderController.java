@@ -5,12 +5,15 @@ import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
+import ProjectForJob.example.Job.entityJob.Handbook.ExternalThreadEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
 import ProjectForJob.example.Job.services.Handbook.AdditionalWorkService;
 import ProjectForJob.example.Job.services.Handbook.CompanyService;
 import ProjectForJob.example.Job.services.Handbook.CouplingService;
+import ProjectForJob.example.Job.services.Handbook.ExternalThreadService;
 import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.OrderService;
+import ProjectForJob.example.Job.services.Handbook.SteelStrengthGroupService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -42,10 +45,9 @@ public class OrderController {
     private final CouplingService couplingService;
     private final AdditionalWorkService additionalWorkService;
     private final PipeAdapterService pipeAdapterService;
+    private final SteelStrengthGroupService steelStrengthGroupService;
+    private final ExternalThreadService externalThreadService;
 
-    // ================================================================
-    // Путь к layout — как в CouplingMvcController
-    // ================================================================
     private static final String LAYOUT = "welcomeToHome/layout";
 
     private static final String FRAGMENT_WAITING    = "fragments/orders/waiting :: content";
@@ -63,6 +65,9 @@ public class OrderController {
         model.addAttribute("couplings", couplingService.findAll());
         model.addAttribute("additionalWorks", additionalWorkService.findAll());
         model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
+        model.addAttribute("steelGroups", steelStrengthGroupService.findAllActive());
+        // типы наружных резьб — для каскада в форме трубы/патрубка
+        model.addAttribute("externalThreadTypes", externalThreadService.findAllDistinctTypes());
     }
 
     // ================================================================
@@ -86,14 +91,21 @@ public class OrderController {
         for (OrderDto orderDto : ordersPage.getContent()) {
             Map<String, Object> item = new HashMap<>();
             item.put("order", orderDto);
-            if ("COUPLING".equals(orderDto.getProductType()) && orderDto.getProductId() != null) {
+            item.put("product", null);       // ← ключ всегда есть
+            item.put("productType", null);   // ← ключ всегда есть
+
+            String pt = orderDto.getProductType();
+            if ("COUPLING".equals(pt) && orderDto.getProductId() != null) {
                 CouplingEntity coupling = couplingService.findById(orderDto.getProductId());
                 item.put("product", coupling);
                 item.put("productType", "COUPLING");
-            } else if ("ADAPTER".equals(orderDto.getProductType()) && orderDto.getProductId() != null) {
+            } else if ("ADAPTER".equals(pt) && orderDto.getProductId() != null) {
                 PipeAdapterEntity adapter = pipeAdapterService.findById(orderDto.getProductId());
                 item.put("product", adapter);
                 item.put("productType", "ADAPTER");
+            } else if ("PIPE".equals(pt) || "NIPPLE".equals(pt)) {
+                item.put("productType", pt);
+                // product остаётся null — шаблон это понимает
             }
             waitingItems.add(item);
         }
@@ -228,18 +240,42 @@ public class OrderController {
     // ================================================================
     // Редактирование
     // ================================================================
+
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
         OrderDto order = orderService.getOrderById(id);
         OrderUpdateDto dto = new OrderUpdateDto();
+
         dto.setCompanyName(order.getCompanyName());
         dto.setProductType(order.getProductType());
-        if ("COUPLING".equals(order.getProductType())) {
+
+        // === Продукт: определяем по типу ===
+        String pt = order.getProductType();
+        if ("COUPLING".equals(pt)) {
             dto.setCouplingId(order.getProductId());
-        } else {
+        } else if ("ADAPTER".equals(pt)) {
             dto.setAdapterId(order.getProductId());
+        } else if ("PIPE".equals(pt) || "NIPPLE".equals(pt)) {
+            // Труба / патрубок — переносим всё, что нужно для повторного расчёта
+            dto.setExternalThreadId(order.getExternalThreadId());
+            dto.setPipeProductKind(order.getPipeProductKind());
+            dto.setWallThicknessMm(order.getWallThicknessMm());
+            dto.setAveragePipeLengthM(order.getAveragePipeLengthM());
+            dto.setOrderTotalLengthMeters(order.getOrderTotalLengthMeters());
+            dto.setOrderTotalWeightKg(order.getOrderTotalWeightKg());
+            dto.setPricePerTon(order.getPricePerTon());
+            dto.setPieceLengthMm(order.getPieceLengthMm());
         }
-        dto.setQuantity(order.getQuantity());
+
+        // Группа прочности + марка — переносим, чтобы не сбросить бэкфилл
+        dto.setStrengthGroupId(order.getStrengthGroupId());
+        dto.setSteelGradeId(order.getSteelGradeId());
+
+        // quantity только для не-PIPE — для PIPE сервер сам посчитает
+        if (!"PIPE".equals(pt)) {
+            dto.setQuantity(order.getQuantity());
+        }
+
         dto.setDeadline(order.getDeadline());
         dto.setAdditionalWorkIds(order.getAdditionalWorkIds());
 
@@ -247,14 +283,23 @@ public class OrderController {
         model.addAttribute("orderUpdateDto", dto);
         fillFormRefs(model);
 
-        if ("COUPLING".equals(order.getProductType())) {
+        // === Дополнительные атрибуты для предзаполнения каскадов ===
+        if ("COUPLING".equals(pt)) {
             CouplingEntity coupling = couplingService.findById(order.getProductId());
-            model.addAttribute("currentCouplingType", coupling != null ? coupling.getType() : "");
-            model.addAttribute("currentCouplingDiameter", coupling != null ? coupling.getConditionalDiameter() : "");
-        } else {
+            model.addAttribute("currentCouplingType",
+                    coupling != null ? coupling.getType() : "");
+            model.addAttribute("currentCouplingDiameter",
+                    coupling != null ? coupling.getConditionalDiameter() : "");
+        } else if ("ADAPTER".equals(pt)) {
             PipeAdapterEntity adapter = pipeAdapterService.findById(order.getProductId());
             model.addAttribute("currentAdapterFirstSideType", adapter.getFirstSideType());
             model.addAttribute("currentAdapterId", adapter.getId());
+        } else if ("PIPE".equals(pt) || "NIPPLE".equals(pt)) {
+            // Данные для предзаполнения каскада «тип → диаметр»
+            ExternalThreadEntity thread = externalThreadService.findById(order.getExternalThreadId());
+            model.addAttribute("currentExternalThreadType", thread.getType());
+            model.addAttribute("currentExternalThreadId", thread.getId());
+            model.addAttribute("currentExternalThreadDiameter", thread.getConditionalDiameter());
         }
 
         model.addAttribute("contentTemplate", FRAGMENT_EDIT);
@@ -301,6 +346,7 @@ public class OrderController {
     // ================================================================
     // REST API — без layout
     // ================================================================
+
     @GetMapping("/api/couplings/types")
     @ResponseBody
     public List<String> getCouplingTypes() {
@@ -337,6 +383,41 @@ public class OrderController {
                     map.put("id", a.getId());
                     map.put("fullName", a.getFullName());
                     return map;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * AJAX: список активных марок для группы прочности.
+     * Используется для каскада «группа → марка» в форме заказа.
+     */
+    @GetMapping("/api/steel-groups/{id}/grades")
+    @ResponseBody
+    public List<Map<String, Object>> getSteelGradesByGroup(@PathVariable Long id) {
+        return steelStrengthGroupService.findActiveGradesByGroup(id).stream()
+                .map(g -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", g.getId());
+                    map.put("name", g.getName());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * AJAX: диаметры наружных резьб по типу.
+     * Каскад «тип → диаметр» в форме заказа для трубы/патрубка.
+     */
+    @GetMapping("/api/external-threads/by-type")
+    @ResponseBody
+    public List<Map<String, Object>> getExternalThreadsByType(@RequestParam String type) {
+        return externalThreadService.findByType(type).stream()
+                .map(t -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", t.getId());
+                    m.put("conditionalDiameter", t.getConditionalDiameter());
+                    m.put("name", t.getName());
+                    return m;
                 })
                 .collect(Collectors.toList());
     }

@@ -1,0 +1,37 @@
+services:
+  seed:
+    image: postgres:15
+    container_name: loadtest_seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: zpletk
+    volumes:
+      - ./loadtest/seed:/seed:ro
+    entrypoint: >
+      sh -c "
+      echo '⏳ Ждём spring_app, чтобы схема была создана JPA...' &&
+      sleep 40 &&
+      for f in /seed/*.sql; do
+        echo \"▶ Применяю $$f\";
+        psql -h postgres -U jobuser -d jobdb -v ON_ERROR_STOP=1 -f $$f || exit 1;
+      done &&
+      echo '✅ Данные загружены'
+      "
+    networks: [backend]
+
+  k6:
+    image: grafana/k6:latest
+    container_name: loadtest_k6
+    depends_on: [app]
+    environment:
+      BASE_URL: http://app:8080
+      LOGIN: admin
+      PASSWORD: admin123
+    volumes:
+      - ./loadtest/k6:/scripts:ro
+      - ./loadtest/results:/results
+    entrypoint: ["k6", "run", "--out", "json=/results/result.json", "/scripts/script.js"]
+    networks: [backend]
+    profiles: [loadtest]   # чтобы случайно не запускался при обычном up

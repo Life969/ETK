@@ -1,25 +1,31 @@
 package ProjectForJob.example.Job.services;
 
-
 import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderCreateDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderDto;
 import ProjectForJob.example.Job.DataTransferObject.OrderUpdateDto;
-import ProjectForJob.example.Job.DataTransferObject.kafkaDto.OrderStartedEvent;
 import ProjectForJob.example.Job.entityJob.ForOrders.CompanyEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
+import ProjectForJob.example.Job.entityJob.ForOrders.PipeProductKind;
 import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.ExternalThreadEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
-import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
+import ProjectForJob.example.Job.entityJob.Handbook.SteelGradeEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.SteelStrengthGroupEntity;
 import ProjectForJob.example.Job.repositories.CompanyRepository;
+import ProjectForJob.example.Job.repositories.Handbook.AdditionalWorkRepository;
 import ProjectForJob.example.Job.repositories.Handbook.CouplingRepository;
+import ProjectForJob.example.Job.repositories.Handbook.ExternalThreadRepository;
 import ProjectForJob.example.Job.repositories.Handbook.PipeAdapterRepository;
+import ProjectForJob.example.Job.repositories.Handbook.SteelGradeRepository;
+import ProjectForJob.example.Job.repositories.Handbook.SteelStrengthGroupRepository;
 import ProjectForJob.example.Job.repositories.OrderRepository;
-import ProjectForJob.example.Job.services.Handbook.CouplingService;
-import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.mapping.OrderMapper;
+import ProjectForJob.example.Job.util.OrderCostCalculator;
+import ProjectForJob.example.Job.util.PipeOrderCostCalculator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,94 +36,537 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static ProjectForJob.example.Job.util.WorkpieceCalculator.calculateWeight;
 
+/**
+ * Центральный сервис заказов.
+ *
+ * Поддерживает четыре вида продукции:
+ *   1) COUPLING  — муфта          (quantity штук, workpiece через D_нар/D_внутр)
+ *   2) ADAPTER   — переводник     (quantity штук, workpiece через D_нар/D_внутр)
+ *   3) PIPE      — труба          (метраж ИЛИ тоннаж; quantity вычисляется через avgLength)
+ *   4) NIPPLE    — патрубок       (quantity штук × pieceLengthMm)
+ *
+ * Цена:
+ *   - COUPLING/ADAPTER → {@link OrderCostCalculator}       (unitCost × Q)
+ *   - PIPE/NIPPLE      → {@link PipeOrderCostCalculator}   (threadsCost + metalCost)
+ *
+ * Snapshot надбавки за группу прочности (appliedMarkupPercent) фиксируется
+ * на момент создания/редактирования заказа и не пересчитывается при
+ * изменении процента в справочнике.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
     private final OrderRepository orderRepository;
     private final CompanyRepository companyRepository;
     private final CouplingRepository couplingRepository;
     private final AdditionalWorkRepository additionalWorkRepository;
     private final PipeAdapterRepository pipeAdapterRepository;
-    private final KafkaProducerService kafkaProducerService;
+    private final SteelStrengthGroupRepository strengthGroupRepository;
+    private final SteelGradeRepository steelGradeRepository;
+    private final ExternalThreadRepository externalThreadRepository;
     private final OrderMapper orderMapper;
-    private final CouplingService couplingService;//    Разобраться что лучше использовать сервис или репозиторий!!!!!!!
-    private final PipeAdapterService pipeAdapterService;//
 
+    /** Дефолтная средняя длина одной трубы, м (если менеджер не указал). */
+    private static final double DEFAULT_AVERAGE_PIPE_LENGTH_M = 10.0;
+
+    /** Плотность стали, кг/м³ — для обратного пересчёта тоннаж → метраж. */
+    private static final double STEEL_DENSITY = 7850.0;
+
+    // ================================================================
+    // СОЗДАНИЕ
+    // ================================================================
+
+    /**
+     * Создание нового заказа.
+     * Все вычисления (вес, метраж, quantity для PIPE, snapshot надбавки)
+     * происходят внутри — снаружи приходит только DTO из формы.
+     */
     @Transactional
     public OrderDto createOrder(OrderCreateDto dto) {
-        CompanyEntity company = companyRepository.findByNameIgnoreCase(dto.getCompanyName())
-                .orElseGet(() -> companyRepository.save(CompanyEntity.builder().name(dto.getCompanyName().trim()).build()));
+        log.info("Создание заказа: productType={}, company={}",
+                dto.getProductType(), dto.getCompanyName());
+
+        CompanyEntity company = resolveCompany(dto.getCompanyName());
 
         OrderEntity order = OrderEntity.builder()
                 .createdAt(LocalDateTime.now())
                 .company(company)
-                .quantity(dto.getQuantity())
                 .deadline(dto.getDeadline())
-                .additionalWorks(dto.getAdditionalWorkIds() != null
-                        ? additionalWorkRepository.findAllById(dto.getAdditionalWorkIds()) : List.of())
+                .additionalWorks(resolveAdditionalWorks(dto.getAdditionalWorkIds()))
                 .status(OrderStatus.WAITING)
                 .build();
 
-        if ("COUPLING".equals(dto.getProductType())) {
-            CouplingEntity coupling = couplingRepository.findById(dto.getCouplingId())
-                    .orElseThrow(() -> new IllegalArgumentException("Муфта не найдена"));
-            order.setCoupling(coupling);
-        } else if ("ADAPTER".equals(dto.getProductType())) {
-            PipeAdapterEntity adapter = pipeAdapterRepository.findById(dto.getAdapterId())
-                    .orElseThrow(() -> new IllegalArgumentException("Переводник не найден"));
-            order.setAdapter(adapter);
-        } else {
-            throw new IllegalArgumentException("Неверный тип продукции");
-        }
+        // 1) Продукт + пересчёт заготовки / веса / метража / quantity
+        applyProductAndRecalc(order,
+                dto.getProductType(),
+                dto.getCouplingId(),
+                dto.getAdapterId(),
+                dto.getExternalThreadId(),
+                dto.getPipeProductKind(),
+                dto.getQuantity(),
+                dto.getWallThicknessMm(),
+                dto.getAveragePipeLengthM(),
+                dto.getOrderTotalLengthMeters(),
+                dto.getOrderTotalWeightKg(),
+                dto.getPricePerTon(),
+                dto.getPieceLengthMm());
 
-        // считаем вес,длину и стенку
-        if (dto.getCouplingId() != null) {
-            CouplingEntity coupling = couplingService.findById(dto.getCouplingId());
-            order.setCoupling(coupling);
-            // Заполняем заготовку
-            fillWorkpieceData(order,
-                    coupling.getOuterDiameterMm(),
-                    coupling.getInnerDiameterMm(),
-                    coupling.getLengthMm(),
-                    dto.getQuantity());
-        } else if (dto.getAdapterId() != null) {
-            PipeAdapterEntity adapter = pipeAdapterService.findById(dto.getAdapterId());
-            order.setAdapter(adapter);
-            fillWorkpieceData(order,
-                    adapter.getOuterDiameterMm(),
-                    adapter.getInnerDiameterMm(),
-                    adapter.getLengthMm(),
-                    dto.getQuantity());
-        }
+        // 2) Группа прочности + марка + snapshot надбавки
+        applyStrengthAndGrade(order, dto.getStrengthGroupId(), dto.getSteelGradeId());
 
+        // 3) Финальный расчёт цены
         order.setTotalCost(calculateTotalCost(order));
+
+        OrderEntity saved = orderRepository.save(order);
+        log.info("Заказ создан: id={}, totalCost={}", saved.getId(), saved.getTotalCost());
+
+        return orderMapper.toDto(saved);
+    }
+
+    // ================================================================
+    // РЕДАКТИРОВАНИЕ
+    // ================================================================
+
+    /**
+     * Полное редактирование заказа. Все поля пересчитываются заново —
+     * так проще гарантировать консистентность, чем пытаться диффить.
+     */
+    @Transactional
+    public OrderDto updateOrder(Long orderId, OrderUpdateDto dto) {
+        log.info("Редактирование заказа: id={}, productType={}",
+                orderId, dto.getProductType());
+
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + orderId));
+
+        order.setCompany(resolveCompany(dto.getCompanyName()));
+        order.setDeadline(dto.getDeadline());
+        order.setAdditionalWorks(resolveAdditionalWorks(dto.getAdditionalWorkIds()));
+
+        applyProductAndRecalc(order,
+                dto.getProductType(),
+                dto.getCouplingId(),
+                dto.getAdapterId(),
+                dto.getExternalThreadId(),
+                dto.getPipeProductKind(),
+                dto.getQuantity(),
+                dto.getWallThicknessMm(),
+                dto.getAveragePipeLengthM(),
+                dto.getOrderTotalLengthMeters(),
+                dto.getOrderTotalWeightKg(),
+                dto.getPricePerTon(),
+                dto.getPieceLengthMm());
+
+        applyStrengthAndGrade(order, dto.getStrengthGroupId(), dto.getSteelGradeId());
+        order.setTotalCost(calculateTotalCost(order));
+
         return orderMapper.toDto(orderRepository.save(order));
     }
 
-    private BigDecimal calculateTotalCost(OrderEntity order) {
-        BigDecimal unitCost = order.getUnitManufacturingCost();
-        BigDecimal additionalPerUnit = order.getAdditionalWorks().stream()
-                .map(AdditionalWorkEntity::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return unitCost.add(additionalPerUnit).multiply(BigDecimal.valueOf(order.getQuantity()));
+    // ================================================================
+    // ХЕЛПЕРЫ: компания, доп. работы
+    // ================================================================
+
+    private CompanyEntity resolveCompany(String companyName) {
+        return companyRepository.findByNameIgnoreCase(companyName)
+                .orElseGet(() -> companyRepository.save(
+                        CompanyEntity.builder().name(companyName.trim()).build()));
     }
+
+    private List<AdditionalWorkEntity> resolveAdditionalWorks(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(additionalWorkRepository.findAllById(ids));
+    }
+
+    // ================================================================
+    // ЯДРО: обработка продукта и пересчёт заготовки
+    // ================================================================
+
+    /**
+     * Полностью пересобирает продуктовую часть заказа:
+     *  - очищает все продуктовые поля (чтобы при смене типа не осталось мусора)
+     *  - в зависимости от productType заполняет нужные поля
+     *  - пересчитывает workpiece_* и (для PIPE) order_total_* / quantity
+     *
+     * ВАЖНО: quantity для PIPE не берётся из DTO — вычисляется через avgLength.
+     * Для COUPLING/ADAPTER/NIPPLE quantity приходит из DTO.
+     */
+    private void applyProductAndRecalc(OrderEntity order,
+                                       String productType,
+                                       Long couplingId,
+                                       Long adapterId,
+                                       Long externalThreadId,
+                                       String pipeProductKind,
+                                       Integer quantity,
+                                       Double wallThicknessMm,
+                                       Double averagePipeLengthM,
+                                       Double orderTotalLengthMeters,
+                                       Double orderTotalWeightKg,
+                                       BigDecimal pricePerTon,
+                                       Double pieceLengthMm) {
+
+        // ---- очищаем всё продуктовое ----
+        order.setCoupling(null);
+        order.setAdapter(null);
+        order.setExternalThread(null);
+        order.setPipeProductKind(null);
+        order.setWallThicknessMm(null);
+        order.setAveragePipeLengthM(null);
+        order.setOrderTotalLengthMeters(null);
+        order.setOrderTotalWeightKg(null);
+        order.setPricePerTon(null);
+        order.setPieceLengthMm(null);
+
+        // заготовка тоже обнуляется — заполнится ниже
+        order.setWorkpieceOuterDiameter(null);
+        order.setWorkpieceWallThickness(null);
+        order.setWorkpieceLengthMeters(null);
+        order.setWorkpieceWeightKg(null);
+        order.setQuantity(0);
+
+        if (productType == null) {
+            throw new IllegalArgumentException("Тип продукции не задан");
+        }
+
+        switch (productType) {
+            case "COUPLING" -> applyCoupling(order, couplingId, quantity);
+            case "ADAPTER"  -> applyAdapter(order, adapterId, quantity);
+            case "PIPE", "NIPPLE" -> applyPipeOrNipple(order,
+                    productType,
+                    externalThreadId,
+                    pipeProductKind,
+                    quantity,
+                    wallThicknessMm,
+                    averagePipeLengthM,
+                    orderTotalLengthMeters,
+                    orderTotalWeightKg,
+                    pricePerTon,
+                    pieceLengthMm);
+            default -> throw new IllegalArgumentException(
+                    "Неверный тип продукции: " + productType);
+        }
+    }
+
+    /** Муфта: quantity штук, заготовка считается по D_нар / D_внутр из справочника. */
+    private void applyCoupling(OrderEntity order, Long couplingId, Integer quantity) {
+        if (couplingId == null) {
+            throw new IllegalArgumentException("Муфта не выбрана");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Количество должно быть положительным");
+        }
+
+        CouplingEntity coupling = couplingRepository.findById(couplingId)
+                .orElseThrow(() -> new IllegalArgumentException("Муфта не найдена: id=" + couplingId));
+
+        order.setCoupling(coupling);
+        order.setQuantity(quantity);
+
+        fillWorkpieceFromDiameters(order,
+                coupling.getOuterDiameterMm(),
+                coupling.getInnerDiameterMm(),
+                coupling.getLengthMm(),
+                quantity);
+    }
+
+    /** Переводник: аналогично муфте. */
+    private void applyAdapter(OrderEntity order, Long adapterId, Integer quantity) {
+        if (adapterId == null) {
+            throw new IllegalArgumentException("Переводник не выбран");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Количество должно быть положительным");
+        }
+
+        PipeAdapterEntity adapter = pipeAdapterRepository.findById(adapterId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Переводник не найден: id=" + adapterId));
+
+        order.setAdapter(adapter);
+        order.setQuantity(quantity);
+
+        fillWorkpieceFromDiameters(order,
+                adapter.getOuterDiameterMm(),
+                adapter.getInnerDiameterMm(),
+                adapter.getLengthMm(),
+                quantity);
+    }
+
+    /**
+     * Труба или патрубок.
+     *
+     * Общая логика:
+     *   1) Находим наружную резьбу (тип + условный диаметр, напр. "НКТ 73").
+     *   2) Парсим условный диаметр в число (73 → 73.0 мм).
+     *   3) Считаем общий метраж и общий вес.
+     *   4) Считаем quantity (для PIPE — ceil(totalLength / avgLength); для NIPPLE — из DTO).
+     *   5) Заполняем workpiece_* и order_total_* / price_per_ton.
+     *
+     * Для PIPE менеджер вводит ИЛИ метраж, ИЛИ тоннаж.
+     * Второе значение вычисляется через WorkpieceCalculator.
+     */
+    private void applyPipeOrNipple(OrderEntity order,
+                                   String productType,
+                                   Long externalThreadId,
+                                   String pipeProductKind,
+                                   Integer quantity,
+                                   Double wallThicknessMm,
+                                   Double averagePipeLengthM,
+                                   Double orderTotalLengthMeters,
+                                   Double orderTotalWeightKg,
+                                   BigDecimal pricePerTon,
+                                   Double pieceLengthMm) {
+
+        if (externalThreadId == null) {
+            throw new IllegalArgumentException("Резьба не выбрана");
+        }
+        if (wallThicknessMm == null || wallThicknessMm <= 0) {
+            throw new IllegalArgumentException("Толщина стенки должна быть положительной");
+        }
+        if (pricePerTon == null || pricePerTon.signum() <= 0) {
+            throw new IllegalArgumentException("Укажите цену за тонну металла");
+        }
+
+        ExternalThreadEntity thread = externalThreadRepository.findById(externalThreadId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Резьба не найдена: id=" + externalThreadId));
+
+        // "73" → 73.0. Если справочник кривой — не молчим, падаем явно.
+        double outerDiameterMm;
+        try {
+            outerDiameterMm = Double.parseDouble(thread.getConditionalDiameter());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "Не удалось разобрать условный диаметр резьбы: '"
+                            + thread.getConditionalDiameter() + "'");
+        }
+
+        double wall = wallThicknessMm;
+        double totalLengthM;
+        double weightKg;
+        int finalQuantity;
+
+        if ("PIPE".equals(productType)) {
+            // ---- ТРУБА ----
+            double avgLength = (averagePipeLengthM != null && averagePipeLengthM > 0)
+                    ? averagePipeLengthM
+                    : DEFAULT_AVERAGE_PIPE_LENGTH_M;
+
+            if (orderTotalLengthMeters != null && orderTotalLengthMeters > 0) {
+                // Менеджер задал метраж → считаем вес
+                totalLengthM = orderTotalLengthMeters;
+                weightKg = calculateWeight(outerDiameterMm, wall, totalLengthM);
+            } else if (orderTotalWeightKg != null && orderTotalWeightKg > 0) {
+                // Менеджер задал тоннаж → считаем метраж
+                weightKg = orderTotalWeightKg;
+                totalLengthM = lengthFromWeight(outerDiameterMm, wall, weightKg);
+            } else {
+                throw new IllegalArgumentException(
+                        "Для трубы укажите общий метраж или тоннаж");
+            }
+
+            // quantity труб — оценка через среднюю длину
+            finalQuantity = (int) Math.ceil(totalLengthM / avgLength);
+            if (finalQuantity < 1) finalQuantity = 1;
+
+            order.setAveragePipeLengthM(avgLength);
+            order.setOrderTotalLengthMeters(totalLengthM);
+            order.setOrderTotalWeightKg(weightKg);
+
+        } else {
+            // ---- ПАТРУБОК ----
+            if (quantity == null || quantity <= 0) {
+                throw new IllegalArgumentException(
+                        "Количество патрубков должно быть положительным");
+            }
+            if (pieceLengthMm == null || pieceLengthMm <= 0) {
+                throw new IllegalArgumentException(
+                        "Длина патрубка должна быть положительной");
+            }
+
+            finalQuantity = quantity;
+            totalLengthM = (pieceLengthMm * quantity) / 1000.0;
+            weightKg = calculateWeight(outerDiameterMm, wall, totalLengthM);
+
+            order.setPieceLengthMm(pieceLengthMm);
+            order.setOrderTotalLengthMeters(totalLengthM);
+            order.setOrderTotalWeightKg(weightKg);
+        }
+
+        // ---- общие поля ----
+        order.setExternalThread(thread);
+        order.setPipeProductKind(PipeProductKind.valueOf(productType));
+        order.setWallThicknessMm(wallThicknessMm);
+        order.setPricePerTon(pricePerTon);
+        order.setQuantity(finalQuantity);
+
+        // ---- workpiece_* для совместимости с UI (тултипы, карточки) ----
+        order.setWorkpieceOuterDiameter(outerDiameterMm);
+        order.setWorkpieceWallThickness(wall);
+        order.setWorkpieceLengthMeters(totalLengthM);
+        order.setWorkpieceWeightKg(weightKg);
+
+        log.debug("applyPipeOrNipple: kind={}, D={}, S={}, totalLen={}, weight={}, qty={}",
+                productType, outerDiameterMm, wall, totalLengthM, weightKg, finalQuantity);
+    }
+
+    /**
+     * Обратный пересчёт: вес (кг) → длина (м).
+     *
+     * Формула выведена из WorkpieceCalculator.calculateWeight:
+     *   M = π × ρ × S × (D − S) × L / 1_000_000
+     *   ⇒ L = M × 1_000_000 / (π × ρ × S × (D − S))
+     */
+    private double lengthFromWeight(double outerDiameterMm,
+                                    double wallThicknessMm,
+                                    double weightKg) {
+        double denom = Math.PI * STEEL_DENSITY
+                * wallThicknessMm * (outerDiameterMm - wallThicknessMm)
+                / 1_000_000.0;
+        if (denom <= 0) {
+            throw new IllegalArgumentException(
+                    "Некорректные параметры трубы: D=" + outerDiameterMm
+                            + ", S=" + wallThicknessMm);
+        }
+        return weightKg / denom;
+    }
+
+    // ================================================================
+    // Группа прочности + марка стали
+    // ================================================================
+
+    /**
+     * Валидирует пару (группа, марка), подтягивает snapshot надбавки.
+     *
+     * Правила:
+     *   1) Оба null → группа = null, марка = null, appliedMarkup = 0.
+     *   2) Задана только группа → марка = null, appliedMarkup = группы.markupPercent.
+     *   3) Задана только марка → группа = марки.strengthGroup (автоподстановка),
+     *      appliedMarkup = группы.markupPercent.
+     *   4) Заданы оба → марка обязана принадлежать указанной группе,
+     *      иначе IllegalArgumentException.
+     *      appliedMarkup = группы.markupPercent.
+     */
+    private void applyStrengthAndGrade(OrderEntity order, Long groupId, Long gradeId) {
+        // сбрасываем предыдущее состояние
+        order.setStrengthGroup(null);
+        order.setSteelGrade(null);
+        order.setAppliedMarkupPercent(BigDecimal.ZERO);
+
+        // случай 1: ничего не задано
+        if (groupId == null && gradeId == null) {
+            return;
+        }
+
+        SteelStrengthGroupEntity group;
+        SteelGradeEntity grade = null;
+
+        if (groupId == null) {
+            // случай 3: только марка
+            grade = steelGradeRepository.findById(gradeId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Марка стали не найдена: id=" + gradeId));
+            group = grade.getStrengthGroup();
+        } else {
+            group = strengthGroupRepository.findById(groupId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Группа прочности не найдена: id=" + groupId));
+
+            // случай 4: обе заданы — проверяем соответствие
+            if (gradeId != null) {
+                grade = steelGradeRepository.findById(gradeId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Марка стали не найдена: id=" + gradeId));
+                if (!grade.getStrengthGroup().getId().equals(group.getId())) {
+                    throw new IllegalArgumentException(
+                            "Марка «" + grade.getName() + "» не принадлежит группе «"
+                                    + group.getCode() + "»");
+                }
+            }
+        }
+
+        order.setStrengthGroup(group);
+        order.setSteelGrade(grade);
+        order.setAppliedMarkupPercent(
+                group.getMarkupPercent() != null ? group.getMarkupPercent() : BigDecimal.ZERO);
+    }
+
+    // ================================================================
+    // РАСЧЁТ СТОИМОСТИ
+    // ================================================================
+
+    /**
+     * Развилка по типу продукции:
+     *  - муфта/переводник → OrderCostCalculator (unitCost × Q)
+     *  - труба/патрубок   → PipeOrderCostCalculator (threadsCost + metalCost)
+     *
+     * Единственное место в сервисе, где вызываются калькуляторы.
+     * Никаких формул "по месту" — всё в util-классах.
+     */
+    private BigDecimal calculateTotalCost(OrderEntity order) {
+        if (order.getPipeProductKind() != null && order.getExternalThread() != null) {
+            return PipeOrderCostCalculator.calculate(
+                    order.getExternalThread().getManufacturingCost(),
+                    order.getPricePerTon(),
+                    order.getQuantity() != null ? order.getQuantity() : 0,
+                    order.getOrderTotalWeightKg(),
+                    order.getAdditionalWorks(),
+                    order.getAppliedMarkupPercent());
+        }
+        return OrderCostCalculator.calculate(
+                order.getUnitManufacturingCost(),
+                order.getAdditionalWorks(),
+                order.getQuantity(),
+                order.getAppliedMarkupPercent(),
+                order.getWorkpieceWeightKg());
+    }
+
+    // ================================================================
+    // ЗАГОТОВКА ДЛЯ МУФТ И ПЕРЕВОДНИКОВ
+    // ================================================================
+
+    /**
+     * Заполняет workpiece_* для муфты/переводника.
+     * Для труб/патрубков используется свой путь внутри applyPipeOrNipple.
+     */
+    private void fillWorkpieceFromDiameters(OrderEntity order,
+                                            double outerDiameterMm,
+                                            double innerDiameterMm,
+                                            double pieceLengthMm,
+                                            int quantity) {
+        double wall = (outerDiameterMm - innerDiameterMm) / 2.0;
+        double totalLengthM = (pieceLengthMm * quantity) / 1000.0;
+        double weight = calculateWeight(outerDiameterMm, wall, totalLengthM);
+
+        order.setWorkpieceOuterDiameter(outerDiameterMm);
+        order.setWorkpieceWallThickness(wall);
+        order.setWorkpieceLengthMeters(totalLengthM);
+        order.setWorkpieceWeightKg(weight);
+    }
+
+    // ================================================================
+    // СТАТУСЫ / CRUD
+    // ================================================================
 
     @Transactional
     public OrderDto updateStatus(Long orderId, OrderStatus newStatus) {
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден"));
-
-        // Можно добавить проверки допустимости перехода, но по заданию разрешено любое изменение
+                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + orderId));
         order.setStatus(newStatus);
         return orderMapper.toDto(orderRepository.save(order));
     }
 
+    @Transactional(readOnly = true)
     public Page<OrderDto> getOrdersByStatus(OrderStatus status, String search, Pageable pageable) {
         Page<OrderEntity> page;
         if (search != null && !search.isBlank()) {
@@ -129,70 +578,18 @@ public class OrderService {
         return page.map(orderMapper::toDto);
     }
 
+    @Transactional(readOnly = true)
     public OrderDto getOrderById(Long id) {
         OrderEntity order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден"));
+                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + id));
         return orderMapper.toDto(order);
     }
-
 
     @Transactional
     public void deleteOrder(Long orderId) {
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден"));
-        // можно добавить проверку, что удалять можно только заказы в статусе WAITING, но по желанию
+                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + orderId));
         orderRepository.delete(order);
-    }
-
-    @Transactional
-    public OrderDto updateOrder(Long orderId, OrderUpdateDto dto) {
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден"));
-
-        // Компания
-        CompanyEntity company = companyRepository.findByNameIgnoreCase(dto.getCompanyName())
-                .orElseGet(() -> companyRepository.save(CompanyEntity.builder().name(dto.getCompanyName().trim()).build()));
-        order.setCompany(company);
-
-        // Продукт
-        order.setCoupling(null);
-        order.setAdapter(null);
-        if ("COUPLING".equals(dto.getProductType())) {
-            CouplingEntity coupling = couplingRepository.findById(dto.getCouplingId())
-                    .orElseThrow(() -> new IllegalArgumentException("Муфта не найдена"));
-            order.setCoupling(coupling);
-        } else if ("ADAPTER".equals(dto.getProductType())) {
-            PipeAdapterEntity adapter = pipeAdapterRepository.findById(dto.getAdapterId())
-                    .orElseThrow(() -> new IllegalArgumentException("Переводник не найден"));
-            order.setAdapter(adapter);
-        }
-
-        if (dto.getCouplingId() != null) {
-            CouplingEntity coupling = couplingService.findById(dto.getCouplingId());
-            order.setCoupling(coupling);
-            // Заполняем заготовку
-            fillWorkpieceData(order,
-                    coupling.getOuterDiameterMm(),
-                    coupling.getInnerDiameterMm(),
-                    coupling.getLengthMm(),
-                    dto.getQuantity());
-        } else if (dto.getAdapterId() != null) {
-            PipeAdapterEntity adapter = pipeAdapterService.findById(dto.getAdapterId());
-            order.setAdapter(adapter);
-            fillWorkpieceData(order,
-                    adapter.getOuterDiameterMm(),
-                    adapter.getInnerDiameterMm(),
-                    adapter.getLengthMm(),
-                    dto.getQuantity());
-        }
-
-        order.setQuantity(dto.getQuantity());
-        order.setDeadline(dto.getDeadline());
-        order.setAdditionalWorks(dto.getAdditionalWorkIds() != null
-                ? additionalWorkRepository.findAllById(dto.getAdditionalWorkIds()) : List.of());
-        order.setTotalCost(calculateTotalCost(order));
-
-        return orderMapper.toDto(orderRepository.save(order));
     }
 
     public OrderEntity getOrderEntityById(Long id) {
@@ -212,12 +609,10 @@ public class OrderService {
     public List<HomeOrderDto> getUrgentProductionOrders(int limit) {
         List<OrderEntity> orders = orderRepository
                 .findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus.IN_PRODUCTION);
-
         if (orders.size() > limit) {
             orders = orders.subList(0, limit);
         }
         LocalDate today = LocalDate.now();
-
         return orders.stream()
                 .map(order -> orderMapper.toHomeOrderDto(order, today))
                 .collect(Collectors.toList());
@@ -243,29 +638,5 @@ public class OrderService {
         }
         order.setStatus(OrderStatus.IN_PRODUCTION);
         orderRepository.save(order);
-
-        // TODO: включить, когда будет готов сервис производства + Kafka
-        // try {
-        //     OrderStartedEvent event = orderMapper.toStartedEvent(order);
-        //     kafkaProducerService.sendOrderStartedEvent(event);
-        // } catch (Exception e) {
-        //     log.error("Не удалось отправить событие в Kafka для заказа {}", orderId, e);
-        // }
     }
-
-    private void fillWorkpieceData(OrderEntity order,
-                                   double outerDiameterMm,
-                                   double innerDiameterMm,
-                                   double pieceLengthMm, // длина одной штуки в мм
-                                   int quantity) {
-        double wall = (outerDiameterMm - innerDiameterMm) / 2.0;
-        double totalLengthM = (pieceLengthMm * quantity) / 1000.0; // в метры
-        double weight = calculateWeight(outerDiameterMm, wall, totalLengthM);
-
-        order.setWorkpieceOuterDiameter(outerDiameterMm);
-        order.setWorkpieceWallThickness(wall);
-        order.setWorkpieceLengthMeters(totalLengthM);
-        order.setWorkpieceWeightKg(weight);
-    }
-
 }

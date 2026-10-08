@@ -1,8 +1,6 @@
 package ProjectForJob.example.Job.entityJob.ForOrders;
 
-import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
-import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
-import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.entityJob.Handbook.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -75,6 +73,7 @@ public class OrderEntity {
         if (adapter != null) return adapter.getFullName();
         return "";
     }
+
     // Поле для хранения наружнего диаметра заготовки в мм
     @Positive
     @Column(name = "workpiece_outer_diameter")
@@ -95,9 +94,83 @@ public class OrderEntity {
     @Column(name = "workpiece_weight_kg")
     private Double workpieceWeightKg; // вес, кг
 
+    // ================================================================
+    // Трубы и патрубки
+    // ================================================================
+
+    /** Наружная резьба. Nullable: null для муфт и переводников. */
+    @ManyToOne
+    @JoinColumn(name = "external_thread_id")
+    private ExternalThreadEntity externalThread;
+
+    /** PIPE / NIPPLE. Nullable: null для муфт и переводников. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pipe_product_kind")
+    private PipeProductKind pipeProductKind;
+
+    /** Толщина стенки, мм. Задаётся в заказе. */
+    @Positive
+    @Column(name = "wall_thickness_mm")
+    private Double wallThicknessMm;
+
+    /** Средняя длина одной трубы, м. Дефолт 10. Только для PIPE. */
+    @Positive
+    @Column(name = "average_pipe_length_m")
+    private Double averagePipeLengthM;
+
+    /** Общая длина заказа, м. Для PIPE и NIPPLE. */
+    @Positive
+    @Column(name = "order_total_length_m")
+    private Double orderTotalLengthMeters;
+
+    /** Общий вес заказа, кг. Для PIPE и NIPPLE. */
+    @Positive
+    @Column(name = "order_total_weight_kg")
+    private Double orderTotalWeightKg;
+
+    /** Цена за 1 тонну металла, ₽. Вводит менеджер. */
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Column(name = "price_per_ton", precision = 12, scale = 2)
+    private BigDecimal pricePerTon;
+
+    /** Длина одной штуки, мм. Только для NIPPLE. */
+    @Positive
+    @Column(name = "piece_length_mm")
+    private Double pieceLengthMm;
+
+    // ================================================================
+    // Группа прочности и марка стали (Фаза 2)
+    // ================================================================
+
+    /**
+     * Группа прочности стали. Nullable — заказ может быть без группы.
+     * Влияет на стоимость через appliedMarkupPercent (снимок на момент расчёта).
+     */
+    @ManyToOne
+    @JoinColumn(name = "strength_group_id")
+    private SteelStrengthGroupEntity strengthGroup;
+
+    /**
+     * Марка стали. Nullable — марка опциональна и носит информационный характер,
+     * на цену не влияет (по ТЗ).
+     */
+    @ManyToOne
+    @JoinColumn(name = "steel_grade_id")
+    private SteelGradeEntity steelGrade;
+
+    /**
+     * Снимок процента надбавки за группу прочности на момент расчёта.
+     * Хранится, чтобы при изменении процента в справочнике старые заказы
+     * не пересчитывались "сами по себе".
+     * 0, если группа не выбрана.
+     */
+    @Column(name = "applied_markup_percent", precision = 6, scale = 2)
+    private BigDecimal appliedMarkupPercent;
+
     public String getProductType() {
         if (coupling != null) return "COUPLING";
         if (adapter != null) return "ADAPTER";
+        if (pipeProductKind != null) return pipeProductKind.name();  // "PIPE"/"NIPPLE"
         return null;
     }
 

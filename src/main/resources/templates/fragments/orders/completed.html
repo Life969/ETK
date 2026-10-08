@@ -43,13 +43,29 @@
                        th:href="@{/orders/{id}(id=${order.id})}"
                        th:text="${order.companyName}">Компания</a>
                     <span class="order-type-badge"
-                          th:classappend="${order.productType == 'COUPLING'} ? 'coupling' : 'adapter'"
-                          th:text="${order.productType == 'COUPLING'} ? 'Муфта' : 'Переводник'">—</span>
+                          th:classappend="${order.productType == 'COUPLING'} ? 'coupling'
+                              : (${order.productType == 'ADAPTER'} ? 'adapter'
+                              : (${order.productType == 'PIPE'} ? 'pipe' : 'nipple'))"
+                          th:switch="${order.productType}">
+                        <span th:case="'COUPLING'">Муфта</span>
+                        <span th:case="'ADAPTER'">Переводник</span>
+                        <span th:case="'PIPE'">Труба</span>
+                        <span th:case="'NIPPLE'">Патрубок</span>
+                    </span>
                 </div>
             </div>
 
             <div class="order-product">
-                <i th:class="${order.productType == 'COUPLING'} ? 'bi bi-box-seam' : 'bi bi-arrow-left-right'"></i>
+                <span class="product-icon-tile product-icon-tile--sm"
+                      th:classappend="${order.productType == 'COUPLING'} ? 'product-icon-tile--coupling'
+                          : (${order.productType == 'ADAPTER'} ? 'product-icon-tile--adapter'
+                          : 'product-icon-tile--pipe')">
+                    <img class="product-icon-img"
+                         th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png}
+                             : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
+                             : @{/images/product-pipe.png})"
+                         alt="" aria-hidden="true">
+                </span>
                 <span th:text="${order.productName}">—</span>
             </div>
 
@@ -57,6 +73,15 @@
                 <div class="order-meta-row">
                     <span class="order-meta-label">Кол-во</span>
                     <span class="order-meta-value" th:text="${order.quantity} + ' шт.'">0 шт.</span>
+                </div>
+                <div class="order-meta-row" th:if="${order.strengthGroupCode != null}">
+                    <span class="order-meta-label">Сталь</span>
+                    <span class="order-meta-value">
+                        <span th:text="${order.strengthGroupCode}">Е</span>
+                        <span th:if="${order.steelGradeName != null}"
+                              style="opacity:0.7;"
+                              th:text="' / ' + ${order.steelGradeName}"> / 30ХГСА</span>
+                    </span>
                 </div>
                 <div class="order-meta-row">
                     <span class="order-meta-label">Стоимость</span>
@@ -77,15 +102,15 @@
 
             <div class="order-actions">
                 <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post"
-                      data-turbo="false" class="d-inline">
+                      data-turbo-frame="app" class="d-inline">
                     <input type="hidden" name="newStatus" value="IN_PRODUCTION">
                     <input type="hidden" name="returnTo" value="/orders/completed">
-                    <button type="submit" class="btn-mini btn-mini-warning">
+                    <button type="submit" class="btn-mini btn-mini-warning"
+                            data-transition-target="/orders/production">
                         <i class="bi bi-arrow-repeat"></i> Вернуть в производство
                     </button>
                 </form>
-                <a class="btn-mini btn-mini-info"
-                   data-turbo-frame="app"
+                <a class="btn-mini btn-mini-info" data-turbo-frame="app"
                    th:href="@{/orders/{id}(id=${order.id})}">
                     <i class="bi bi-eye"></i> Открыть
                 </a>

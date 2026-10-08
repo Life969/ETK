@@ -72,12 +72,16 @@ public class HomeController {
         for (ProductionRecordEntity record : lastRecords) {
             Map<String, Object> item = new HashMap<>();
             item.put("record", record);
-            if (record.getCoupling() != null) {
+
+            String pt = record.getProductType();
+            item.put("productType", pt);          //
+
+            if ("COUPLING".equals(pt) && record.getCoupling() != null) {
                 item.put("product", record.getCoupling());
-                item.put("productType", "COUPLING");
-            } else if (record.getAdapter() != null) {
+            } else if ("ADAPTER".equals(pt) && record.getAdapter() != null) {
                 item.put("product", record.getAdapter());
-                item.put("productType", "ADAPTER");
+            } else {
+                item.put("product", null);        // PIPE / NIPPLE — продукт null
             }
             recordsWithProducts.add(item);
         }
@@ -117,12 +121,14 @@ public class HomeController {
 
             Map<String, Object> item = new HashMap<>();
             item.put("order", dto);
+            item.put("productType", dto.getProductType());   // ← всегда
+
             if ("COUPLING".equals(dto.getProductType()) && order.getCoupling() != null) {
                 item.put("product", order.getCoupling());
-                item.put("productType", "COUPLING");
             } else if ("ADAPTER".equals(dto.getProductType()) && order.getAdapter() != null) {
                 item.put("product", order.getAdapter());
-                item.put("productType", "ADAPTER");
+            } else {
+                item.put("product", null);
             }
             ordersWithProducts.add(item);
         }

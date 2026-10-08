@@ -20,7 +20,7 @@ services:
       - backend
 
 
-  spring_app:
+  app:
     build: .
     container_name: spring_app
     ports:

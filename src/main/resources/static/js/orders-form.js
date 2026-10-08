@@ -1,44 +1,14 @@
 /**
  * orders-form.js
- * Инициализация страниц заказов: формы create/edit + waiting
+ * Инициализация страниц заказов: формы create/edit + waiting/production/completed
  * Работает на turbo:frame-load через layout.html
  */
 window.OrdersForm = (function () {
 
-    function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
-
-    // ================= Тип продукции: муфта / переводник =================
-    function initProductTypeToggle() {
-        const radioCoupling = document.getElementById('typeCoupling');
-        const radioAdapter = document.getElementById('typeAdapter');
-        if (!radioCoupling || !radioAdapter) return;
-        if (radioCoupling.dataset.wired === 'true') return;
-        radioCoupling.dataset.wired = 'true';
-
-        const couplingBlock = document.getElementById('couplingBlock');
-        const adapterBlock = document.getElementById('adapterBlock');
-        const couplingIdHidden = document.getElementById('couplingIdHidden');
-        const adapterIdHidden = document.getElementById('adapterIdHidden');
-
-        function toggle() {
-            if (radioCoupling.checked) {
-                couplingBlock.style.display = 'block';
-                adapterBlock.style.display = 'none';
-                if (adapterIdHidden) adapterIdHidden.value = '';
-            } else if (radioAdapter.checked) {
-                couplingBlock.style.display = 'none';
-                adapterBlock.style.display = 'block';
-                if (couplingIdHidden) couplingIdHidden.value = '';
-            } else {
-                couplingBlock.style.display = 'none';
-                adapterBlock.style.display = 'none';
-            }
-        }
-
-        radioCoupling.addEventListener('change', toggle);
-        radioAdapter.addEventListener('change', toggle);
-        toggle();
+    function qsa(sel, root) {
+        return Array.from((root || document).querySelectorAll(sel));
     }
+
 
     // ================= Селекты муфт =================
     function initCouplingSelects() {
@@ -69,7 +39,10 @@ window.OrdersForm = (function () {
             const type = this.value;
             diamSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
             if (idHidden) idHidden.value = '';
-            if (!type) { diamSelect.disabled = true; return; }
+            if (!type) {
+                diamSelect.disabled = true;
+                return;
+            }
             diamSelect.disabled = false;
 
             fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(type)}`)
@@ -105,7 +78,10 @@ window.OrdersForm = (function () {
         const initialId = form?.dataset.initialAdapterId || '';
 
         function loadAdapters(type, selectedId) {
-            if (!type) { adapterSelect.disabled = true; return; }
+            if (!type) {
+                adapterSelect.disabled = true;
+                return;
+            }
             adapterSelect.disabled = false;
             fetch(`/orders/api/adapters/by-first-side-type?type=${encodeURIComponent(type)}`)
                 .then(r => r.json())
@@ -228,114 +204,853 @@ window.OrdersForm = (function () {
         }
     }
 
+    // ================= Селекты стали: группа → марка =================
+    function initSteelGroupSelects() {
+        const groupSelect = document.getElementById('steelGroupSelect');
+        const gradeSelect = document.getElementById('steelGradeSelect');
+        const groupIdHidden = document.getElementById('steelGroupIdHidden');
+        const gradeIdHidden = document.getElementById('steelGradeIdHidden');
+        if (!groupSelect || !gradeSelect) return;
+        if (groupSelect.dataset.initialized === 'true') return;
+        groupSelect.dataset.initialized = 'true';
+
+        const form = groupSelect.closest('form');
+        let initialGroupId = form?.dataset.initialStrengthGroupId || '';
+        let initialGradeId = form?.dataset.initialSteelGradeId || '';
+
+        if (!initialGroupId && groupIdHidden?.value) initialGroupId = groupIdHidden.value;
+        if (!initialGradeId && gradeIdHidden?.value) initialGradeId = gradeIdHidden.value;
+
+        function loadGrades(groupId, selectedGradeId) {
+            gradeSelect.innerHTML = '<option value="">-- Не указана --</option>';
+            if (gradeIdHidden) gradeIdHidden.value = '';
+
+            if (!groupId) {
+                gradeSelect.disabled = true;
+                gradeSelect.innerHTML = '<option value="">-- Сначала выберите группу --</option>';
+                return;
+            }
+
+            gradeSelect.disabled = false;
+            fetch(`/orders/api/steel-groups/${groupId}/grades`)
+                .then(r => r.json())
+                .then(list => {
+                    if (list.length === 0) {
+                        gradeSelect.innerHTML = '<option value="">-- У группы нет марок --</option>';
+                        return;
+                    }
+                    gradeSelect.innerHTML = '<option value="">-- Не указана --</option>';
+                    list.forEach(g => {
+                        const o = new Option(g.name, g.id);
+                        gradeSelect.add(o);
+                    });
+                    if (selectedGradeId) {
+                        const opt = Array.from(gradeSelect.options)
+                            .find(o => String(o.value) === String(selectedGradeId));
+                        if (opt) {
+                            opt.selected = true;
+                            if (gradeIdHidden) gradeIdHidden.value = selectedGradeId;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Ошибка загрузки марок:', err);
+                    gradeSelect.innerHTML = '<option value="">-- Ошибка загрузки --</option>';
+                });
+        }
+
+        if (initialGroupId) {
+            groupSelect.value = initialGroupId;
+            if (groupIdHidden) groupIdHidden.value = initialGroupId;
+            loadGrades(initialGroupId, initialGradeId);
+        } else {
+            gradeSelect.disabled = true;
+        }
+
+        groupSelect.addEventListener('change', function () {
+            const gid = this.value;
+            if (groupIdHidden) groupIdHidden.value = gid || '';
+            if (gradeIdHidden) gradeIdHidden.value = '';
+            loadGrades(gid, null);
+        });
+
+        gradeSelect.addEventListener('change', function () {
+            if (gradeIdHidden) gradeIdHidden.value = this.value || '';
+        });
+    }
+
+    // ================================================================
+    // ТРУБА / ПАТРУБОК — блоки, каскады, живой пересчёт
+    // ================================================================
+
+    /** Плотность стали, кг/м³ — синхронно с WorkpieceCalculator. */
+    const STEEL_DENSITY_JS = 7850.0;
+
+    /** Из "НКТ 73" → 73.0; из "ОТТМ 89" → 89.0; null если не нашли. */
+    function parseDiameter(text) {
+        if (!text) return null;
+        const m = String(text).match(/(\d+(\.\d+)?)/);
+        if (!m) return null;
+        const v = parseFloat(m[1]);
+        return isFinite(v) && v > 0 ? v : null;
+    }
+
+    /** M = π · ρ · S · (D − S) · L / 1e6  (та же формула, что в WorkpieceCalculator). */
+    function calcWeightFromLength(D, S, L) {
+        if (D <= 0 || S <= 0 || L <= 0) return 0;
+        return Math.PI * STEEL_DENSITY_JS * S * (D - S) * L / 1_000_000.0;
+    }
+
+    /** L = M · 1e6 / (π · ρ · S · (D − S)) */
+    function calcLengthFromWeight(D, S, M) {
+        const denom = Math.PI * STEEL_DENSITY_JS * S * (D - S) / 1_000_000.0;
+        if (denom <= 0) return 0;
+        return M / denom;
+    }
+
+    function round2(v) {
+        return Math.round(v * 100) / 100;
+    }
+
+    /**
+     * Универсальный каскад «тип резьбы → условный диаметр».
+     * Заполняет hidden-input externalThreadId.
+     * После смены диаметра триггерит событие pipe:recalc для live-пересчёта.
+     */
+    function initExternalThreadCascade(typeId, diamId, hiddenId) {
+        const typeSelect = document.getElementById(typeId);
+        const diamSelect = document.getElementById(diamId);
+        const hidden     = document.getElementById(hiddenId);
+        if (!typeSelect || !diamSelect) return;
+        if (typeSelect.dataset.wired === 'true') return;
+        typeSelect.dataset.wired = 'true';
+
+        const form = typeSelect.closest('form');
+        const initialType = form?.dataset.initialExternalThreadType || '';
+        const initialId   = form?.dataset.initialExternalThreadId || '';
+
+        // Загружаем типы — они уже в опциях (th:each), но initialType надо выставить
+        if (initialType) {
+            typeSelect.value = initialType;
+            // сразу загрузить диаметры для этого типа
+            loadDiameters(initialType, initialId);
+        }
+
+        function loadDiameters(type, selectedId) {
+            diamSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
+            if (hidden) hidden.value = '';
+            if (!type) {
+                diamSelect.disabled = true;
+                return;
+            }
+            diamSelect.disabled = false;
+            fetch(`/orders/api/external-threads/by-type?type=${encodeURIComponent(type)}`)
+                .then(r => r.json())
+                .then(list => {
+                    list.forEach(t => {
+                        const o = new Option(t.name, t.id);
+                        if (selectedId && String(t.id) === String(selectedId)) o.selected = true;
+                        diamSelect.add(o);
+                    });
+                    if (selectedId && hidden) hidden.value = selectedId;
+                    document.dispatchEvent(new CustomEvent('pipe:recalc'));
+                })
+                .catch(err => {
+                    console.error('Ошибка загрузки диаметров резьбы:', err);
+                    diamSelect.innerHTML = '<option value="">-- Ошибка --</option>';
+                });
+        }
+
+        typeSelect.addEventListener('change', function () {
+            loadDiameters(this.value, null);
+        });
+
+        diamSelect.addEventListener('change', function () {
+            if (hidden) hidden.value = this.value || '';
+            document.dispatchEvent(new CustomEvent('pipe:recalc'));
+        });
+    }
+
+    /** Живой пересчёт для трубы: метраж ↔ тоннаж + оценка количества. */
+    function initPipeLiveCalculation() {
+        const block = document.getElementById('pipeBlock');
+        if (!block || block.dataset.liveWired === 'true') return;
+        block.dataset.liveWired = 'true';
+
+        const modeLengthRadio = document.getElementById('pipeModeLength');
+        const modeWeightRadio = document.getElementById('pipeModeWeight');
+        const diamSelect = document.getElementById('pipeThreadDiameterSelect');
+        const wallInput  = document.getElementById('pipeWallThickness');
+        const totalLen   = document.getElementById('pipeTotalLength');
+        const totalW     = document.getElementById('pipeTotalWeight');
+        const avgLen     = document.getElementById('pipeAvgLength');
+        const computedQty = document.getElementById('pipeComputedQty');
+
+        if (!totalLen || !totalW) return;
+
+        function getDiameter() {
+            if (!diamSelect || !diamSelect.value) return null;
+            const opt = diamSelect.options[diamSelect.selectedIndex];
+            return parseDiameter(opt ? opt.text : '');
+        }
+
+        function recalcFrom(source) {
+            const D = getDiameter();
+            const S = parseFloat(wallInput?.value);
+            if (!D || !(S > 0)) {
+                if (computedQty) computedQty.textContent = '—';
+                return;
+            }
+
+            if (source === 'length') {
+                const L = parseFloat(totalLen.value);
+                if (L > 0) {
+                    const M = calcWeightFromLength(D, S, L);
+                    totalW.value = round2(M);
+                }
+            } else if (source === 'weight') {
+                const M = parseFloat(totalW.value);
+                if (M > 0) {
+                    const L = calcLengthFromWeight(D, S, M);
+                    totalLen.value = round2(L);
+                }
+            }
+
+            if (computedQty) {
+                const L = parseFloat(totalLen.value);
+                const avg = parseFloat(avgLen?.value) || 10;
+                computedQty.textContent = (L > 0 && avg > 0) ? Math.ceil(L / avg) : '—';
+            }
+        }
+
+        function applyMode() {
+            if (modeWeightRadio?.checked) {
+                totalW.readOnly = false;
+                totalLen.readOnly = true;
+                recalcFrom('weight');
+            } else {
+                totalLen.readOnly = false;
+                totalW.readOnly = true;
+                recalcFrom('length');
+            }
+        }
+
+        if (modeLengthRadio) modeLengthRadio.addEventListener('change', applyMode);
+        if (modeWeightRadio) modeWeightRadio.addEventListener('change', applyMode);
+
+        totalLen.addEventListener('input', () => recalcFrom('length'));
+        totalW.addEventListener('input', () => recalcFrom('weight'));
+        if (wallInput) wallInput.addEventListener('input', applyMode);
+        if (avgLen) avgLen.addEventListener('input', applyMode);
+
+        document.addEventListener('pipe:recalc', applyMode);
+
+        // стартовое состояние
+        applyMode();
+    }
+
+    /** Живой пересчёт для патрубка: количество × длина → метраж → вес. */
+    function initNippleLiveCalculation() {
+        const block = document.getElementById('nippleBlock');
+        if (!block || block.dataset.liveWired === 'true') return;
+        block.dataset.liveWired = 'true';
+
+        const diamSelect = document.getElementById('nippleThreadDiameterSelect');
+        const wallInput  = document.getElementById('nippleWallThickness');
+        const pieceLen   = document.getElementById('nipplePieceLength');
+        const qtyInput   = document.getElementById('nippleQuantity');
+        const outLength  = document.getElementById('nippleComputedLength');
+        const outWeight  = document.getElementById('nippleComputedWeight');
+        if (!pieceLen || !qtyInput) return;
+
+        function getDiameter() {
+            if (!diamSelect || !diamSelect.value) return null;
+            const opt = diamSelect.options[diamSelect.selectedIndex];
+            return parseDiameter(opt ? opt.text : '');
+        }
+
+        function recalc() {
+            const D = getDiameter();
+            const S = parseFloat(wallInput?.value);
+            const Lp = parseFloat(pieceLen.value);
+            const Q = parseInt(qtyInput.value);
+
+            if (!D || !(S > 0) || !(Lp > 0) || !(Q > 0)) {
+                if (outLength) outLength.textContent = '—';
+                if (outWeight) outWeight.textContent = '—';
+                return;
+            }
+
+            const totalLenM = (Lp * Q) / 1000.0;
+            const weightKg = calcWeightFromLength(D, S, totalLenM);
+
+            if (outLength) outLength.textContent = round2(totalLenM);
+            if (outWeight) outWeight.textContent = round2(weightKg);
+        }
+
+        pieceLen.addEventListener('input', recalc);
+        qtyInput.addEventListener('input', recalc);
+        if (wallInput) wallInput.addEventListener('input', recalc);
+        document.addEventListener('pipe:recalc', recalc);
+
+        recalc();
+    }
+
+    /**
+     * Переключение 4 типов продукции в форме заказа.
+     * Полностью управляет видимостью и disabled-состоянием полей блоков.
+     */
+    function initPipeNippleBlocks() {
+        const radioCoupling = document.getElementById('typeCoupling');
+        const radioAdapter  = document.getElementById('typeAdapter');
+        const radioPipe     = document.getElementById('typePipe');
+        const radioNipple   = document.getElementById('typeNipple');
+        if (!radioPipe || !radioNipple) return;
+
+        const form = document.getElementById('orderForm') || radioCoupling?.closest('form');
+        if (!form || form.dataset.pipeBlocksWired === 'true') return;
+        form.dataset.pipeBlocksWired = 'true';
+
+        const couplingBlock = document.getElementById('couplingBlock');
+        const adapterBlock  = document.getElementById('adapterBlock');
+        const pipeBlock     = document.getElementById('pipeBlock');
+        const nippleBlock   = document.getElementById('nippleBlock');
+        const hiddenKind    = document.getElementById('pipeProductKindHidden');
+        const globalQtyField = document.getElementById('globalQuantityField');
+        const globalQtyInput = document.getElementById('globalQuantity');
+
+        /** Показать/скрыть блок + включить/отключить его поля. */
+        function setBlockEnabled(block, enabled) {
+            if (!block) return;
+            block.style.display = enabled ? 'block' : 'none';
+            block.querySelectorAll('input, select, textarea').forEach(el => {
+                el.disabled = !enabled;
+            });
+        }
+
+        function toggleBlocks() {
+            const isCoupling = radioCoupling?.checked;
+            const isAdapter  = radioAdapter?.checked;
+            const isPipe     = radioPipe.checked;
+            const isNipple   = radioNipple.checked;
+
+            setBlockEnabled(couplingBlock, isCoupling);
+            setBlockEnabled(adapterBlock,  isAdapter);
+            setBlockEnabled(pipeBlock,     isPipe);
+            setBlockEnabled(nippleBlock,   isNipple);
+
+            // global quantity — только для COUPLING / ADAPTER
+            const needGlobalQty = isCoupling || isAdapter;
+            if (globalQtyField) globalQtyField.style.display = needGlobalQty ? '' : 'none';
+            if (globalQtyInput) globalQtyInput.disabled = !needGlobalQty;
+
+            if (hiddenKind) {
+                if (isPipe) hiddenKind.value = 'PIPE';
+                else if (isNipple) hiddenKind.value = 'NIPPLE';
+                else hiddenKind.value = '';
+            }
+        }
+
+        [radioCoupling, radioAdapter, radioPipe, radioNipple].forEach(r => {
+            if (r) r.addEventListener('change', toggleBlocks);
+        });
+
+        // Каскады и live-пересчёты — один раз
+        initExternalThreadCascade('pipeThreadTypeSelect', 'pipeThreadDiameterSelect', 'pipeExternalThreadId');
+        initExternalThreadCascade('nippleThreadTypeSelect', 'nippleThreadDiameterSelect', 'nippleExternalThreadId');
+        initPipeLiveCalculation();
+        initNippleLiveCalculation();
+
+        // Первичная раскладка
+        toggleBlocks();
+    }
+
+    // ================================================================
+    // УДАЛЕНИЕ ЗАКАЗА — ПУЗЫРЬ + ВЕТЕР
+    // ================================================================
+
+    function spawnBubbleBurst(cx, cy) {
+        const layer = document.createElement('div');
+        layer.className = 'bubble-burst-layer';
+
+        const wave = document.createElement('span');
+        wave.className = 'bubble-shockwave';
+        wave.style.left = cx + 'px';
+        wave.style.top  = cy + 'px';
+        layer.appendChild(wave);
+
+        const flash = document.createElement('span');
+        flash.className = 'bubble-particle';
+        flash.style.left = cx + 'px';
+        flash.style.top  = cy + 'px';
+        flash.style.width  = '36px';
+        flash.style.height = '36px';
+        flash.style.setProperty('--dx', '0px');
+        flash.style.setProperty('--dy', '0px');
+        flash.style.animationDuration = '0.4s';
+        layer.appendChild(flash);
+
+        const count = 16;
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.7;
+            const dist  = 70 + Math.random() * 130;
+            const dx    = Math.cos(angle) * dist;
+            const dy    = Math.sin(angle) * dist;
+            const size  = 4 + Math.random() * 10;
+            const delay = Math.random() * 40;
+
+            const p = document.createElement('span');
+            p.className = 'bubble-particle';
+            p.style.left = cx + 'px';
+            p.style.top  = cy + 'px';
+            p.style.width  = size + 'px';
+            p.style.height = size + 'px';
+            p.style.setProperty('--dx', dx + 'px');
+            p.style.setProperty('--dy', dy + 'px');
+            p.style.animationDelay = delay + 'ms';
+            layer.appendChild(p);
+        }
+
+        document.body.appendChild(layer);
+        setTimeout(() => layer.remove(), 900);
+    }
+
+    function spawnWindLeaf(cx, cy) {
+        const layer = document.createElement('div');
+        layer.className = 'leaf-flight-layer';
+
+        const flyer = document.createElement('div');
+        flyer.className = 'leaf-flyer leaf-flyer--wind';
+        flyer.style.left = cx + 'px';
+        flyer.style.top  = cy + 'px';
+
+        const img = document.createElement('img');
+        img.src = '/images/leaf-logo.png';
+        img.alt = '';
+        img.setAttribute('aria-hidden', 'true');
+        flyer.appendChild(img);
+        layer.appendChild(flyer);
+
+        const ex = window.innerWidth  + 220;
+        const ey = -140;
+        const dx = ex - cx;
+        const dy = ey - cy;
+
+        const sparkCount = 8;
+        for (let i = 0; i < sparkCount; i++) {
+            const spark = document.createElement('span');
+            spark.className = 'wind-spark';
+
+            const jx = (Math.random() - 0.5) * 90;
+            const jy = (Math.random() - 0.5) * 90;
+            spark.style.left = (cx + jx) + 'px';
+            spark.style.top  = (cy + jy) + 'px';
+
+            const endJx = (Math.random() - 0.5) * 220;
+            const endJy = (Math.random() - 0.5) * 160;
+            spark.style.setProperty('--dx', (dx + endJx) + 'px');
+            spark.style.setProperty('--dy', (dy + endJy) + 'px');
+
+            spark.style.animationDelay = (70 + i * 85) + 'ms';
+            layer.appendChild(spark);
+        }
+
+        document.body.appendChild(layer);
+
+        const anim = flyer.animate([
+            { transform: `translate(-50%, -50%) translate(0px, 0px) scale(0.35) rotate(-30deg)`, opacity: 0 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.06}px, ${dy * 0.18}px) scale(1.28) rotate(80deg)`, opacity: 1, offset: 0.12 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.20}px, ${dy * 0.02}px) scale(1.18) rotate(190deg)`, opacity: 1, offset: 0.28 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.42}px, ${dy * 0.38}px) scale(1.10) rotate(320deg)`, opacity: 1, offset: 0.48 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.66}px, ${dy * 0.60}px) scale(1.02) rotate(450deg)`, opacity: 1, offset: 0.68 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.85}px, ${dy * 0.84}px) scale(0.88) rotate(570deg)`, opacity: 1, offset: 0.88 },
+            { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5) rotate(700deg)`, opacity: 0 }
+        ], {
+            duration: 1650,
+            easing: 'cubic-bezier(0.3, 0.55, 0.4, 1)',
+            fill: 'forwards'
+        });
+
+        let finished = false;
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            layer.remove();
+        };
+        anim.onfinish = finish;
+        setTimeout(finish, 2200);
+    }
+
+    function playDeleteAnimation(entity, onBurst) {
+        const rect = entity.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height / 2;
+
+        entity.classList.add(
+            entity.classList.contains('order-detail-card')
+                ? 'order-detail-card--popping'
+                : 'order-card--popping'
+        );
+
+        setTimeout(() => {
+            spawnBubbleBurst(cx, cy);
+            if (typeof onBurst === 'function') onBurst();
+        }, 280);
+
+        setTimeout(() => spawnWindLeaf(cx, cy), 380);
+    }
+
+    function initOrderDeletion() {
+        if (document.body.dataset.orderDeletionWired === 'true') return;
+        document.body.dataset.orderDeletionWired = 'true';
+
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-delete-btn]');
+            if (!btn) return;
+            if (btn.disabled) return;
+
+            const form = btn.closest('form');
+            if (!form) return;
+
+            if (!window.confirm('Удалить заказ?')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const entity = btn.closest('.order-card, .order-detail-card');
+
+            if (!entity || prefersReducedMotion()) {
+                form.setAttribute('data-turbo-frame', 'app');
+                form.removeAttribute('data-turbo');
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+                return;
+            }
+
+            btn.disabled = true;
+
+            let submitted = false;
+            const doSubmit = () => {
+                if (submitted) return;
+                submitted = true;
+                form.setAttribute('data-turbo-frame', 'app');
+                form.removeAttribute('data-turbo');
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+            };
+
+            playDeleteAnimation(entity, doSubmit);
+            setTimeout(doSubmit, 500);
+        }, true);
+    }
+
+    // ================================================================
+    // ПЕРЕВОД ЗАКАЗА: АНИМАЦИЯ ЛИСТКА
+    // ================================================================
+    function prefersReducedMotion() {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function isInViewport(el) {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        return cx >= 0 && cx <= window.innerWidth
+            && cy >= 0 && cy <= window.innerHeight;
+    }
+
+    function findTargetElement(href) {
+        const headerBtn = href
+            ? document.querySelector(`.orders-nav-btns a[href="${href}"]`)
+            : null;
+
+        if (headerBtn && isInViewport(headerBtn)) return headerBtn;
+
+        const brand = document.querySelector('.app-glass .navbar .navbar-brand');
+        if (brand && isInViewport(brand)) return brand;
+
+        return document.querySelector('.app-glass .navbar');
+    }
+
+    function createLeafFlyer(cardRect) {
+        const layer = document.createElement('div');
+        layer.className = 'leaf-flight-layer';
+
+        const flyer = document.createElement('div');
+        flyer.className = 'leaf-flyer';
+        flyer.style.left = (cardRect.left + cardRect.width / 2) + 'px';
+        flyer.style.top  = (cardRect.top + cardRect.height / 2) + 'px';
+
+        const img = document.createElement('img');
+        img.src = '/images/leaf-logo.png';
+        img.alt = '';
+        img.setAttribute('aria-hidden', 'true');
+        flyer.appendChild(img);
+
+        layer.appendChild(flyer);
+        document.body.appendChild(layer);
+        return { layer, flyer };
+    }
+
+    function animateLeafFlight(flyer, cardRect, targetRect) {
+        const sx = cardRect.left + cardRect.width / 2;
+        const sy = cardRect.top + cardRect.height / 2;
+        const ex = targetRect.left + targetRect.width / 2;
+        const ey = targetRect.top + targetRect.height / 2;
+
+        const dx = ex - sx;
+        const dy = ey - sy;
+        const arc = Math.min(160, Math.max(70, Math.abs(dx) * 0.28));
+
+        return flyer.animate([
+            { transform: `translate(-50%, -50%) translate(0px, 0px) scale(0.3) rotate(-40deg)`, opacity: 0, offset: 0 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.08}px, ${dy * 0.08 - arc * 0.6}px) scale(1.35) rotate(60deg)`, opacity: 1, offset: 0.18 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.45}px, ${dy * 0.45 - arc}px) scale(1.1) rotate(220deg)`, opacity: 1, offset: 0.55 },
+            { transform: `translate(-50%, -50%) translate(${dx * 0.85}px, ${dy * 0.85 - arc * 0.35}px) scale(0.85) rotate(400deg)`, opacity: 1, offset: 0.85 },
+            { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.05) rotate(560deg)`, opacity: 0, offset: 1 }
+        ], {
+            duration: 1150,
+            easing: 'cubic-bezier(0.25, 0.7, 0.35, 1)',
+            fill: 'forwards'
+        });
+    }
+
+    function startLeafTransition(card, target) {
+        if (!card || !target || prefersReducedMotion()) return;
+
+        const cardRect = card.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+
+        card.classList.add('order-card--departing');
+
+        const { layer, flyer } = createLeafFlyer(cardRect);
+
+        requestAnimationFrame(() => {
+            const anim = animateLeafFlight(flyer, cardRect, targetRect);
+
+            let finished = false;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                layer.remove();
+
+                if (target) {
+                    target.classList.add('leaf-target-pulse');
+                    setTimeout(() => target.classList.remove('leaf-target-pulse'), 720);
+                }
+            };
+
+            anim.onfinish = finish;
+            setTimeout(finish, 1600);
+        });
+    }
+
+    function navigateFrame(url) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('data-turbo-frame', 'app');
+        link.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => link.remove(), 500);
+    }
+
+    function initOrderTransitions() {
+        if (document.body.dataset.orderTransitionsWired === 'true') return;
+        document.body.dataset.orderTransitionsWired = 'true';
+
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-transition-target]');
+            if (!btn) return;
+
+            if (btn.classList.contains('start-production-btn')
+                && btn.dataset.hasDeadline === 'false') {
+                return;
+            }
+
+            const card = btn.closest('.order-card');
+            if (card && card.classList.contains('order-card--departing')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            if (!card || prefersReducedMotion()) return;
+
+            const target = findTargetElement(btn.dataset.transitionTarget);
+            if (!target) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            startLeafTransition(card, target);
+
+            const form = btn.closest('form');
+            if (form) {
+                if (!form.hasAttribute('data-turbo-frame')) {
+                    form.setAttribute('data-turbo-frame', 'app');
+                }
+                form.removeAttribute('data-turbo');
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+            } else if (btn.classList.contains('start-production-btn')) {
+                const orderId = btn.dataset.orderId;
+                const f = document.createElement('form');
+                f.method = 'POST';
+                f.action = `/orders/${orderId}/status`;
+                f.setAttribute('data-turbo-frame', 'app');
+                f.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+
+                const csrf = document.querySelector('meta[name="_csrf"]');
+                if (csrf) {
+                    const c = document.createElement('input');
+                    c.type = 'hidden';
+                    c.name = '_csrf';
+                    c.value = csrf.content;
+                    f.appendChild(c);
+                }
+
+                const s1 = document.createElement('input');
+                s1.type = 'hidden';
+                s1.name = 'newStatus';
+                s1.value = 'IN_PRODUCTION';
+                f.appendChild(s1);
+
+                const s2 = document.createElement('input');
+                s2.type = 'hidden';
+                s2.name = 'returnTo';
+                s2.value = '/orders/waiting';
+                f.appendChild(s2);
+
+                document.body.appendChild(f);
+                f.requestSubmit ? f.requestSubmit() : f.submit();
+                setTimeout(() => f.remove(), 1500);
+            }
+        }, true);
+    }
+
     // ================= Waiting: старт производства =================
     function initStartProduction() {
         if (document.body.dataset.startProdWired === 'true') return;
         document.body.dataset.startProdWired = 'true';
 
-        // Делегирование — работает после Turbo-навигаций
         document.addEventListener('click', function (e) {
-            const btn = e.target.closest('.start-production-btn');
-            if (!btn) return;
-
-            const orderId = btn.dataset.orderId;
-            const hasDeadline = btn.dataset.hasDeadline === 'true';
-
-            if (hasDeadline) {
-                // Дедлайн есть — сразу отправляем форму POST
-                submitStatusForm(orderId, 'IN_PRODUCTION', '/orders/waiting');
-            } else {
-                // Дедлайна нет — открываем модалку
-                const modalEl = document.getElementById('deadlineModal');
-                const hiddenId = document.getElementById('orderIdForDeadline');
-                const dateInput = document.getElementById('deadlineInput');
-                if (!modalEl || !hiddenId) return;
-
-                hiddenId.value = orderId;
-                // Минимум — завтра
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                dateInput.min = tomorrow.toISOString().split('T')[0];
-                dateInput.value = dateInput.min;
-
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            }
-        });
-
-        // Подтверждение из модалки
-        document.addEventListener('click', function (e) {
-            const btn = e.target.closest('#confirmDeadlineBtn');
-            if (!btn) return;
-
-            const hiddenId = document.getElementById('orderIdForDeadline');
-            const dateInput = document.getElementById('deadlineInput');
-            const orderId = hiddenId?.value;
-            const deadline = dateInput?.value;
-
-            if (!orderId || !deadline) {
-                alert('Укажите дедлайн');
+            const btn = e.target.closest('.start-production-btn[data-has-deadline="false"]');
+            if (btn) {
+                e.preventDefault();
+                e.stopPropagation();
+                openDeadlineModal(btn.dataset.orderId);
                 return;
             }
 
-            // AJAX POST на /orders/{id}/set-deadline-and-start
-            fetch(`/orders/${orderId}/set-deadline-and-start`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
-                },
-                body: `deadline=${encodeURIComponent(deadline)}`
-            })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        const modalEl = document.getElementById('deadlineModal');
-                        bootstrap.Modal.getInstance(modalEl)?.hide();
-                        // Обновляем turbo-frame
-                        window.Turbo?.visit('/orders/waiting', { action: 'replace' });
-                    } else {
-                        alert('Ошибка: ' + (res.error || 'неизвестная'));
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Ошибка сети');
-                });
+            if (e.target.closest('#confirmDeadlineBtn')) {
+                confirmDeadline();
+                return;
+            }
+
+            if (e.target.classList && e.target.classList.contains('hb-modal-overlay')) {
+                closeDeadlineModal(e.target);
+                return;
+            }
+
+            const closeBtn = e.target.closest('[data-modal-close]');
+            if (closeBtn) {
+                const ov = closeBtn.closest('.hb-modal-overlay');
+                if (ov) closeDeadlineModal(ov);
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            const overlay = document.querySelector('.hb-modal-overlay.show');
+            if (overlay) closeDeadlineModal(overlay);
         });
     }
 
-    // Хелпер: собрать и отправить POST-форму смены статуса
-    function submitStatusForm(orderId, newStatus, returnTo) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/orders/${orderId}/status`;
-        form.style.display = 'none';
+    function openDeadlineModal(orderId) {
+        const overlay = document.getElementById('deadlineModal');
+        if (!overlay) return;
 
-        const s1 = document.createElement('input');
-        s1.type = 'hidden';
-        s1.name = 'newStatus';
-        s1.value = newStatus;
-        form.appendChild(s1);
+        const hiddenId = document.getElementById('orderIdForDeadline');
+        const dateInput = document.getElementById('deadlineInput');
+        if (!hiddenId || !dateInput) return;
 
-        const s2 = document.createElement('input');
-        s2.type = 'hidden';
-        s2.name = 'returnTo';
-        s2.value = returnTo;
-        form.appendChild(s2);
+        hiddenId.value = orderId;
 
-        // CSRF если нужно
-        const csrf = document.querySelector('meta[name="_csrf"]');
-        if (csrf) {
-            const c = document.createElement('input');
-            c.type = 'hidden';
-            c.name = '_csrf';
-            c.value = csrf.content;
-            form.appendChild(c);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const iso = tomorrow.toISOString().split('T')[0];
+        dateInput.min = iso;
+        dateInput.value = iso;
+
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        setTimeout(() => dateInput.focus(), 120);
+    }
+
+    function closeDeadlineModal(overlay) {
+        if (!overlay) return;
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    function confirmDeadline() {
+        const hiddenId  = document.getElementById('orderIdForDeadline');
+        const dateInput = document.getElementById('deadlineInput');
+        const overlay   = document.getElementById('deadlineModal');
+
+        const orderId  = hiddenId?.value;
+        const deadline = dateInput?.value;
+
+        if (!orderId || !deadline) {
+            alert('Укажите дедлайн');
+            return;
         }
 
-        document.body.appendChild(form);
-        form.submit();
+        const headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+        };
+        const tokenMeta  = document.querySelector('meta[name="_csrf"]');
+        const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+        if (tokenMeta && tokenMeta.content && headerMeta && headerMeta.content) {
+            headers[headerMeta.content] = tokenMeta.content;
+        }
+
+        fetch(`/orders/${orderId}/set-deadline-and-start`, {
+            method: 'POST',
+            headers: headers,
+            body: `deadline=${encodeURIComponent(deadline)}`
+        })
+            .then(r => r.json())
+            .then(res => {
+                if (!res.success) {
+                    alert('Ошибка: ' + (res.error || 'неизвестная'));
+                    return;
+                }
+                closeDeadlineModal(overlay);
+
+                const startBtn = document.querySelector(
+                    `.start-production-btn[data-order-id="${orderId}"]`
+                );
+                const card   = startBtn?.closest('.order-card');
+                const target = findTargetElement('/orders/production');
+
+                if (card && target) {
+                    startLeafTransition(card, target);
+                }
+
+                navigateFrame('/orders/waiting');
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Ошибка сети');
+            });
     }
 
     // ================= КП: добавление/удаление/очистка =================
@@ -353,16 +1068,14 @@ window.OrdersForm = (function () {
     }
 
     function initCommercialOffer() {
-        // 1. Сначала всегда синхронизируем панель с текущим DOM
         refreshOfferPanelFromDom();
 
-        // 2. Обработчики вешаем только один раз
         if (document.body.dataset.offerWired === 'true') return;
         document.body.dataset.offerWired = 'true';
 
         function csrfHeaders(extra) {
-            const headers = Object.assign({ 'Accept': 'application/json' }, extra || {});
-            const tokenMeta = document.querySelector('meta[name="_csrf"]');
+            const headers = Object.assign({'Accept': 'application/json'}, extra || {});
+            const tokenMeta  = document.querySelector('meta[name="_csrf"]');
             const headerMeta = document.querySelector('meta[name="_csrf_header"]');
             if (tokenMeta && tokenMeta.content && headerMeta && headerMeta.content) {
                 headers[headerMeta.content] = tokenMeta.content;
@@ -371,8 +1084,6 @@ window.OrdersForm = (function () {
         }
 
         document.addEventListener('click', function (e) {
-
-            // === Кнопка "+" / "✓" на карточке заказа ===
             const addBtn = e.target.closest('.add-to-offer-btn');
             if (addBtn) {
                 e.preventDefault();
@@ -392,11 +1103,7 @@ window.OrdersForm = (function () {
                     .then(r => r.json())
                     .then(data => {
                         addBtn.disabled = false;
-
-                        if (data.error) {
-                            alert(data.error);
-                            return;
-                        }
+                        if (data.error) { alert(data.error); return; }
 
                         if (data.added) {
                             addBtn.classList.add('active');
@@ -407,7 +1114,6 @@ window.OrdersForm = (function () {
                             addBtn.innerHTML = '<i class="bi bi-plus-lg"></i>';
                             addBtn.title = 'Добавить в КП';
                         }
-
                         refreshOfferPanelFromDom();
                     })
                     .catch(err => {
@@ -415,11 +1121,9 @@ window.OrdersForm = (function () {
                         console.error('Ошибка добавления в КП:', err);
                         alert('Ошибка сети при добавлении в КП');
                     });
-
                 return;
             }
 
-            // === Кнопка "Очистить" в панели КП ===
             const clearBtn = e.target.closest('#clearOfferBtn');
             if (clearBtn) {
                 e.preventDefault();
@@ -433,269 +1137,36 @@ window.OrdersForm = (function () {
                 })
                     .then(() => {
                         clearBtn.disabled = false;
-
                         document.querySelectorAll('.add-to-offer-btn.active').forEach(b => {
                             b.classList.remove('active');
                             b.innerHTML = '<i class="bi bi-plus-lg"></i>';
                             b.title = 'Добавить в КП';
                         });
-
                         refreshOfferPanelFromDom();
                     })
                     .catch(err => {
                         clearBtn.disabled = false;
                         console.error('Ошибка очистки КП:', err);
                     });
-
                 return;
             }
         });
     }
 
-    // ================= ЖУРНАЛ: форма =================
-    function initProductionRecordForm() {
-        const form = document.getElementById('recordForm');
-        if (!form || form.dataset.initialized === 'true') return;
-        form.dataset.initialized = 'true';
 
-        const radioCoupling = document.getElementById('typeCoupling');
-        const radioAdapter  = document.getElementById('typeAdapter');
-        const couplingBlock = document.getElementById('couplingBlock');
-        const adapterBlock  = document.getElementById('adapterBlock');
-        const hiddenType    = document.getElementById('productTypeHidden');
-        if (!radioCoupling || !radioAdapter) return;
-
-        const typeSelect        = document.getElementById('typeSelect');
-        const diameterSelect    = document.getElementById('diameterSelect');
-        const couplingIdHidden  = document.getElementById('couplingIdHidden');
-
-        const firstSideTypeSelect = document.getElementById('adapterFirstSideTypeSelect');
-        const adapterSelect       = document.getElementById('adapterSelect');
-        const adapterIdHidden     = document.getElementById('adapterIdHidden');
-
-        const initialCouplingId     = couplingIdHidden?.value || '';
-        const initialAdapterId      = adapterIdHidden?.value || '';
-        const initialCouplingType   = form.dataset.currentCouplingType || '';
-        const initialAdapterFST     = form.dataset.currentAdapterFirstSideType || '';
-
-        function toggleBlocks() {
-            const isCoupling = radioCoupling.checked;
-            if (couplingBlock) couplingBlock.style.display = isCoupling ? '' : 'none';
-            if (adapterBlock)  adapterBlock.style.display  = isCoupling ? 'none' : '';
-            if (hiddenType)    hiddenType.value = isCoupling ? 'COUPLING' : 'ADAPTER';
-            if (isCoupling && typeSelect && typeSelect.options.length <= 1) loadCouplingTypes();
-            if (!isCoupling && firstSideTypeSelect && firstSideTypeSelect.options.length <= 1) loadAdapterTypes();
-        }
-
-        function loadCouplingTypes() {
-            fetch('/production-records/api/couplings/types')
-                .then(r => r.json())
-                .then(types => {
-                    typeSelect.innerHTML = '<option value="">-- Выберите тип --</option>';
-                    types.forEach(t => {
-                        const o = new Option(t, t);
-                        if (t === initialCouplingType) o.selected = true;
-                        typeSelect.add(o);
-                    });
-                    if (initialCouplingType) typeSelect.dispatchEvent(new Event('change'));
-                });
-        }
-
-        function loadCouplingDiameters(type) {
-            diameterSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
-            if (couplingIdHidden) couplingIdHidden.value = '';
-            if (!type) { diameterSelect.disabled = true; return; }
-            diameterSelect.disabled = false;
-            fetch(`/production-records/api/couplings/by-type?type=${encodeURIComponent(type)}`)
-                .then(r => r.json())
-                .then(list => {
-                    list.forEach(c => diameterSelect.add(new Option(c.diameter, c.id)));
-                    if (initialCouplingId) {
-                        [...diameterSelect.options].forEach(o => {
-                            if (String(o.value) === String(initialCouplingId)) {
-                                o.selected = true;
-                                if (couplingIdHidden) couplingIdHidden.value = initialCouplingId;
-                            }
-                        });
-                    }
-                });
-        }
-
-        if (typeSelect)     typeSelect.addEventListener('change', function () { loadCouplingDiameters(this.value); });
-        if (diameterSelect) diameterSelect.addEventListener('change', function () {
-            if (couplingIdHidden) couplingIdHidden.value = this.value;
-        });
-
-        function loadAdapterTypes() {
-            fetch('/production-records/api/adapters/first-side-types')
-                .then(r => r.json())
-                .then(types => {
-                    firstSideTypeSelect.innerHTML = '<option value="">-- Выберите тип --</option>';
-                    types.forEach(t => {
-                        const o = new Option(t, t);
-                        if (t === initialAdapterFST) o.selected = true;
-                        firstSideTypeSelect.add(o);
-                    });
-                    if (initialAdapterFST) firstSideTypeSelect.dispatchEvent(new Event('change'));
-                });
-        }
-
-        function loadAdapters(fst) {
-            adapterSelect.innerHTML = '<option value="">-- Выберите переводник --</option>';
-            if (adapterIdHidden) adapterIdHidden.value = '';
-            if (!fst) { adapterSelect.disabled = true; return; }
-            adapterSelect.disabled = false;
-            fetch(`/production-records/api/adapters/by-first-side-type?type=${encodeURIComponent(fst)}`)
-                .then(r => r.json())
-                .then(list => {
-                    list.forEach(a => adapterSelect.add(new Option(a.fullName, a.id)));
-                    if (initialAdapterId) {
-                        [...adapterSelect.options].forEach(o => {
-                            if (String(o.value) === String(initialAdapterId)) {
-                                o.selected = true;
-                                if (adapterIdHidden) adapterIdHidden.value = initialAdapterId;
-                            }
-                        });
-                    }
-                });
-        }
-
-        if (firstSideTypeSelect) firstSideTypeSelect.addEventListener('change', function () { loadAdapters(this.value); });
-        if (adapterSelect)       adapterSelect.addEventListener('change', function () {
-            if (adapterIdHidden) adapterIdHidden.value = this.value;
-        });
-
-        radioCoupling.addEventListener('change', toggleBlocks);
-        radioAdapter.addEventListener('change', toggleBlocks);
-
-        // Если ни одна не выбрана — по умолчанию муфта
-        if (!radioCoupling.checked && !radioAdapter.checked) radioCoupling.checked = true;
-        toggleBlocks();
-    }
-
-    // ================= ЖУРНАЛ: фильтры =================
-    function initProductionRecordFilters() {
-        const container = document.getElementById('journalFilters');
-        if (!container) return;
-
-        const toggle = document.getElementById('filtersToggle');
-        if (toggle && toggle.dataset.wired !== 'true') {
-            toggle.dataset.wired = 'true';
-            toggle.addEventListener('click', () => container.classList.toggle('open'));
-        }
-
-        const productTypeSelect = document.getElementById('filterProductType');
-        if (!productTypeSelect || productTypeSelect.dataset.wired === 'true') return;
-        productTypeSelect.dataset.wired = 'true';
-
-        const couplingBlock   = document.getElementById('filterCouplingBlock');
-        const diameterBlock   = document.getElementById('filterDiameterBlock');
-        const adapterBlock    = document.getElementById('filterAdapterBlock');
-        const adapterSelect   = document.getElementById('filterAdapterSelect');
-
-        const typeSelect      = document.getElementById('filterTypeSelect');
-        const diameterSelect  = document.getElementById('filterDiameterSelect');
-        const couplingIdHidden = document.getElementById('filterCouplingIdHidden');
-
-        const initialCouplingId = couplingIdHidden?.value || '';
-        const initialAdapterId  = adapterSelect?.value || '';
-
-        function toggleFilterBlocks() {
-            const isAdapter = productTypeSelect.value === 'ADAPTER';
-            if (couplingBlock) couplingBlock.style.display = isAdapter ? 'none' : '';
-            if (diameterBlock) diameterBlock.style.display = isAdapter ? 'none' : '';
-            if (adapterBlock)  adapterBlock.style.display  = isAdapter ? '' : 'none';
-            if (isAdapter && adapterSelect && adapterSelect.options.length <= 1) loadAllAdapters();
-            if (!isAdapter && typeSelect && typeSelect.options.length <= 1) loadCouplingTypes();
-        }
-
-        function loadCouplingTypes() {
-            fetch('/production-records/api/couplings/types')
-                .then(r => r.json())
-                .then(types => {
-                    typeSelect.innerHTML = '<option value="">-- Все типы --</option>';
-                    types.forEach(t => typeSelect.add(new Option(t, t)));
-                    if (initialCouplingId) loadCouplingById(initialCouplingId);
-                });
-        }
-
-        function loadCouplingById(id) {
-            fetch(`/production-records/api/couplings/${id}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (typeSelect) {
-                        typeSelect.value = data.type;
-                        typeSelect.dispatchEvent(new Event('change'));
-                    }
-                    let attempts = 0;
-                    const iv = setInterval(() => {
-                        attempts++;
-                        if ((diameterSelect.options.length > 1) || attempts > 20) {
-                            clearInterval(iv);
-                            [...diameterSelect.options].forEach(o => {
-                                if (String(o.value) === String(id)) {
-                                    o.selected = true;
-                                    if (couplingIdHidden) couplingIdHidden.value = id;
-                                }
-                            });
-                        }
-                    }, 60);
-                });
-        }
-
-        if (typeSelect) typeSelect.addEventListener('change', function () {
-            const type = this.value;
-            diameterSelect.innerHTML = '<option value="">-- Все диаметры --</option>';
-            if (couplingIdHidden) couplingIdHidden.value = '';
-            if (!type) { diameterSelect.disabled = true; return; }
-            diameterSelect.disabled = false;
-            fetch(`/production-records/api/couplings/by-type?type=${encodeURIComponent(type)}`)
-                .then(r => r.json())
-                .then(list => {
-                    list.forEach(c => diameterSelect.add(new Option(c.diameter, c.id)));
-                    if (initialCouplingId) {
-                        [...diameterSelect.options].forEach(o => {
-                            if (String(o.value) === String(initialCouplingId)) {
-                                o.selected = true;
-                                if (couplingIdHidden) couplingIdHidden.value = initialCouplingId;
-                            }
-                        });
-                    }
-                });
-        });
-
-        if (diameterSelect) diameterSelect.addEventListener('change', function () {
-            if (couplingIdHidden) couplingIdHidden.value = this.value;
-        });
-
-        function loadAllAdapters() {
-            fetch('/production-records/api/adapters')
-                .then(r => r.json())
-                .then(list => {
-                    adapterSelect.innerHTML = '<option value="">-- Все переводники --</option>';
-                    list.forEach(a => {
-                        const o = new Option(a.fullName, a.id);
-                        if (String(a.id) === String(initialAdapterId)) o.selected = true;
-                        adapterSelect.add(o);
-                    });
-                });
-        }
-
-        productTypeSelect.addEventListener('change', toggleFilterBlocks);
-        toggleFilterBlocks();
-    }
 
     // ================= Общий вход =================
     function init() {
-        initProductTypeToggle();
         initCouplingSelects();
         initAdapterSelects();
+        initSteelGroupSelects();
         initWorksPicker();
         initStartProduction();
         initCommercialOffer();
-        initProductionRecordForm();
-        initProductionRecordFilters();
+        initOrderTransitions();
+        initOrderDeletion();
+        initPipeNippleBlocks();
     }
 
-    return { init };
+    return {init};
 })();

@@ -20,12 +20,9 @@ class WowTooltip {
 
     static updateContent(element) {
         const isAdapter = element.dataset.firstType !== undefined;
+        const isPipe = element.dataset.pipeKind !== undefined;
 
         const name = element.dataset.name || 'Без названия';
-        const length = WowTooltip.getValue(element.dataset.length);
-        const weight = WowTooltip.getValue(element.dataset.weight);
-        const outerD = WowTooltip.getValue(element.dataset.outerDiameter);
-        const innerD = WowTooltip.getValue(element.dataset.innerDiameter);
         const cost = WowTooltip.getValue(element.dataset.cost);
         const price = WowTooltip.getValue(element.dataset.price);
         let description = element.dataset.description || '';
@@ -39,24 +36,68 @@ class WowTooltip {
         if (imagePath && imagePath !== '') {
             let imgUrl = imagePath;
             if (!imgUrl.startsWith('/') && !imgUrl.startsWith('http')) {
-                imgUrl = isAdapter ? '/uploads/adapters/' + imgUrl : '/uploads/couplings/' + imgUrl;
+                imgUrl = '/uploads/' + imgUrl;
             }
             imageHtml = `<div class="tooltip-image"><img src="${WowTooltip.escapeHtml(imgUrl)}" alt="icon" onerror="this.style.display='none'"></div>`;
         } else {
             imageHtml = `<div class="tooltip-image"><i class="bi bi-cup-straw" style="font-size:24px; color:#c69b6d;"></i></div>`;
         }
 
-        let typeLine, qualityClass;
-        if (isAdapter) {
+        let typeLine, qualityClass, statsHtml;
+
+        if (isPipe) {
+            // === ТРУБА / ПАТРУБОК — зелёный, uncommon ===
+            const kind = element.dataset.pipeKind; // "PIPE" | "NIPPLE"
+            typeLine = kind === 'PIPE' ? 'Труба' : 'Патрубок';
+            qualityClass = 'quality2';
+
+            const condD  = WowTooltip.getValue(element.dataset.conditionalDiameter);
+            const wall   = WowTooltip.getValue(element.dataset.wallThickness);
+            const totalL = WowTooltip.getValue(element.dataset.totalLength);
+            const totalW = WowTooltip.getValue(element.dataset.totalWeight);
+
+            statsHtml = `
+                <div class="stat"><span>🎯 Ø условный:</span><span class="stat-value">${condD} мм</span></div>
+                <div class="stat"><span>📐 Толщина стенки:</span><span class="stat-value">${wall} мм</span></div>
+                <div class="stat"><span>📏 Общий метраж:</span><span class="stat-value">${totalL} м</span></div>
+                <div class="stat"><span>⚖️ Общий вес:</span><span class="stat-value">${totalW} кг</span></div>
+            `;
+        } else if (isAdapter) {
+            // === ПЕРЕВОДНИК — legendary ===
             typeLine = 'Переводник';
             qualityClass = 'quality5';
+
+            const length = WowTooltip.getValue(element.dataset.length);
+            const weight = WowTooltip.getValue(element.dataset.weight);
+            const outerD = WowTooltip.getValue(element.dataset.outerDiameter);
+            const innerD = WowTooltip.getValue(element.dataset.innerDiameter);
+
+            statsHtml = `
+                <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
+                <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
+                <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
+                <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
+            `;
         } else {
+            // === МУФТА — epic ===
             const type = element.dataset.type || '';
             const diameter = element.dataset.diameter || '';
             typeLine = (type && diameter)
                 ? `${WowTooltip.escapeHtml(type)} ${WowTooltip.escapeHtml(diameter)}`
                 : 'Муфта';
             qualityClass = 'quality4';
+
+            const length = WowTooltip.getValue(element.dataset.length);
+            const weight = WowTooltip.getValue(element.dataset.weight);
+            const outerD = WowTooltip.getValue(element.dataset.outerDiameter);
+            const innerD = WowTooltip.getValue(element.dataset.innerDiameter);
+
+            statsHtml = `
+                <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
+                <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
+                <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
+                <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
+            `;
         }
 
         WowTooltip.container.innerHTML = `
@@ -67,12 +108,7 @@ class WowTooltip {
                     <div class="item-type">${WowTooltip.escapeHtml(typeLine)}</div>
                 </div>
             </div>
-            <div class="stats">
-                <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
-                <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
-                <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
-                <div class="stat"><span>🎯 Внутр. диаметр:</span><span class="stat-value">${innerD} мм</span></div>
-            </div>
+            <div class="stats">${statsHtml}</div>
             <div class="prices">
                 <div class="price-row"><span>Цена изготовления:</span><span class="coin"><i class="coin-icon"></i> ${cost} руб</span></div>
                 <div class="price-row"><span>Цена для работника:</span><span class="coin"><i class="coin-icon"></i> ${price} руб</span></div>
@@ -103,6 +139,9 @@ class WowTooltip {
             WowTooltip.container = document.createElement('div');
             WowTooltip.container.className = 'wow-tooltip';
             WowTooltip.container.style.display = 'none';
+        }
+
+        if (!WowTooltip.container.isConnected) {
             document.body.appendChild(WowTooltip.container);
         }
 
