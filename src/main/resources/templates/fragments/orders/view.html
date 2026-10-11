@@ -20,17 +20,15 @@
             <span class="handbook-count" th:text="${order.companyName}">—</span>
         </div>
         <div class="orders-nav-btns">
-            <span class="order-status-pill"
-                  th:classappend="${order.status.name() == 'WAITING'} ? 'waiting' :
-                                  (${order.status.name() == 'IN_PRODUCTION'} ? 'production' : 'completed')">
-                <i class="bi"
-                   th:classappend="${order.status.name() == 'WAITING'} ? 'bi-hourglass-split' :
-                                   (${order.status.name() == 'IN_PRODUCTION'} ? 'bi-wrench' : 'bi-check2-circle')"></i>
-                <span th:switch="${order.status}">
-                    <span th:case="'WAITING'">В ожидании</span>
-                    <span th:case="'IN_PRODUCTION'">В производстве</span>
-                    <span th:case="'COMPLETED'">Выполнен</span>
-                </span>
+            <span class="product-type-badge"
+                  th:with="pt=${order.productType}"
+                  th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling' : (pt == 'ADAPTER' ? 'product-type-badge--adapter' : (pt == 'NIPPLE' ? 'product-type-badge--nipple' : 'product-type-badge--pipe'))}"
+                  th:text="${pt == 'NIPPLE' and order.pieceLengthMm != null
+                              ? 'Патрубок L-' + #numbers.formatInteger(order.pieceLengthMm, 0)
+                              : (pt == 'COUPLING' ? 'Муфта' : (pt == 'ADAPTER' ? 'Переводник' : (pt == 'PIPE' ? 'Труба' : (pt == 'NIPPLE' ? 'Патрубок' : '—'))))}">—</span>
+
+            <span class="order-status-pill" ...>
+                <!-- как было -->
             </span>
         </div>
     </header>
@@ -50,15 +48,13 @@
                 <span class="hb-detail-label">Тип продукции</span>
                 <span class="hb-detail-value">
                         <span class="product-icon-tile product-icon-tile--sm product-icon-tile--inline"
-                              th:classappend="${order.productType == 'COUPLING'} ? 'product-icon-tile--coupling'
-                                  : (${order.productType == 'ADAPTER'} ? 'product-icon-tile--adapter'
-                                  : 'product-icon-tile--pipe')">
+                              th:with="pt=${order.productType}"
+                              th:classappend="${pt == 'COUPLING' ? 'product-icon-tile--coupling' : (pt == 'ADAPTER' ? 'product-icon-tile--adapter' : (pt == 'NIPPLE' ? 'product-icon-tile--nipple' : 'product-icon-tile--pipe'))}">
                             <img class="product-icon-img"
-                                 th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png}
-                                     : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
-                                     : @{/images/product-pipe.png})"
+                                 th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png} : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png} : @{/images/product-pipe.png})"
                                  alt="" aria-hidden="true">
                         </span>
+
                         <span th:switch="${order.productType}">
                             <span th:case="'COUPLING'">Муфта</span>
                             <span th:case="'ADAPTER'">Переводник</span>
@@ -103,17 +99,6 @@
 
             <!-- === Труба / патрубок === -->
             <th:block th:if="${order.pipeProductKind != null}">
-                <div class="hb-detail-row">
-                    <span class="hb-detail-label">Вид продукции</span>
-                    <span class="hb-detail-value">
-                        <span class="product-icon-tile product-icon-tile--sm product-icon-tile--inline product-icon-tile--pipe">
-                            <img class="product-icon-img"
-                                 src="/images/product-pipe.png"
-                                 alt="" aria-hidden="true">
-                        </span>
-                        <span th:text="${order.pipeProductKind == 'PIPE'} ? 'Труба' : 'Патрубок'">—</span>
-                    </span>
-                </div>
                 <div class="hb-detail-row">
                     <span class="hb-detail-label">Резьба</span>
                     <span class="hb-detail-value accent"

@@ -44,10 +44,41 @@ public class OrderMapper {
         dto.setWorkpieceLengthMeters(order.getWorkpieceLengthMeters());
         dto.setWorkpieceWeightKg(order.getWorkpieceWeightKg());
 
+        // === Расширенные данные для tooltip ===
+        if (order.getCoupling() != null) {
+            CouplingEntity c = order.getCoupling();
+            dto.setProductVariantType(c.getType());
+            dto.setProductVariantDiameter(c.getConditionalDiameter());
+            dto.setProductLengthMm(c.getLengthMm());
+            dto.setProductWeightKg(c.getWeightKg());
+            dto.setProductOuterDiameterMm(c.getOuterDiameterMm());
+            dto.setProductInnerDiameterMm(c.getInnerDiameterMm());
+            dto.setProductImagePath(c.getImagePath());
+            dto.setProductDescription(c.getDescription());
+            dto.setProductManufacturingCost(c.getManufacturingCost());
+            dto.setProductPriceForEmployee(c.getPriceForEmployee());
+        } else if (order.getAdapter() != null) {
+            PipeAdapterEntity a = order.getAdapter();
+            dto.setProductAdapterFirstSideType(a.getFirstSideType());
+            dto.setProductAdapterFirstSideDiameter(a.getFirstSideDiameter());
+            dto.setProductAdapterSecondSideType(a.getSecondSideType());
+            dto.setProductAdapterSecondSideDiameter(a.getSecondSideDiameter());
+            dto.setProductLengthMm(a.getLengthMm());
+            dto.setProductWeightKg(a.getWeightKg());
+            dto.setProductOuterDiameterMm(a.getOuterDiameterMm());
+            dto.setProductInnerDiameterMm(a.getInnerDiameterMm());
+            dto.setProductImagePath(a.getImagePath());
+            dto.setProductDescription(a.getDescription());
+            dto.setProductManufacturingCost(a.getManufacturingCost());
+            dto.setProductPriceForEmployee(a.getPriceForEmployee());
+        }
+
         // === Трубы / патрубки ===
         if (order.getExternalThread() != null) {
             ExternalThreadEntity t = order.getExternalThread();
+
             dto.setExternalThreadId(t.getId());
+            dto.setExternalThreadPriceForEmployee(t.getPriceForEmployee());
             dto.setExternalThreadName(t.getName());
             dto.setExternalThreadDiameter(t.getConditionalDiameter());
             dto.setExternalThreadManufacturingCost(t.getManufacturingCost());
@@ -155,12 +186,11 @@ public class OrderMapper {
             info.imagePath = a.getImagePath();
 
         } else if (order.getExternalThread() != null) {
-            // Труба или патрубок — productType уже известен из order.getProductType()
             ExternalThreadEntity t = order.getExternalThread();
             info.productType = order.getPipeProductKind() != null
                     ? order.getPipeProductKind().name()
                     : "PIPE";
-            info.productName = t.getName();
+            // productName остаётся из order.getProductName() — "Труба НКТ 73" / "Патрубок НКТ 73 L-2000"
             info.productId = t.getId();
             info.productDetails = t.getName();
             info.unitCost = t.getManufacturingCost();

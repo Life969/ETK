@@ -46,22 +46,55 @@ class WowTooltip {
         let typeLine, qualityClass, statsHtml;
 
         if (isPipe) {
-            // === ТРУБА / ПАТРУБОК — зелёный, uncommon ===
-            const kind = element.dataset.pipeKind; // "PIPE" | "NIPPLE"
-            typeLine = kind === 'PIPE' ? 'Труба' : 'Патрубок';
-            qualityClass = 'quality2';
+            const kind = element.dataset.pipeKind; // 'PIPE' | 'NIPPLE' | 'THREAD'
 
-            const condD  = WowTooltip.getValue(element.dataset.conditionalDiameter);
-            const wall   = WowTooltip.getValue(element.dataset.wallThickness);
-            const totalL = WowTooltip.getValue(element.dataset.totalLength);
-            const totalW = WowTooltip.getValue(element.dataset.totalWeight);
+            // --- Справочник наружных резьб ---
+            if (kind === 'THREAD') {
+                typeLine = 'Наружная резьба';
+                qualityClass = 'quality2';   // зелёный, uncommon
 
-            statsHtml = `
-                <div class="stat"><span>🎯 Ø условный:</span><span class="stat-value">${condD} мм</span></div>
-                <div class="stat"><span>📐 Толщина стенки:</span><span class="stat-value">${wall} мм</span></div>
-                <div class="stat"><span>📏 Общий метраж:</span><span class="stat-value">${totalL} м</span></div>
-                <div class="stat"><span>⚖️ Общий вес:</span><span class="stat-value">${totalW} кг</span></div>
-            `;
+                const condD = element.dataset.conditionalDiameter;
+                const standart = element.dataset.standart;
+
+                const rows = [];
+                if (condD) {
+                    rows.push(`<div class="stat"><span>🎯 Ø условный:</span><span class="stat-value">${condD} мм</span></div>`);
+                }
+                if (standart) {
+                    rows.push(`<div class="stat"><span>📘 ГОСТ / API:</span><span class="stat-value">${standart}</span></div>`);
+                }
+                statsHtml = rows.join('');
+            }
+            // --- Труба ---
+            else if (kind === 'PIPE') {
+                typeLine = 'Труба';
+                qualityClass = 'quality2';
+
+                const condD  = element.dataset.conditionalDiameter;
+                const wall   = element.dataset.wallThickness;
+                const totalL = element.dataset.totalLength;
+                const totalW = element.dataset.totalWeight;
+
+                const rows = [];
+                if (condD)  rows.push(`<div class="stat"><span>🎯 Ø условный:</span><span class="stat-value">${condD} мм</span></div>`);
+                if (wall)   rows.push(`<div class="stat"><span>📐 Толщина стенки:</span><span class="stat-value">${wall} мм</span></div>`);
+                if (totalL) rows.push(`<div class="stat"><span>📏 Общий метраж:</span><span class="stat-value">${totalL} м</span></div>`);
+                if (totalW) rows.push(`<div class="stat"><span>⚖️ Общий вес:</span><span class="stat-value">${totalW} кг</span></div>`);
+                statsHtml = rows.join('');
+            }
+            // --- Патрубок ---
+            else {
+                typeLine = 'Патрубок';
+                qualityClass = 'quality3';   // синий, rare
+
+                const condD  = element.dataset.conditionalDiameter;
+                const pieceL = element.dataset.pieceLength;
+
+                const rows = [];
+                if (condD)  rows.push(`<div class="stat"><span>🎯 Ø условный:</span><span class="stat-value">${condD} мм</span></div>`);
+                if (pieceL) rows.push(`<div class="stat"><span>📏 Длина:</span><span class="stat-value">${parseFloat(pieceL).toFixed(0)} мм</span></div>`);
+                statsHtml = rows.join('');
+            }
         } else if (isAdapter) {
             // === ПЕРЕВОДНИК — legendary ===
             typeLine = 'Переводник';

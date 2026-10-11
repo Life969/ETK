@@ -42,31 +42,81 @@
                        data-turbo-frame="app"
                        th:href="@{/orders/{id}(id=${order.id})}"
                        th:text="${order.companyName}">Компания</a>
-                    <span class="order-type-badge"
-                          th:classappend="${order.productType == 'COUPLING'} ? 'coupling'
-                              : (${order.productType == 'ADAPTER'} ? 'adapter'
-                              : (${order.productType == 'PIPE'} ? 'pipe' : 'nipple'))"
-                          th:switch="${order.productType}">
-                        <span th:case="'COUPLING'">Муфта</span>
-                        <span th:case="'ADAPTER'">Переводник</span>
-                        <span th:case="'PIPE'">Труба</span>
-                        <span th:case="'NIPPLE'">Патрубок</span>
+                    <span class="product-type-badge"
+                          th:with="pt=${order.productType}"
+                          th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling' : (pt == 'ADAPTER' ? 'product-type-badge--adapter' : (pt == 'NIPPLE' ? 'product-type-badge--nipple' : 'product-type-badge--pipe'))}"
+                          th:text="${pt == 'NIPPLE' and order.pieceLengthMm != null
+                          ? 'Патрубок L-' + #numbers.formatInteger(order.pieceLengthMm, 0)
+                          : (pt == 'COUPLING' ? 'Муфта' : (pt == 'ADAPTER' ? 'Переводник' : (pt == 'PIPE' ? 'Труба' : (pt == 'NIPPLE' ? 'Патрубок' : '—'))))}">—
                     </span>
                 </div>
             </div>
 
             <div class="order-product">
+                <!-- Иконка: 4 цвета -->
                 <span class="product-icon-tile product-icon-tile--sm"
-                      th:classappend="${order.productType == 'COUPLING'} ? 'product-icon-tile--coupling'
-                          : (${order.productType == 'ADAPTER'} ? 'product-icon-tile--adapter'
-                          : 'product-icon-tile--pipe')">
+                      th:with="pt=${order.productType}"
+                      th:classappend="${pt == 'COUPLING' ? 'product-icon-tile--coupling' : (pt == 'ADAPTER' ? 'product-icon-tile--adapter' : (pt == 'NIPPLE' ? 'product-icon-tile--nipple' : 'product-icon-tile--pipe'))}">
                     <img class="product-icon-img"
-                         th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png}
-                             : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
-                             : @{/images/product-pipe.png})"
+                         th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png} : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png} : @{/images/product-pipe.png})"
                          alt="" aria-hidden="true">
                 </span>
-                <span th:text="${order.productName}">—</span>
+
+                <!-- Муфта — тултип -->
+                <span th:if="${order.productType == 'COUPLING'}"
+                      class="product-name-wrapper">
+                    <span class="product-tooltip"
+                          th:attr="data-id=${order.productId},
+                                   data-name=${order.productName},
+                                   data-type=${order.productVariantType},
+                                   data-diameter=${order.productVariantDiameter},
+                                   data-length=${order.productLengthMm != null ? order.productLengthMm : ''},
+                                   data-weight=${order.productWeightKg != null ? order.productWeightKg : ''},
+                                   data-outer-diameter=${order.productOuterDiameterMm != null ? order.productOuterDiameterMm : ''},
+                                   data-inner-diameter=${order.productInnerDiameterMm != null ? order.productInnerDiameterMm : ''},
+                                   data-cost=${order.productManufacturingCost != null ? order.productManufacturingCost : ''},
+                                   data-price=${order.productPriceForEmployee != null ? order.productPriceForEmployee : ''},
+                                   data-description=${order.productDescription != null ? order.productDescription : ''},
+                                   data-image=${order.productImagePath != null ? order.productImagePath : ''}"
+                          th:text="${order.productName}">—</span>
+                </span>
+
+                <!-- Переводник — тултип -->
+                <span th:if="${order.productType == 'ADAPTER'}"
+                      class="product-name-wrapper">
+                    <span class="product-tooltip"
+                          th:attr="data-id=${order.productId},
+                                   data-name=${order.productName},
+                                   data-first-type=${order.productAdapterFirstSideType},
+                                   data-first-diameter=${order.productAdapterFirstSideDiameter},
+                                   data-second-type=${order.productAdapterSecondSideType},
+                                   data-second-diameter=${order.productAdapterSecondSideDiameter},
+                                   data-length=${order.productLengthMm != null ? order.productLengthMm : ''},
+                                   data-weight=${order.productWeightKg != null ? order.productWeightKg : ''},
+                                   data-outer-diameter=${order.productOuterDiameterMm != null ? order.productOuterDiameterMm : ''},
+                                   data-inner-diameter=${order.productInnerDiameterMm != null ? order.productInnerDiameterMm : ''},
+                                   data-cost=${order.productManufacturingCost != null ? order.productManufacturingCost : ''},
+                                   data-price=${order.productPriceForEmployee != null ? order.productPriceForEmployee : ''},
+                                   data-description=${order.productDescription != null ? order.productDescription : ''},
+                                   data-image=${order.productImagePath != null ? order.productImagePath : ''}"
+                          th:text="${order.productName}">—</span>
+                </span>
+
+                <!-- Труба / патрубок — тултип -->
+                <span th:if="${order.productType == 'PIPE' or order.productType == 'NIPPLE'}"
+                      class="product-name-wrapper">
+                    <span class="product-tooltip"
+                          th:attr="data-pipe-kind=${order.productType},
+                                   data-name=${order.externalThreadName},
+                                   data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
+                                   data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
+                                   data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
+                                   data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
+                                   data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
+                                   data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
+                                   data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''}"
+                          th:text="${order.externalThreadName}">—</span>
+                </span>
             </div>
 
             <div class="order-meta">

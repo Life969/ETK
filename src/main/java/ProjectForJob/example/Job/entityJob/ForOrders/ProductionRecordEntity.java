@@ -118,11 +118,19 @@ public class ProductionRecordEntity {
         return BigDecimal.ZERO;
     }
 
-    /** Название изделия для отображения в таблице. */
+    /** Название изделия для отображения: "Муфта НКТ 73", "Патрубок НКТ 73 L-2000" и т.п. */
     public String getProductName() {
         if (coupling != null) return coupling.getName();
         if (adapter != null) return adapter.getFullName();
-        if (externalThread != null) return externalThread.getName();  // "НКТ 73"
+        if (externalThread != null) {
+            if (pipeProductKind == PipeProductKind.NIPPLE) {
+                String len = (pieceLengthMm != null)
+                        ? " L-" + pieceLengthMm.intValue()
+                        : "";
+                return "Патрубок " + externalThread.getName() + len;
+            }
+            return "Труба " + externalThread.getName();
+        }
         return "";
     }
 }

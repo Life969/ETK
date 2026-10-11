@@ -415,10 +415,9 @@ public class ProductionRecordMvcController {
             productName = "Муфта " + e.getCoupling().getName();
         } else if ("ADAPTER".equals(productType) && e.getAdapter() != null) {
             productName = "Переводник " + e.getAdapter().getFullName();
-        } else if ("PIPE".equals(productType) && e.getExternalThread() != null) {
-            productName = "Труба " + e.getExternalThread().getName();
-        } else if ("NIPPLE".equals(productType) && e.getExternalThread() != null) {
-            productName = "Патрубок " + e.getExternalThread().getName();
+        } else if (("PIPE".equals(productType) || "NIPPLE".equals(productType))
+                && e.getExternalThread() != null) {
+            productName = e.getProductName();
         }
 
         ProductionRecordListDto dto = new ProductionRecordListDto();

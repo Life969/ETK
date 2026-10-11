@@ -74,14 +74,18 @@ public class HomeController {
             item.put("record", record);
 
             String pt = record.getProductType();
-            item.put("productType", pt);          //
+            item.put("productType", pt);
+            item.put("pieceLength", record.getPieceLengthMm());   // для патрубка
 
             if ("COUPLING".equals(pt) && record.getCoupling() != null) {
                 item.put("product", record.getCoupling());
             } else if ("ADAPTER".equals(pt) && record.getAdapter() != null) {
                 item.put("product", record.getAdapter());
+            } else if (("PIPE".equals(pt) || "NIPPLE".equals(pt))
+                    && record.getExternalThread() != null) {
+                item.put("product", record.getExternalThread());   // ← ExternalThreadEntity
             } else {
-                item.put("product", null);        // PIPE / NIPPLE — продукт null
+                item.put("product", null);
             }
             recordsWithProducts.add(item);
         }
@@ -121,12 +125,19 @@ public class HomeController {
 
             Map<String, Object> item = new HashMap<>();
             item.put("order", dto);
-            item.put("productType", dto.getProductType());   // ← всегда
+            item.put("productType", dto.getProductType());
+            item.put("pieceLength", order.getPieceLengthMm());
+            item.put("wallThickness", order.getWallThicknessMm());
+            item.put("totalLength", order.getOrderTotalLengthMeters());
+            item.put("totalWeight", order.getOrderTotalWeightKg());
 
             if ("COUPLING".equals(dto.getProductType()) && order.getCoupling() != null) {
                 item.put("product", order.getCoupling());
             } else if ("ADAPTER".equals(dto.getProductType()) && order.getAdapter() != null) {
                 item.put("product", order.getAdapter());
+            } else if (("PIPE".equals(dto.getProductType()) || "NIPPLE".equals(dto.getProductType()))
+                    && order.getExternalThread() != null) {
+                item.put("product", order.getExternalThread());
             } else {
                 item.put("product", null);
             }

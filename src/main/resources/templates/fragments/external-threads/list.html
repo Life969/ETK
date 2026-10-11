@@ -4,103 +4,107 @@
 
 <div th:fragment="content" class="handbook-content">
 
-  <!-- ================= ЗАГОЛОВОК ================= -->
-  <header class="handbook-header">
-    <div class="handbook-title-wrap">
-      <h1 class="handbook-title">Наружные резьбы</h1>
-      <span class="handbook-count"
-            th:text="${totalThreads != null ? totalThreads : 0} + ' поз.'">0 поз.</span>
+    <!-- ================= ЗАГОЛОВОК ================= -->
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <h1 class="handbook-title">Наружные резьбы</h1>
+            <span class="handbook-count"
+                  th:text="${totalThreads != null ? totalThreads : 0} + ' поз.'">0 поз.</span>
+        </div>
+
+        <a th:href="@{/external-threads/new}"
+           data-turbo-frame="app"
+           class="btn-glass btn-glass-primary">
+            <i class="bi bi-plus-lg"></i> Добавить резьбу
+        </a>
+    </header>
+
+    <!-- ================= ПУСТО ================= -->
+    <div th:if="${groupedThreads == null or groupedThreads.isEmpty()}"
+         class="journal-empty">
+        <i class="bi bi-inbox"></i>
+        <span>Список резьб пуст</span>
     </div>
 
-    <a th:href="@{/external-threads/new}"
-       data-turbo-frame="app"
-       class="btn-glass btn-glass-primary">
-      <i class="bi bi-plus-lg"></i> Добавить резьбу
-    </a>
-  </header>
+    <!-- ================= АККОРДЕОН ПО ТИПУ ================= -->
+    <div class="hb-accordion"
+         th:unless="${groupedThreads == null or groupedThreads.isEmpty()}">
 
-  <!-- ================= ПУСТО ================= -->
-  <div th:if="${groupedThreads == null or groupedThreads.isEmpty()}"
-       class="journal-empty">
-    <i class="bi bi-inbox"></i>
-    <span>Список резьб пуст</span>
-  </div>
+        <div th:each="entry, iter : ${groupedThreads}" class="hb-accordion-item">
 
-  <!-- ================= АККОРДЕОН ПО ТИПУ ================= -->
-  <div class="hb-accordion"
-       th:unless="${groupedThreads == null or groupedThreads.isEmpty()}">
+            <button type="button"
+                    class="hb-accordion-toggle"
+                    th:classappend="${iter.index == 0} ? 'open' : ''"
+                    th:attr="data-target='et-body-' + ${iter.index}">
+                <i class="bi bi-chevron-right hb-chev"></i>
+                <span class="hb-accordion-name" th:text="${entry.key}">НКТ</span>
+                <span class="hb-accordion-count"
+                      th:text="${#lists.size(entry.value)} + ' поз.'">0 поз.</span>
+            </button>
 
-    <div th:each="entry, iter : ${groupedThreads}" class="hb-accordion-item">
+            <div class="hb-accordion-body"
+                 th:classappend="${iter.index == 0} ? 'open' : ''"
+                 th:id="'et-body-' + ${iter.index}">
 
-      <button type="button"
-              class="hb-accordion-toggle"
-              th:classappend="${iter.index == 0} ? 'open' : ''"
-              th:attr="data-target='et-body-' + ${iter.index}">
-        <i class="bi bi-chevron-right hb-chev"></i>
-        <span class="hb-accordion-name" th:text="${entry.key}">НКТ</span>
-        <span class="hb-accordion-count"
-              th:text="${#lists.size(entry.value)} + ' поз.'">0 поз.</span>
-      </button>
-
-      <div class="hb-accordion-body"
-           th:classappend="${iter.index == 0} ? 'open' : ''"
-           th:id="'et-body-' + ${iter.index}">
-
-        <table class="journal-table hb-table">
-          <thead>
-          <tr>
-            <th>Обозначение</th>
-            <th>Цена изготовления, ₽</th>
-            <th>Цена работнику, ₽</th>
-            <th>ГОСТ</th>
-            <th></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="t : ${entry.value}">
-            <td>
+                <table class="journal-table hb-table">
+                    <thead>
+                    <tr>
+                        <th>Обозначение</th>
+                        <th>Цена изготовления, ₽</th>
+                        <th>Цена работнику, ₽</th>
+                        <th>ГОСТ</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${entry.value}">
+                        <td>
                             <span class="product-name-wrapper">
                                 <span class="product-tooltip"
                                       th:attr="data-id=${t.id},
-                                               data-name=${t.name},
-                                               data-type=${t.type},
-                                               data-diameter=${t.conditionalDiameter},
-                                               data-cost=${t.manufacturingCost != null ? t.manufacturingCost : ''},
-                                               data-price=${t.priceForEmployee != null ? t.priceForEmployee : ''},
-                                               data-description=${t.description != null ? t.description : ''},
-                                               data-image=${t.imagePath != null ? t.imagePath : ''}"
-                                      th:text="${t.name}">НКТ 73</span>
-                            </span>
-            </td>
-            <td th:text="${t.manufacturingCost}">—</td>
-            <td th:text="${t.priceForEmployee}">—</td>
-            <td th:text="${t.standart}">—</td>
-            <td>
-              <div class="hb-actions">
-                <a th:href="@{/external-threads/edit/{id}(id=${t.id})}"
-                   data-turbo-frame="app"
-                   class="hb-icon-btn"
-                   title="Редактировать">
-                  <i class="bi bi-pencil"></i>
-                </a>
+                                       data-name=${t.name},
+                                       data-type=${t.type},
+                                       data-pipe-kind='THREAD',
+                                       data-conditional-diameter=${t.conditionalDiameter},
+                                       data-standart=${t.standart != null ? t.standart : ''},
+                                       data-cost=${t.manufacturingCost != null ? t.manufacturingCost : ''},
+                                       data-price=${t.priceForEmployee != null ? t.priceForEmployee : ''},
+                                       data-description=${t.description != null ? t.description : ''},
+                                       data-image=${t.imagePath != null ? t.imagePath : ''}"
+                                      th:text="${t.name}">НКТ 73
+                                </span>
 
-                <form th:action="@{/external-threads/delete/{id}(id=${t.id})}"
-                      method="post" class="m-0">
-                  <button type="submit"
-                          class="hb-icon-btn hb-icon-btn-danger"
-                          title="Удалить"
-                          onclick="return confirm('Удалить резьбу?');">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </form>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+                            </span>
+                        </td>
+                        <td th:text="${t.manufacturingCost}">—</td>
+                        <td th:text="${t.priceForEmployee}">—</td>
+                        <td th:text="${t.standart}">—</td>
+                        <td>
+                            <div class="hb-actions">
+                                <a th:href="@{/external-threads/edit/{id}(id=${t.id})}"
+                                   data-turbo-frame="app"
+                                   class="hb-icon-btn"
+                                   title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <form th:action="@{/external-threads/delete/{id}(id=${t.id})}"
+                                      method="post" class="m-0">
+                                    <button type="submit"
+                                            class="hb-icon-btn hb-icon-btn-danger"
+                                            title="Удалить"
+                                            onclick="return confirm('Удалить резьбу?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
 
 </div>
 

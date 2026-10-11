@@ -71,6 +71,15 @@ public class OrderEntity {
     public String getProductName() {
         if (coupling != null) return coupling.getName();
         if (adapter != null) return adapter.getFullName();
+        if (externalThread != null) {
+            if (pipeProductKind == PipeProductKind.NIPPLE) {
+                String len = (pieceLengthMm != null)
+                        ? " L-" + pieceLengthMm.intValue()
+                        : "";
+                return "Патрубок " + externalThread.getName() + len;
+            }
+            return "Труба " + externalThread.getName();
+        }
         return "";
     }
 
@@ -98,42 +107,58 @@ public class OrderEntity {
     // Трубы и патрубки
     // ================================================================
 
-    /** Наружная резьба. Nullable: null для муфт и переводников. */
+    /**
+     * Наружная резьба. Nullable: null для муфт и переводников.
+     */
     @ManyToOne
     @JoinColumn(name = "external_thread_id")
     private ExternalThreadEntity externalThread;
 
-    /** PIPE / NIPPLE. Nullable: null для муфт и переводников. */
+    /**
+     * PIPE / NIPPLE. Nullable: null для муфт и переводников.
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "pipe_product_kind")
     private PipeProductKind pipeProductKind;
 
-    /** Толщина стенки, мм. Задаётся в заказе. */
+    /**
+     * Толщина стенки, мм. Задаётся в заказе.
+     */
     @Positive
     @Column(name = "wall_thickness_mm")
     private Double wallThicknessMm;
 
-    /** Средняя длина одной трубы, м. Дефолт 10. Только для PIPE. */
+    /**
+     * Средняя длина одной трубы, м. Дефолт 10. Только для PIPE.
+     */
     @Positive
     @Column(name = "average_pipe_length_m")
     private Double averagePipeLengthM;
 
-    /** Общая длина заказа, м. Для PIPE и NIPPLE. */
+    /**
+     * Общая длина заказа, м. Для PIPE и NIPPLE.
+     */
     @Positive
     @Column(name = "order_total_length_m")
     private Double orderTotalLengthMeters;
 
-    /** Общий вес заказа, кг. Для PIPE и NIPPLE. */
+    /**
+     * Общий вес заказа, кг. Для PIPE и NIPPLE.
+     */
     @Positive
     @Column(name = "order_total_weight_kg")
     private Double orderTotalWeightKg;
 
-    /** Цена за 1 тонну металла, ₽. Вводит менеджер. */
+    /**
+     * Цена за 1 тонну металла, ₽. Вводит менеджер.
+     */
     @DecimalMin(value = "0.0", inclusive = false)
     @Column(name = "price_per_ton", precision = 12, scale = 2)
     private BigDecimal pricePerTon;
 
-    /** Длина одной штуки, мм. Только для NIPPLE. */
+    /**
+     * Длина одной штуки, мм. Только для NIPPLE.
+     */
     @Positive
     @Column(name = "piece_length_mm")
     private Double pieceLengthMm;

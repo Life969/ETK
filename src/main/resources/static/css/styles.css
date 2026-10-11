@@ -5437,3 +5437,113 @@ body.lights-on .lamp-glow-2 {
     }
 }
 
+/* ==========================================
+   PRODUCT-TYPE-BADGE — pill-бейдж редкости
+   ========================================== */
+
+.product-type-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    align-self: flex-start;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.product-type-badge--coupling {
+    background: rgba(163, 53, 238, 0.22);
+    color: #d9a8ff;
+    border: 1px solid rgba(163, 53, 238, 0.55);
+}
+
+.product-type-badge--adapter {
+    background: rgba(255, 128, 0, 0.22);
+    color: #ffbb7c;
+    border: 1px solid rgba(255, 128, 0, 0.55);
+}
+
+.product-type-badge--pipe {
+    background: rgba(30, 255, 0, 0.18);
+    color: #b8ffb0;
+    border: 1px solid rgba(30, 255, 0, 0.45);
+}
+
+.product-type-badge--nipple {
+    background: rgba(0, 112, 221, 0.22);
+    color: #9bcaff;
+    border: 1px solid rgba(0, 112, 221, 0.55);
+}
+
+/* ==========================================
+   DJ-ICON — добавочные цвета: зелёный (труба), синий (патрубок)
+   ========================================== */
+
+.dj-icon--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.20),
+    rgba(20, 170, 0, 0.08));
+    border: 1px solid rgba(30, 255, 0, 0.45);
+    box-shadow:
+            inset 0 0 10px rgba(30, 255, 0, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.dj-icon--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 112, 221, 0.24),
+    rgba(0, 60, 130, 0.10));
+    border: 1px solid rgba(0, 112, 221, 0.55);
+    box-shadow:
+            inset 0 0 10px rgba(0, 112, 221, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.dashboard-journal-entry:hover .dj-icon--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.40),
+    rgba(20, 200, 0, 0.20));
+    border-color: rgba(80, 255, 60, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(30, 255, 0, 0.40),
+            0 0 16px rgba(30, 255, 0, 0.45);
+}
+
+.dashboard-journal-entry:hover .dj-icon--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 140, 255, 0.45),
+    rgba(0, 80, 180, 0.22));
+    border-color: rgba(120, 190, 255, 0.90);
+    box-shadow:
+            inset 0 0 14px rgba(0, 140, 255, 0.45),
+            0 0 20px rgba(0, 112, 221, 0.60);
+}
+
+/* ==========================================
+   PRODUCT-ICON-TILE — синий вариант для патрубка
+   ========================================== */
+
+.product-icon-tile--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 112, 221, 0.24),
+    rgba(0, 60, 130, 0.10));
+    border: 1px solid rgba(0, 112, 221, 0.55);
+    box-shadow:
+            inset 0 0 10px rgba(0, 112, 221, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.urgent-card:hover .product-icon-tile--nipple,
+.journal-entry:hover .product-icon-tile--nipple,
+.order-card:hover .product-icon-tile--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 140, 255, 0.45),
+    rgba(0, 80, 180, 0.22));
+    border-color: rgba(120, 190, 255, 0.90);
+    box-shadow:
+            inset 0 0 14px rgba(0, 140, 255, 0.45),
+            0 0 20px rgba(0, 112, 221, 0.60);
+}

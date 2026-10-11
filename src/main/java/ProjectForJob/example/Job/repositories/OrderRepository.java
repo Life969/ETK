@@ -12,16 +12,32 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
-    @EntityGraph(attributePaths = {"company", "coupling", "adapter",
-            "additionalWorks", "externalThread", "strengthGroup", "steelGrade"})
+    @EntityGraph(attributePaths = {"company",
+            "coupling",
+            "adapter",
+            "additionalWorks",
+            "externalThread",
+            "strengthGroup",
+            "steelGrade"})
     Page<OrderEntity> findByStatusOrderByCreatedAtDesc(OrderStatus status, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks",
-            "externalThread", "strengthGroup", "steelGrade"})
+    @EntityGraph(attributePaths = {"company",
+            "coupling",
+            "adapter",
+            "additionalWorks",
+            "externalThread",
+            "strengthGroup",
+            "steelGrade"})
     Optional<OrderEntity> findById(Long id);
 
-    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks",
-            "strengthGroup", "steelGrade"})
+    @EntityGraph(attributePaths = {
+            "company",
+            "coupling",
+            "adapter",
+            "additionalWorks",
+            "externalThread",
+            "strengthGroup",
+            "steelGrade"})
     Page<OrderEntity> findByStatusAndCompanyNameContainingIgnoreCaseOrderByCreatedAtDesc(
             OrderStatus status, String companyName, Pageable pageable);
 
@@ -29,7 +45,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
      * Для срочных заказов на главной — HomeOrderDto не показывает группу/марку,
      * поэтому здесь дополнительных join'ов нет.
      */
-    @EntityGraph(attributePaths = {"company", "coupling", "adapter"})
+    @EntityGraph(attributePaths = {
+            "company",
+            "coupling",
+            "adapter",
+            "externalThread"
+    })
     List<OrderEntity> findByStatusAndDeadlineIsNotNullOrderByDeadlineAsc(OrderStatus status);
 
     /**
@@ -37,6 +58,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
      * напрямую и показывает только company/количество/сумму.
      * Группа/марка тут не нужны, оставляем как было.
      */
-    @EntityGraph(attributePaths = {"company", "coupling", "adapter", "additionalWorks"})
+    @EntityGraph(attributePaths = {"company",
+            "coupling",
+            "adapter",
+            "additionalWorks"})
     List<OrderEntity> findByIdIn(List<Long> ids);
 }

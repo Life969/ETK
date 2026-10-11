@@ -27,14 +27,11 @@
                  class="urgent-card"
                  th:classappend="${item.order.urgencyClass}">
 
-                <!-- Бейдж типа: 4 варианта -->
-                <span class="urgent-badge"
-                      th:text="${item.productType == 'COUPLING'} ? 'Муфта'
-                               : (${item.productType == 'ADAPTER'} ? 'Переводник'
-                               : (${item.productType == 'PIPE'} ? 'Труба'
-                               : (${item.productType == 'NIPPLE'} ? 'Патрубок' : '—')))">
-                    Муфта
-                </span>
+                <!-- Pill-бейдж типа продукции -->
+                <span class="product-type-badge"
+                      th:with="pt=${item.productType}"
+                      th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling' : (pt == 'ADAPTER' ? 'product-type-badge--adapter' : (pt == 'NIPPLE' ? 'product-type-badge--nipple' : 'product-type-badge--pipe'))}"
+                      th:text="${pt == 'NIPPLE' and item.pieceLength != null ? 'Патрубок L-' + #numbers.formatInteger(item.pieceLength, 0) : (pt == 'COUPLING' ? 'Муфта' : (pt == 'ADAPTER' ? 'Переводник' : (pt == 'PIPE' ? 'Труба' : (pt == 'NIPPLE' ? 'Патрубок' : '—'))))}">—</span>
 
                 <a class="urgent-company"
                    data-turbo-frame="app"
@@ -42,19 +39,12 @@
                    th:text="${item.order.companyName}">Компания</a>
 
                 <div class="urgent-product">
-                    <!-- Иконка: 3 цвета -->
+                    <!-- Иконка: 4 цвета -->
                     <span class="product-icon-tile product-icon-tile--sm"
-                          th:classappend="${item.productType == 'COUPLING'}
-                              ? 'product-icon-tile--coupling'
-                              : (${item.productType == 'ADAPTER'}
-                                  ? 'product-icon-tile--adapter'
-                                  : 'product-icon-tile--pipe')">
+                          th:with="pt=${item.productType}"
+                          th:classappend="${pt == 'COUPLING' ? 'product-icon-tile--coupling' : (pt == 'ADAPTER' ? 'product-icon-tile--adapter' : (pt == 'NIPPLE' ? 'product-icon-tile--nipple' : 'product-icon-tile--pipe'))}">
                         <img class="product-icon-img"
-                             th:src="${item.productType == 'COUPLING'}
-                                 ? @{/images/product-coupling.png}
-                                 : (${item.productType == 'ADAPTER'}
-                                     ? @{/images/product-adapter.png}
-                                     : @{/images/product-pipe.png})"
+                             th:src="${item.productType == 'COUPLING'} ? @{/images/product-coupling.png} : (${item.productType == 'ADAPTER'} ? @{/images/product-adapter.png} : @{/images/product-pipe.png})"
                              alt="" aria-hidden="true">
                     </span>
 
@@ -98,7 +88,25 @@
                               th:text="${item.product.fullName}">—</span>
                     </span>
 
-                    <!-- Fallback: труба/патрубок, или пустой продукт -->
+                    <!-- ТРУБА / ПАТРУБОК — тултип -->
+                    <span th:if="${item.product != null and (item.productType == 'PIPE' or item.productType == 'NIPPLE')}"
+                          class="product-name-wrapper">
+                        <span class="product-tooltip"
+                              th:attr="data-name=${item.product.name},
+                                       data-pipe-kind=${item.productType},
+                                       data-conditional-diameter=${item.product.conditionalDiameter != null ? item.product.conditionalDiameter : ''},
+                                       data-piece-length=${item.pieceLength != null ? item.pieceLength : ''},
+                                       data-wall-thickness=${item.wallThickness != null ? item.wallThickness : ''},
+                                       data-total-length=${item.totalLength != null ? item.totalLength : ''},
+                                       data-total-weight=${item.totalWeight != null ? item.totalWeight : ''},
+                                       data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                       data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                       data-description=${item.product.description != null ? item.product.description : ''},
+                                       data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                              th:text="${item.product.name}">—</span>
+                    </span>
+
+                    <!-- Fallback -->
                     <span th:if="${item.product == null}" th:text="${item.order.productName}"></span>
                 </div>
 
@@ -107,7 +115,6 @@
                         <strong th:text="${item.order.quantity}">0</strong> шт.
                     </span>
 
-                    <!-- Дедлайн + остаток дней -->
                     <span class="urgent-deadline-group" th:if="${item.order.deadline != null}">
                         <span class="urgent-deadline"
                               th:title="'Дедлайн: ' + ${#temporals.format(item.order.deadline, 'dd.MM.yyyy')}">
@@ -119,7 +126,6 @@
                         </span>
                     </span>
 
-                    <!-- Если дедлайна нет -->
                     <span class="urgent-no-deadline" th:if="${item.order.deadline == null}">
                         без дедлайна
                     </span>
@@ -147,27 +153,25 @@
                      th:with="record=${item.record}"
                      class="dashboard-journal-entry">
 
-                <!-- Тип изделия — иконка: 3 цвета -->
+                <!-- Иконка: 4 цвета -->
                 <span class="dj-icon"
-                      th:classappend="${item.productType == 'COUPLING'}
-                          ? 'dj-icon--coupling'
-                          : (${item.productType == 'ADAPTER'}
-                              ? 'dj-icon--adapter'
-                              : 'product-icon-tile--pipe')">
+                      th:with="pt=${item.productType}"
+                      th:classappend="${pt == 'COUPLING' ? 'dj-icon--coupling' : (pt == 'ADAPTER' ? 'dj-icon--adapter' : (pt == 'NIPPLE' ? 'dj-icon--nipple' : 'dj-icon--pipe'))}">
                     <img class="dj-icon-img"
-                         th:src="${item.productType == 'COUPLING'}
-                             ? @{/images/product-coupling.png}
-                             : (${item.productType == 'ADAPTER'}
-                                 ? @{/images/product-adapter.png}
-                                 : @{/images/product-pipe.png})"
+                         th:src="${item.productType == 'COUPLING'} ? @{/images/product-coupling.png} : (${item.productType == 'ADAPTER'} ? @{/images/product-adapter.png} : @{/images/product-pipe.png})"
                          alt="" aria-hidden="true">
                 </span>
 
-                <!-- Тело -->
                 <div class="dj-body">
                     <div class="dj-head">
 
-                        <!-- МУФТА -->
+                        <!-- Pill-бейдж -->
+                        <span class="product-type-badge"
+                              th:with="pt=${item.productType}"
+                              th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling' : (pt == 'ADAPTER' ? 'product-type-badge--adapter' : (pt == 'NIPPLE' ? 'product-type-badge--nipple' : 'product-type-badge--pipe'))}"
+                              th:text="${pt == 'NIPPLE' and item.pieceLength != null ? 'Патрубок L-' + #numbers.formatInteger(item.pieceLength, 0) : (pt == 'COUPLING' ? 'Муфта' : (pt == 'ADAPTER' ? 'Переводник' : (pt == 'PIPE' ? 'Труба' : (pt == 'NIPPLE' ? 'Патрубок' : '—'))))}">—</span>
+
+                        <!-- МУФТА — тултип -->
                         <span th:if="${item.product != null and item.productType == 'COUPLING'}"
                               class="product-name-wrapper">
                             <span class="product-tooltip"
@@ -186,7 +190,7 @@
                                   th:text="${item.product.name}">—</span>
                         </span>
 
-                        <!-- ПЕРЕВОДНИК -->
+                        <!-- ПЕРЕВОДНИК — тултип -->
                         <span th:if="${item.product != null and item.productType == 'ADAPTER'}"
                               class="product-name-wrapper">
                             <span class="product-tooltip"
@@ -207,12 +211,26 @@
                                   th:text="${item.product.fullName}">—</span>
                         </span>
 
-                        <!-- Fallback: труба/патрубок, или пустой продукт -->
+                        <!-- ТРУБА / ПАТРУБОК — тултип -->
+                        <span th:if="${item.product != null and (item.productType == 'PIPE' or item.productType == 'NIPPLE')}"
+                              class="product-name-wrapper">
+                            <span class="product-tooltip"
+                                  th:attr="data-name=${item.product.name},
+                                           data-pipe-kind=${item.productType},
+                                           data-conditional-diameter=${item.product.conditionalDiameter != null ? item.product.conditionalDiameter : ''},
+                                           data-piece-length=${item.pieceLength != null ? item.pieceLength : ''},
+                                           data-cost=${item.product.manufacturingCost != null ? item.product.manufacturingCost : ''},
+                                           data-price=${item.product.priceForEmployee != null ? item.product.priceForEmployee : ''},
+                                           data-description=${item.product.description != null ? item.product.description : ''},
+                                           data-image=${item.product.imagePath != null ? item.product.imagePath : ''}"
+                                  th:text="${item.product.name}">—</span>
+                        </span>
+
+                        <!-- Fallback -->
                         <span th:if="${item.product == null}"
                               class="dj-product-plain"
                               th:text="${record.productName}">—</span>
 
-                        <!-- Кол-во -->
                         <span class="dj-qty" th:text="'× ' + ${record.quantity}">× 0</span>
                     </div>
 
@@ -229,7 +247,6 @@
                     </div>
                 </div>
 
-                <!-- Дата справа -->
                 <div class="dj-date-block" th:if="${record.createdAt != null}">
                     <span class="dj-date"
                           th:text="${#temporals.format(record.createdAt, 'dd.MM.yyyy')}">—</span>

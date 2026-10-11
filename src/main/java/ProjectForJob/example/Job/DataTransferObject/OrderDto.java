@@ -33,7 +33,7 @@ public class OrderDto {
 
     // Трубы и патрубки и резьбы к ним
     private Long externalThreadId;
-    private String externalThreadName;           // "НКТ 73"
+    private String externalThreadName;
     private String pipeProductKind;
     private Double wallThicknessMm;
     private Double averagePipeLengthM;
@@ -42,8 +42,9 @@ public class OrderDto {
     private BigDecimal pricePerTon;
     private Double pieceLengthMm;
 
-    private String externalThreadDiameter;       // "73" — для тултипа
-    private BigDecimal externalThreadManufacturingCost;  // цена 1 нарезки — для тултипа
+    private String externalThreadDiameter;
+    private BigDecimal externalThreadManufacturingCost;
+    private BigDecimal externalThreadPriceForEmployee;
 
 
 
@@ -54,6 +55,28 @@ public class OrderDto {
     private Long steelGradeId;
     private String steelGradeName;
     private BigDecimal appliedMarkupPercent;
+
+    // === Расширенные данные для tooltip (из справочников продуктов) ===
+
+    // Муфта / переводник — данные справочника
+    private String productVariantType;
+    private String productVariantDiameter;
+    private Double productLengthMm;
+    private Double productWeightKg;
+    private Double productOuterDiameterMm;
+    private Double productInnerDiameterMm;
+    private String productImagePath;
+    private String productDescription;
+    private BigDecimal productManufacturingCost;
+    private BigDecimal productPriceForEmployee;
+
+    // Переводник — обе стороны
+    private String productAdapterFirstSideType;
+    private String productAdapterFirstSideDiameter;
+    private String productAdapterSecondSideType;
+    private String productAdapterSecondSideDiameter;
+
+
 
     public String getWorkpieceDescription() {
         if (workpieceOuterDiameter == null || workpieceWallThickness == null
