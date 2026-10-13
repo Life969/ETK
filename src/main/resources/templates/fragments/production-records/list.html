@@ -51,9 +51,9 @@
                     <select id="filterProductType" name="productType">
                         <option value="">Все</option>
                         <option value="COUPLING" th:selected="${selectedProductType == 'COUPLING'}">Муфта</option>
-                        <option value="ADAPTER"  th:selected="${selectedProductType == 'ADAPTER'}">Переводник</option>
-                        <option value="PIPE"     th:selected="${selectedProductType == 'PIPE'}">Труба</option>
-                        <option value="NIPPLE"   th:selected="${selectedProductType == 'NIPPLE'}">Патрубок</option>
+                        <option value="ADAPTER" th:selected="${selectedProductType == 'ADAPTER'}">Переводник</option>
+                        <option value="PIPE" th:selected="${selectedProductType == 'PIPE'}">Труба</option>
+                        <option value="NIPPLE" th:selected="${selectedProductType == 'NIPPLE'}">Патрубок</option>
                     </select>
                 </div>
 
@@ -182,15 +182,31 @@
             <!-- Тело -->
             <div class="journal-entry-body">
                 <div class="journal-entry-head">
+                    <!-- Иконка: 4 цвета -->
                     <span class="product-icon-tile product-icon-tile--lg"
-                          th:classappend="${rec.productType == 'COUPLING'} ? 'product-icon-tile--coupling'
-                              : (${rec.productType == 'ADAPTER'} ? 'product-icon-tile--adapter'
-                              : 'product-icon-tile--pipe')">
+                          th:with="pt=${rec.productType}"
+                          th:classappend="${pt == 'COUPLING' ? 'product-icon-tile--coupling'
+                              : (pt == 'ADAPTER' ? 'product-icon-tile--adapter'
+                              : (pt == 'NIPPLE' ? 'product-icon-tile--nipple'
+                              : 'product-icon-tile--pipe'))}">
                         <img class="product-icon-img"
-                             th:src="${rec.productType == 'COUPLING'} ? @{/images/product-coupling.png}
-                                 : (${rec.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
-                                 : @{/images/product-pipe.png})"
+                             th:src="${pt == 'COUPLING'} ? @{/images/product-coupling.png}
+                             : (${pt == 'ADAPTER'} ? @{/images/product-adapter.png}
+                             : @{/images/product-pipe.png})"
                              alt="" aria-hidden="true">
+                    </span>
+
+                    <!-- Pill-badge с цветом редкости и длиной патрубка -->
+                    <span class="product-type-badge"
+                          th:with="pt=${rec.productType}"
+                          th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling'
+                          : (pt == 'ADAPTER' ? 'product-type-badge--adapter'
+                          : (pt == 'NIPPLE' ? 'product-type-badge--nipple'
+                          : 'product-type-badge--pipe'))}"
+                                          th:text="${pt == 'COUPLING' ? 'Муфта'
+                          : (pt == 'ADAPTER' ? 'Переводник'
+                          : (pt == 'PIPE' ? 'Труба'
+                          : (pt == 'NIPPLE' ? 'Патрубок' : '—')))}">—
                     </span>
 
                     <span class="journal-entry-title" th:text="${rec.productName}">Название</span>
@@ -198,9 +214,15 @@
                 </div>
 
                 <div class="journal-entry-meta">
-                    <span><i class="bi bi-person"></i> <span th:text="${rec.employeeName}">Иванов И.И.</span></span>
+                    <span>
+                        <i class="bi bi-person"></i>
+                        <span th:text="${rec.employeeName}">Иванов И.И.</span>
+                    </span>
                     <span class="journal-meta-sep">•</span>
-                    <span><i class="bi bi-gear"></i> <span th:text="${rec.machineName}">Станок</span></span>
+                    <span>
+                        <i class="bi bi-gear"></i>
+                        <span th:text="${rec.machineName}">Станок</span>
+                    </span>
                     <span class="journal-meta-sep">•</span>
                     <span class="journal-entry-created"
                           th:text="${rec.createdAt != null ? #temporals.format(rec.createdAt, 'dd.MM.yyyy HH:mm') : ''}"></span>

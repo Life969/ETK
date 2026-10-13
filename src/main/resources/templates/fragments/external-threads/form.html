@@ -80,9 +80,15 @@
       </div>
 
       <div class="hb-field hb-field-full">
-        <label for="imagePath">Путь к картинке</label>
-        <input type="text" id="imagePath" th:field="*{imagePath}"
-               placeholder="/images/thread-nkt-73.png"/>
+        <label for="imageFileInput">Фото резьбы (jpg, png, gif, до 5 МБ)</label>
+        <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/gif"/>
+        <input type="hidden" id="imageBase64" name="imageBase64"/>
+
+        <div th:if="${externalThread.imagePath != null and !externalThread.imagePath.isEmpty()}"
+             class="hb-image-preview">
+          <img th:src="@{${externalThread.imagePath}}" alt="Текущее фото"/>
+          <p>Текущее фото. Загрузите новое, чтобы заменить.</p>
+        </div>
       </div>
 
     </div>

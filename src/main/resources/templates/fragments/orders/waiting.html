@@ -12,7 +12,8 @@
         </div>
         <div class="orders-nav-btns">
             <a class="btn-glass btn-glass-primary" data-turbo-frame="app" th:href="@{/orders/create}">
-                <i class="bi bi-plus-circle"></i> Создать заказ
+                <img class="btn-leaf-icon" src="/images/red_leaf.png" alt="" aria-hidden="true">
+                Создать заказ
             </a>
             <a class="btn-glass btn-glass-primary" data-turbo-frame="app" th:href="@{/orders/production}">
                 <i class="bi bi-wrench"></i> В производство
@@ -55,7 +56,8 @@
     <div class="orders-grid" th:unless="${#lists.isEmpty(waitingItems)}">
         <div th:each="item : ${waitingItems}"
              th:with="order=${item['order']}"
-             class="order-card">
+             class="order-card"
+             th:attr="data-order-href=@{/orders/{id}(id=${order.id})}">
 
             <div class="order-card-head">
                 <div class="order-card-head-left">
@@ -107,6 +109,7 @@
                                    data-price=${item['product'].priceForEmployee != null ? item['product'].priceForEmployee : ''},
                                    data-description=${item['product'].description != null ? item['product'].description : ''},
                                    data-image=${item['product'].imagePath != null ? item['product'].imagePath : ''}"
+
                           th:text="${item['product'].name}">—</span>
                 </span>
 
@@ -136,14 +139,15 @@
                       class="product-name-wrapper">
                     <span class="product-tooltip"
                           th:attr="data-pipe-kind=${order.productType},
-                                   data-name=${order.externalThreadName},
-                                   data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
-                                   data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
-                                   data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
-                                   data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
-                                   data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
-                                   data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
-                                   data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''}"
+               data-name=${order.externalThreadName},
+               data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
+               data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
+               data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
+               data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
+               data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
+               data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
+               data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''},
+               data-image=${order.externalThreadImagePath != null ? order.externalThreadImagePath : ''}"
                           th:text="${order.externalThreadName}">—</span>
                 </span>
 

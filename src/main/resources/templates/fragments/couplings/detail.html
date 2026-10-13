@@ -15,6 +15,13 @@
             </h1>
         </div>
         <div class="hb-actions-row">
+            <button type="button"
+                    class="btn-glass btn-glass-info"
+                    id="drawingToggle"
+                    th:if="${coupling.drawingPath != null and !coupling.drawingPath.isEmpty()}">
+                <i class="bi bi-rulers"></i> Чертёж
+            </button>
+
             <a th:href="@{/couplings/edit/{id}(id=${coupling.id})}"
                data-turbo-frame="app" class="btn-glass btn-glass-primary">
                 <i class="bi bi-pencil"></i> Редактировать
@@ -28,6 +35,7 @@
         </div>
     </header>
 
+    <!-- ─── Карточка с характеристиками ─── -->
     <div class="hb-detail">
 
         <div class="hb-detail-image"
@@ -79,6 +87,62 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ВОТ СЮДА — БЛОК ЧЕРТЕЖА.
+         Он идёт после .hb-detail, отдельной карточкой.
+         По умолчанию свёрнут (max-height: 0 в CSS),
+         раскрывается по клику на кнопку "Чертёж" в шапке.
+         ═══════════════════════════════════════════════════════ -->
+    <div class="hb-drawing-panel"
+         id="drawingPanel"
+         th:if="${coupling.drawingPath != null and !coupling.drawingPath.isEmpty()}">
+
+        <div class="hb-drawing-panel-head">
+            <div class="hb-drawing-panel-title">
+                <i class="bi bi-rulers"></i>
+                <span>Чертёж</span>
+                <span class="hb-drawing-filename"
+                      th:text="${coupling.drawingOriginalName}">file.pdf</span>
+            </div>
+            <div class="hb-drawing-actions">
+                <a th:href="@{/couplings/{id}/drawing/download(id=${coupling.id})}"
+                   class="hb-icon-btn"
+                   title="Скачать">
+                    <i class="bi bi-download"></i>
+                </a>
+
+                <form th:action="@{/couplings/{id}/drawing/delete(id=${coupling.id})}"
+                      method="post"
+                      onsubmit="return confirm('Удалить чертёж?');"
+                      style="display:inline">
+                    <button type="submit"
+                            class="hb-icon-btn hb-icon-btn-danger"
+                            title="Удалить">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="hb-drawing-viewport">
+
+            <!-- PDF — нативный вьюер браузера -->
+            <div th:if="${#strings.endsWith(coupling.drawingPath, '.pdf')}"
+                 class="hb-drawing-pdf-wrap">
+                <iframe th:src="@{${coupling.drawingPath}}"
+                        class="hb-drawing-pdf"
+                        title="Чертёж PDF"></iframe>
+            </div>
+
+            <!-- Изображение — кликабельно, лайтбокс через drawing-viewer.js -->
+            <img th:unless="${#strings.endsWith(coupling.drawingPath, '.pdf')}"
+                 th:src="@{${coupling.drawingPath}}"
+                 class="hb-drawing-image"
+                 th:attr="data-drawing-src=@{${coupling.drawingPath}}"
+                 alt="Чертёж муфты"/>
+        </div>
     </div>
 
 </div>

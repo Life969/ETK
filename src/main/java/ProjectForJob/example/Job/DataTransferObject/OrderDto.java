@@ -45,6 +45,7 @@ public class OrderDto {
     private String externalThreadDiameter;
     private BigDecimal externalThreadManufacturingCost;
     private BigDecimal externalThreadPriceForEmployee;
+    private String externalThreadImagePath;
 
 
 

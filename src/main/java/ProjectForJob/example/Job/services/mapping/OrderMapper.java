@@ -82,6 +82,7 @@ public class OrderMapper {
             dto.setExternalThreadName(t.getName());
             dto.setExternalThreadDiameter(t.getConditionalDiameter());
             dto.setExternalThreadManufacturingCost(t.getManufacturingCost());
+            dto.setExternalThreadImagePath(t.getImagePath());
         }
         if (order.getPipeProductKind() != null) {
             dto.setPipeProductKind(order.getPipeProductKind().name());

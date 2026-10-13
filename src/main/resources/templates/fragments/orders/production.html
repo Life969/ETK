@@ -34,7 +34,9 @@
     </div>
 
     <div class="orders-grid" th:unless="${#lists.isEmpty(ordersPage.content)}">
-        <div th:each="order : ${ordersPage.content}" class="order-card">
+        <div th:each="order : ${ordersPage.content}"
+             class="order-card"
+             th:attr="data-order-href=@{/orders/{id}(id=${order.id})}">
 
             <div class="order-card-head">
                 <div class="order-card-head-left">
@@ -107,14 +109,15 @@
                       class="product-name-wrapper">
                     <span class="product-tooltip"
                           th:attr="data-pipe-kind=${order.productType},
-                                   data-name=${order.externalThreadName},
-                                   data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
-                                   data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
-                                   data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
-                                   data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
-                                   data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
-                                   data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
-                                   data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''}"
+               data-name=${order.externalThreadName},
+               data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
+               data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
+               data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
+               data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
+               data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
+               data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
+               data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''},
+               data-image=${order.externalThreadImagePath != null ? order.externalThreadImagePath : ''}"
                           th:text="${order.externalThreadName}">—</span>
                 </span>
             </div>

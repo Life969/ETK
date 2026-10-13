@@ -286,7 +286,7 @@ html, body {
 
 .smoke-container {
     position: absolute;
-    top: 9%;
+    top: 15%;
     left: 55%;
     width: 3vw;
     height: 3vw;
@@ -577,8 +577,8 @@ html, body {
 .barrel-water {
     width: 4.1vw;
     height: 0.73vw;
-    top: 83%;
-    left: 92.2%;
+    top: 77.9%;
+    left: 92.5%;
     transform: translate(-50%, -50%);
     animation-duration: 28s;
     animation-delay: 0s;
@@ -589,8 +589,8 @@ html, body {
 .bucket-water {
     width: 2.36vw;
     height: 0.78vw;
-    top: 93%;
-    left: 88.6%;
+    top: 86.3%;
+    left: 88.8%;
     transform: translate(-50%, -50%);
     animation-duration: 28s;
     animation-delay: -27s; /* сдвиг цикла, чтобы рябь пришла на секунду позже */
@@ -1741,6 +1741,8 @@ body.lights-on .lamp-glow-2 {
     border-radius: 4px;
 }
 
+
+
 /* ==========================================
    HOME CONTENT
    ========================================== */
@@ -2163,543 +2165,7 @@ body.lights-on .lamp-glow-2 {
 }
 
 
-/* ==========================================
-   СПРАВОЧНИКИ — общий стиль
-   ========================================== */
 
-.handbook-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.handbook-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.handbook-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.handbook-title {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 300;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #f5f1e8;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-}
-
-.handbook-count {
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(240, 230, 208, 0.5);
-    padding: 4px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-}
-
-.hb-actions-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-/* Кнопки в стиле стекла */
-.btn-glass {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    text-decoration: none;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-}
-
-.btn-glass-primary {
-    background: linear-gradient(135deg, rgba(230, 126, 34, 0.9), rgba(200, 90, 20, 0.9));
-    color: #fff;
-    border-color: rgba(255, 200, 130, 0.4);
-    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.35);
-}
-
-.btn-glass-primary:hover {
-    background: linear-gradient(135deg, rgba(240, 140, 50, 1), rgba(210, 100, 25, 1));
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(230, 126, 34, 0.5);
-}
-
-.btn-glass-danger {
-    background: rgba(192, 57, 43, 0.5);
-    color: #ffb0a0;
-    border-color: rgba(231, 76, 60, 0.5);
-}
-
-.btn-glass-danger:hover {
-    background: rgba(192, 57, 43, 0.75);
-    color: #fff;
-}
-
-.btn-glass-ghost {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(240, 230, 208, 0.8);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.btn-glass-ghost:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffd966;
-}
-
-/* Мелкие иконки-кнопки в таблицах */
-.hb-icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: rgba(240, 230, 208, 0.7);
-    text-decoration: none;
-    transition: all 0.2s ease;
-    font-size: 14px;
-}
-
-.hb-icon-btn:hover {
-    background: rgba(230, 126, 34, 0.22);
-    color: #ffd966;
-    border-color: rgba(230, 126, 34, 0.5);
-}
-
-.hb-back {
-    font-size: 16px;
-}
-
-/* Уведомления */
-.handbook-alert {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    letter-spacing: 0.5px;
-}
-
-.handbook-alert-success {
-    background: rgba(46, 204, 113, 0.18);
-    border: 1px solid rgba(46, 204, 113, 0.45);
-    color: #a8f0c0;
-}
-
-.handbook-alert-danger {
-    background: rgba(231, 76, 60, 0.18);
-    border: 1px solid rgba(231, 76, 60, 0.5);
-    color: #ffb0a0;
-}
-
-.handbook-alert-info {
-    background: rgba(52, 152, 219, 0.18);
-    border: 1px solid rgba(52, 152, 219, 0.45);
-    color: #a8d8f0;
-}
-
-/* ==========================================
-   Аккордеон для справочников (свой, без Bootstrap)
-   ========================================== */
-
-.hb-accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.hb-accordion-item {
-    background: rgba(0, 0, 0, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.hb-accordion-toggle {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
-    background: rgba(0, 0, 0, 0.18);
-    border: none;
-    color: #f0e6d0;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-align: left;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.hb-accordion-toggle:hover {
-    background: rgba(230, 126, 34, 0.12);
-}
-
-.hb-accordion-toggle.open {
-    background: rgba(230, 126, 34, 0.15);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hb-chev {
-    font-size: 12px;
-    color: #e67e22;
-    transition: transform 0.25s ease;
-}
-
-.hb-accordion-toggle.open .hb-chev {
-    transform: rotate(90deg);
-}
-
-.hb-accordion-name {
-    flex-grow: 1;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.hb-accordion-count {
-    font-size: 11px;
-    color: rgba(240, 230, 208, 0.5);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-.hb-accordion-body {
-    display: none;
-    padding: 0;
-}
-
-.hb-accordion-body.open {
-    display: block;
-}
-
-/* Таблица внутри аккордеона */
-.hb-table {
-    background: transparent;
-    border-radius: 0;
-}
-
-.hb-table thead th {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.hb-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-}
-
-/* ==========================================
-   Форма справочника
-   ========================================== */
-
-.handbook-form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-}
-
-.hb-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-}
-
-@media (max-width: 700px) {
-    .hb-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.hb-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.hb-field-full {
-    grid-column: 1 / -1;
-}
-
-.hb-field label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(240, 230, 208, 0.6);
-    font-weight: 400;
-}
-
-.hb-field .req {
-    color: #e67e22;
-}
-
-.hb-field input,
-.hb-field textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    color: #f0e6d0;
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    transition: all 0.2s ease;
-}
-
-.hb-field input:focus,
-.hb-field textarea:focus {
-    border-color: rgba(230, 126, 34, 0.75);
-    background: rgba(0, 0, 0, 0.35);
-    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
-}
-
-.hb-error {
-    font-size: 11px;
-    color: #ffb0a0;
-    letter-spacing: 0.5px;
-}
-
-.hb-image-preview {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hb-image-preview img {
-    max-width: 200px;
-    max-height: 200px;
-    display: block;
-    border-radius: 8px;
-    margin-bottom: 8px;
-}
-
-.hb-image-preview p {
-    margin: 0;
-    font-size: 11px;
-    color: rgba(240, 230, 208, 0.5);
-    letter-spacing: 1px;
-}
-
-.handbook-form-actions {
-    display: flex;
-    gap: 10px;
-}
-
-/* ==========================================
-   КАСТОМНЫЕ ЧЕКБОКСЫ (.hb-check)
-   ========================================== */
-
-.hb-check {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-    padding: 12px 14px;
-    background: rgba(0, 0, 0, 0.22);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 10px;
-    transition: background 0.18s ease, border-color 0.18s ease;
-    width: 100%;
-    box-sizing: border-box;
-    margin: 0;
-    font-family: inherit;
-}
-
-.hb-check:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(230, 126, 34, 0.4);
-}
-
-/* Сам чекбокс — рисуем свой, нативный скрываем */
-.hb-check input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    margin: 0;
-    margin-top: 1px;
-    flex-shrink: 0;
-    border-radius: 5px;
-    border: 1.5px solid rgba(255, 255, 255, 0.35);
-    background: rgba(0, 0, 0, 0.35);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 13px 13px;
-    cursor: pointer;
-    transition: background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.hb-check input[type="checkbox"]:hover {
-    border-color: rgba(230, 126, 34, 0.7);
-}
-
-.hb-check input[type="checkbox"]:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.3);
-}
-
-/* Отмечен — оранжевая заливка + тёмная галочка по центру.
-   Галочка — инлайн-SVG, идеально центрируется background-position. */
-.hb-check input[type="checkbox"]:checked {
-    background-color: #E67E22;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231a0e00' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.4' d='M3.5 8.5l3 3 6-6.5'/%3E%3C/svg%3E");
-    border-color: #F5A65B;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 0 8px rgba(230, 126, 34, 0.35);
-}
-
-/* Disabled — приглушаем */
-.hb-check input[type="checkbox"]:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
-/* Тело чекбокса (текст + описание) */
-.hb-check-body {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    min-width: 0;
-}
-
-.hb-check-label {
-    font-size: 13px;
-    color: #f0e6d0;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    line-height: 1.3;
-}
-
-.hb-check-desc {
-    font-size: 11px;
-    color: rgba(240, 230, 208, 0.5);
-    line-height: 1.45;
-    letter-spacing: 0.3px;
-    font-weight: 400;
-}
-
-/* ==========================================
-   Detail — карточка муфты
-   ========================================== */
-
-.hb-detail {
-    background: rgba(0, 0, 0, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 22px;
-}
-
-.hb-detail-image {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.hb-detail-image img {
-    max-width: 240px;
-    max-height: 240px;
-    border-radius: 10px;
-}
-
-.hb-detail-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px 24px;
-}
-
-@media (max-width: 700px) {
-    .hb-detail-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.hb-detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.hb-detail-full {
-    grid-column: 1 / -1;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.hb-detail-label {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: rgba(240, 230, 208, 0.5);
-}
-
-.hb-detail-value {
-    font-size: 14px;
-    color: #f0e6d0;
-    font-weight: 500;
-}
-
-.hb-detail-value.accent {
-    color: #ffd966;
-    font-weight: 600;
-}
-
-/* ==========================================
-   Плавность Turbo Frames
-   ========================================== */
-
-.app-frame {
-    transition: opacity 0.2s ease;
-}
-
-/* Страховка: если анимация по какой-то причине не запустилась,
-   панель всё равно видна */
-.app-glass {
-    opacity: 1;
-}
-
-/* Для пользователей с reduced-motion — убираем анимацию вообще */
-@media (prefers-reduced-motion: reduce) {
-    .app-glass,
-    .panel-glass {
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-    }
-}
 
 /* ==========================================
    ЗАКАЗЫ — единый стеклянный стиль
@@ -2805,6 +2271,59 @@ body.lights-on .lamp-glow-2 {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================
+   КЛИКАБЕЛЬНАЯ КАРТОЧКА ЗАКАЗА
+   ==========================================
+   Весь .order-card работает как ссылка на /orders/{id},
+   кроме внутренних интерактивных элементов.
+   Обработчик клика — в app.js (делегирование).
+*/
+
+/* Визуальная подсказка: раз кликается — значит pointer */
+.order-card[data-order-href] {
+    cursor: pointer;
+}
+
+/* Текст внутри всё ещё можно выделять — селект блокирует навигацию */
+.order-card[data-order-href] * {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* Внутри карточки интерактивные элементы — обычный курсор */
+.order-card[data-order-href] a,
+.order-card[data-order-href] button,
+.order-card[data-order-href] input,
+.order-card[data-order-href] select,
+.order-card[data-order-href] textarea,
+.order-card[data-order-href] label {
+    cursor: pointer;   /* кнопки/ссылки остаются кликабельными по своему */
+}
+
+/* Карточка, которая уже уезжает / лопается — курсор не меняем */
+.order-card--departing,
+.order-card--popping {
+    cursor: default !important;
+}
+
+/* ─── Мягкий отклик на hover: лёгкая подсветка рамки ─── */
+.order-card[data-order-href]:hover {
+    border-color: rgba(230, 126, 34, 0.35);
+    /* фон и тень уже есть в .order-card:hover выше — не дублируем */
+}
+
+/* На всякий случай: ссылка-«пустышка», которую JS создаёт для Turbo-перехода */
+.order-card[data-order-href]::after {
+    content: '';
+    /* ничего визуального, но если решишь добавить ::before/::after — не мешаем */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-card[data-order-href]:hover {
+        transform: none !important;
+    }
 }
 
 .order-card-head {
@@ -3779,6 +3298,74 @@ body.lights-on .lamp-glow-2 {
     border-color: rgba(255, 255, 255, 0.45);
 }
 
+/* ==========================================
+   ИКОНКА-КАРТИНКА В КНОПКАХ (листочек и т.п.)
+   ========================================== */
+
+.btn-glass .btn-leaf-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+
+    /* Мягкая тень + тёплый ореол — чтобы тёмный листок не терялся
+       на оранжевом градиенте кнопки */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35))
+    drop-shadow(0 0 4px rgba(255, 210, 130, 0.35));
+
+    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+    transform-origin: 70% 15%; /* точка вращения — у стебля, как у логотипа в навбаре */
+    will-change: transform, filter;
+}
+
+/* ─── HOVER: листок «оживает» — поворот, лёгкий рост, ярче свечение ─── */
+.btn-glass-primary:hover .btn-leaf-icon {
+    transform: rotate(-14deg) scale(1.18);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 0 10px rgba(255, 220, 150, 0.85))
+    drop-shadow(0 0 20px rgba(230, 126, 34, 0.5));
+}
+
+/* ─── Мягкое покачивание, пока мышь на кнопке ─── */
+.btn-glass-primary:hover .btn-leaf-icon {
+    animation: btnLeafSway 1.8s ease-in-out 0.3s infinite;
+}
+
+@keyframes btnLeafSway {
+    0%, 100% { transform: rotate(-14deg) scale(1.18); }
+    50%      { transform: rotate(-6deg)  scale(1.22); }
+}
+
+/* ─── При клике — «дёргается» как живой ─── */
+.btn-glass-primary:active .btn-leaf-icon {
+    transform: rotate(2deg) scale(0.92);
+    transition: transform 0.08s ease;
+    animation: none;
+}
+
+
+@keyframes btnLeafIntro {
+    0%   { transform: rotate(0deg)   scale(0.4); opacity: 0; }
+    55%  { transform: rotate(-22deg) scale(1.25); opacity: 1; }
+    100% { transform: rotate(0deg)   scale(1);   opacity: 1; }
+}
+
+/* ─── Reduced motion — уважаем пользователя ─── */
+@media (prefers-reduced-motion: reduce) {
+    .btn-glass .btn-leaf-icon,
+    .btn-glass-primary .btn-leaf-icon,
+    .btn-glass-primary:hover .btn-leaf-icon,
+    .btn-glass-primary:active .btn-leaf-icon {
+        animation: none !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
 
 /* Иконки внутри активной ссылки — тоже золотим */
 .app-glass .navbar .nav-link.active i,
@@ -4581,6 +4168,17 @@ body.lights-on .lamp-glow-2 {
     opacity: 0.55;
     cursor: not-allowed;
     filter: saturate(0.6);
+}
+
+
+.report-table tbody tr:hover .product-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .report-table tbody tr:hover .product-icon-img {
+        animation: none !important;
+    }
 }
 
 /* ==========================================
@@ -5546,4 +5144,425 @@ body.lights-on .lamp-glow-2 {
     box-shadow:
             inset 0 0 14px rgba(0, 140, 255, 0.45),
             0 0 20px rgba(0, 112, 221, 0.60);
+}
+
+
+/* ==========================================
+   ЗАКАЗ — ЗАГОТОВКА, ИТОГО, РАСШИФРОВКА
+   ========================================== */
+
+/* ---------- Заготовка: аккуратные плитки ---------- */
+.workpiece-badge {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.workpiece-part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    border-radius: 10px;
+    min-width: 84px;
+    transition: all 0.2s ease;
+}
+
+.workpiece-part:hover {
+    border-color: rgba(255, 200, 130, 0.65);
+    background: rgba(0, 0, 0, 0.38);
+    transform: translateY(-1px);
+}
+
+.workpiece-part .wp-label {
+    font-size: 9.5px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+    margin-bottom: 3px;
+}
+
+.workpiece-part .wp-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 8px rgba(255, 200, 120, 0.25);
+}
+
+/* ---------- Итого + кнопка расшифровки ---------- */
+.hb-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 0 4px;
+    margin-top: 10px;
+    border-top: 2px solid rgba(230, 126, 34, 0.25);
+}
+
+.hb-total-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.95);
+    font-weight: 600;
+}
+
+.hb-total-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.hb-total-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 18px rgba(255, 200, 120, 0.35);
+}
+
+.hb-total-currency {
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.75;
+    margin-left: 3px;
+}
+
+/* Кнопка «Расшифровка» */
+.btn-breakdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.18),
+    rgba(200, 90, 20, 0.10));
+    border: 1px solid rgba(230, 126, 34, 0.5);
+    border-radius: 10px;
+    color: #ffd966;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-breakdown:hover {
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.3),
+    rgba(200, 90, 20, 0.2));
+    border-color: rgba(255, 200, 130, 0.85);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.3);
+}
+
+.btn-breakdown .bi-chevron-down {
+    font-size: 11px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-breakdown.open .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* ---------- Панель расшифровки ---------- */
+.cost-breakdown {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-top: 0;
+    transition:
+            max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.4s ease,
+            margin-top 0.35s ease;
+}
+
+.cost-breakdown.open {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 18px;
+}
+
+.cost-breakdown-inner {
+    position: relative;
+    padding: 22px 24px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.08),
+    rgba(200, 90, 20, 0.03));
+    border: 1px solid rgba(230, 126, 34, 0.3);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cost-breakdown-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right,
+    transparent,
+    rgba(255, 200, 130, 0.6),
+    transparent);
+    pointer-events: none;
+}
+
+.cost-breakdown-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.95);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(230, 126, 34, 0.3);
+}
+
+.cost-breakdown-title i {
+    font-size: 15px;
+    color: #e67e22;
+}
+
+/* Шаг формулы */
+.cost-step {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.cost-step:last-of-type {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.cost-step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.9),
+    rgba(200, 90, 20, 0.8));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(230, 126, 34, 0.4);
+}
+
+.cost-step-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.cost-step-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f5f1e8;
+    margin-bottom: 8px;
+}
+
+.cost-hint {
+    font-size: 10.5px;
+    font-weight: 400;
+    font-style: italic;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 0.3px;
+}
+
+/* Формула */
+.cost-step-formula {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 9px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: rgba(240, 230, 208, 0.85);
+}
+
+.cf-num {
+    color: #f0e6d0;
+    font-weight: 500;
+}
+
+.cf-op {
+    color: rgba(255, 184, 119, 0.75);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.cf-result {
+    color: #ffd966;
+    font-weight: 700;
+    margin-left: 4px;
+    text-shadow: 0 0 8px rgba(255, 200, 120, 0.3);
+}
+
+/* Список доп.работ */
+.cost-works-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.cost-work-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 9px 14px;
+    background: rgba(46, 204, 113, 0.08);
+    border: 1px solid rgba(46, 204, 113, 0.22);
+    border-radius: 8px;
+    font-size: 12.5px;
+}
+
+.cw-name {
+    color: #c8ffd9;
+    font-weight: 500;
+}
+
+.cw-formula {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Итого */
+.cost-breakdown-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 2px solid rgba(230, 126, 34, 0.4);
+}
+
+.cost-breakdown-total-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.95);
+    font-weight: 600;
+}
+
+.cost-breakdown-total-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 20px rgba(255, 200, 120, 0.4);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .cost-breakdown,
+    .btn-breakdown,
+    .btn-breakdown .bi-chevron-down {
+        transition: none !important;
+    }
+}
+
+/* ==========================================
+   ИКОНКИ-КАРТИНКИ В NAVBAR (книга, листик и т.п.)
+   ========================================== */
+
+.nav-leaf-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: -3px;        /* выравниваем по baseline текста */
+    margin-right: 6px;
+    flex-shrink: 0;
+
+    /* Точка вращения — корешок книги, снизу-слева */
+    transform-origin: 45% 70%;
+
+    transition:
+            transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.35s ease;
+
+    /* Мягкая тень + тёплое свечение — как у листика-логотипа */
+    filter:
+            drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 3px rgba(230, 126, 34, 0.28));
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER / ОТКРЫТЫЙ ДРОПДАУН — книга оживает ─── */
+.app-glass .navbar .nav-link:hover .nav-leaf-icon,
+.app-glass .navbar .nav-link.show .nav-leaf-icon {
+    transform: rotate(-6deg) scale(1.12);
+    filter:
+            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 10px rgba(255, 180, 80, 0.85))
+            drop-shadow(0 0 20px rgba(230, 126, 34, 0.5));
+    animation: navBookSway 2.2s ease-in-out 0.25s infinite;
+}
+
+@keyframes navBookSway {
+    0%, 100% { transform: rotate(-6deg)  scale(1.12); }
+    50%      { transform: rotate(-14deg) scale(1.16); }
+}
+
+/* ─── ACTIVE — книга «дышит» на активной вкладке ─── */
+.app-glass .navbar .nav-link.active .nav-leaf-icon {
+    filter:
+            drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 6px rgba(255, 180, 80, 0.75))
+            drop-shadow(0 0 14px rgba(230, 126, 34, 0.4));
+}
+
+.app-glass .navbar .nav-link.active:hover .nav-leaf-icon {
+    animation: navBookSway 2.2s ease-in-out infinite;
+}
+
+/* ─── Reduced motion — без анимации ─── */
+@media (prefers-reduced-motion: reduce) {
+    .nav-leaf-icon,
+    .app-glass .navbar .nav-link:hover .nav-leaf-icon,
+    .app-glass .navbar .nav-link.show .nav-leaf-icon,
+    .app-glass .navbar .nav-link.active:hover .nav-leaf-icon {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
 }

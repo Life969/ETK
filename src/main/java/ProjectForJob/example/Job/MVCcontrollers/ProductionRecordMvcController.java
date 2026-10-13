@@ -412,12 +412,18 @@ public class ProductionRecordMvcController {
 
         String productName = "—";
         if ("COUPLING".equals(productType) && e.getCoupling() != null) {
-            productName = "Муфта " + e.getCoupling().getName();
+            // "Муфта " убираем — она и так в badge
+            productName = e.getCoupling().getName();                       // "НКТ 73"
         } else if ("ADAPTER".equals(productType) && e.getAdapter() != null) {
-            productName = "Переводник " + e.getAdapter().getFullName();
+            // "Переводник " убираем
+            productName = e.getAdapter().getFullName();                    // "НКТ-НКТ 73/89"
         } else if (("PIPE".equals(productType) || "NIPPLE".equals(productType))
                 && e.getExternalThread() != null) {
-            productName = e.getProductName();
+            // Собираем модель вручную, без префикса "Труба "/"Патрубок "
+            productName = e.getExternalThread().getName();                 // "НКТ 89"
+            if ("NIPPLE".equals(productType) && e.getPieceLengthMm() != null) {
+                productName += " L-" + e.getPieceLengthMm().intValue();    // "НКТ 89 L-2000"
+            }
         }
 
         ProductionRecordListDto dto = new ProductionRecordListDto();
@@ -430,6 +436,7 @@ public class ProductionRecordMvcController {
         dto.setCreatedAt(e.getCreatedAt());
         dto.setComment(e.getComment());
         dto.setProductType(productType);
+        dto.setPieceLengthMm(e.getPieceLengthMm());
 
         if (e.getCoupling() != null) dto.setCouplingId(e.getCoupling().getId());
         if (e.getAdapter() != null) dto.setAdapterId(e.getAdapter().getId());

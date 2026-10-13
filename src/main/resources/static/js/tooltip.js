@@ -100,12 +100,19 @@ class WowTooltip {
             typeLine = 'Переводник';
             qualityClass = 'quality5';
 
+            const firstType     = WowTooltip.getValue(element.dataset.firstType);
+            const firstDiameter = WowTooltip.getValue(element.dataset.firstDiameter);
+            const secondType    = WowTooltip.getValue(element.dataset.secondType);
+            const secondDiameter = WowTooltip.getValue(element.dataset.secondDiameter);
+
             const length = WowTooltip.getValue(element.dataset.length);
             const weight = WowTooltip.getValue(element.dataset.weight);
             const outerD = WowTooltip.getValue(element.dataset.outerDiameter);
             const innerD = WowTooltip.getValue(element.dataset.innerDiameter);
 
             statsHtml = `
+                <div class="stat"><span>🔩 Первая сторона:</span><span class="stat-value">${WowTooltip.escapeHtml(firstType + ' ' + firstDiameter)}</span></div>
+                <div class="stat"><span>🔩 Вторая сторона:</span><span class="stat-value">${WowTooltip.escapeHtml(secondType + ' ' + secondDiameter)}</span></div>
                 <div class="stat"><span>📏 Длина:</span><span class="stat-value">${length} мм</span></div>
                 <div class="stat"><span>⚖️ Вес:</span><span class="stat-value">${weight} кг</span></div>
                 <div class="stat"><span>🔘 Наруж. диаметр:</span><span class="stat-value">${outerD} мм</span></div>
@@ -162,6 +169,12 @@ class WowTooltip {
         }
         if (y + rect.height > window.innerHeight) {
             WowTooltip.container.style.top = (event.clientY - rect.height - 10) + 'px';
+        }
+    }
+
+    static hide() {
+        if (WowTooltip.container) {
+            WowTooltip.container.style.display = 'none';
         }
     }
 
@@ -234,4 +247,13 @@ class WowTooltip {
     document.addEventListener('turbo:frame-load', (e) => {
         if (e.target.id === 'app') boot();
     });
+
+    // ─── Скрытие тултипа при Turbo-навигации ───
+    // mouseout не срабатывает, когда Turbo выкидывает элемент
+    // из-под курсора. Прячем тултип вручную на каждом переходе.
+    document.addEventListener('turbo:before-frame-render', () => WowTooltip.hide());
+    document.addEventListener('turbo:before-visit',       () => WowTooltip.hide());
+    document.addEventListener('turbo:frame-load',         () => WowTooltip.hide());
+    document.addEventListener('turbo:load',               () => WowTooltip.hide());
+
 })();

@@ -15,6 +15,7 @@
         if (window.WowTooltip) WowTooltip.init('.product-tooltip');
         if (window.OrdersForm) OrdersForm.init();
         if (window.JournalForm) JournalForm.init();
+        if (window.Handbooks)   Handbooks.init();
         if (window.refreshNavBeam) window.refreshNavBeam();
     }
 
@@ -159,16 +160,20 @@
     });
 
     // ============================================================
-    // Аккордеон справочников
+    // РАСШИФРОВКА СТОИМОСТИ ЗАКАЗА (view.html)
     // ============================================================
     document.addEventListener('click', (e) => {
-        const toggle = e.target.closest('.hb-accordion-toggle');
-        if (!toggle) return;
-        const targetId = toggle.dataset.target;
-        const body = document.getElementById(targetId);
-        if (!body) return;
-        toggle.classList.toggle('open');
-        body.classList.toggle('open');
+        const btn = e.target.closest('#breakdownToggle');
+        if (!btn) return;
+
+        const panel = document.getElementById('costBreakdown');
+        if (!panel) return;
+
+        const isOpen = panel.classList.toggle('open');
+        btn.classList.toggle('open', isOpen);
+
+        const text = btn.querySelector('.btn-breakdown-text');
+        if (text) text.textContent = isOpen ? 'Скрыть' : 'Расшифровка';
     });
 
     // ============================================================
@@ -225,5 +230,51 @@
         link.click();
         setTimeout(() => link.remove(), 500);
     }, true);
+
+    // ============================================================
+    // КЛИКАБЕЛЬНАЯ КАРТОЧКА ЗАКАЗА
+    // Весь .order-card кликается как ссылка, кроме внутренних
+    // интерактивных элементов (кнопки, ссылки, формы, поля).
+    // ============================================================
+    document.addEventListener('click', function (e) {
+        // Игнорируем клики по интерактивным элементам и их обёрткам
+        if (e.target.closest('a, button, form, input, select, textarea, label, [data-no-card-click]')) {
+            return;
+        }
+
+        const card = e.target.closest('.order-card[data-order-href]');
+        if (!card) return;
+
+        // Карточка уже анимируется (удаление / переход) — не мешаем
+        if (card.classList.contains('order-card--departing') ||
+            card.classList.contains('order-card--popping')) {
+            return;
+        }
+
+        // Выделяем текст — не навигируем, это осознанное действие
+        const sel = window.getSelection();
+        if (sel && sel.toString().length > 0) return;
+
+        const href = card.dataset.orderHref;
+        if (!href) return;
+
+        // Ctrl/Cmd/Shift + клик — открыть в новой вкладке
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) {
+            e.preventDefault();
+            window.open(href, '_blank', 'noopener');
+            return;
+        }
+
+        // ЛКМ — Turbo-навигация внутри frame="app", без перезагрузки
+        if (e.button !== 0) return;
+
+        const link = document.createElement('a');
+        link.href = href;
+        link.setAttribute('data-turbo-frame', 'app');
+        link.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => link.remove(), 500);
+    });
 
 })();

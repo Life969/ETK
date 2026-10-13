@@ -405,3 +405,6 @@ databaseChangeLog:
 
   - include:
       file: db/changelog/2026/04/10-01-changelog.xml
+
+  - include:
+      file: db/changelog/2026/04/18-01-changelog.xml

@@ -82,6 +82,7 @@
                 <textarea id="description" th:field="*{description}" rows="3" placeholder="Необязательно"></textarea>
             </div>
 
+            <!-- ── ФОТО ── -->
             <div class="hb-field hb-field-full">
                 <label for="imageFileInput">Фото муфты (jpg, png, gif, до 5 МБ)</label>
                 <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/gif"/>
@@ -90,6 +91,31 @@
                      class="hb-image-preview">
                     <img th:src="@{${coupling.imagePath}}" alt="Текущее фото"/>
                     <p>Текущее фото. Загрузите новое, чтобы заменить.</p>
+                </div>
+            </div>
+
+            <!-- ── ЧЕРТЁЖ ── -->
+            <div class="hb-field hb-field-full">
+                <label for="drawingFileInput">Чертёж (PDF, JPG, PNG, до 10 МБ)</label>
+                <input type="file" id="drawingFileInput"
+                       accept="application/pdf,image/jpeg,image/png"/>
+                <input type="hidden" id="drawingBase64" name="drawingBase64"/>
+                <input type="hidden" id="drawingOriginalName" name="drawingOriginalName"/>
+
+                <div th:if="${coupling.drawingPath != null and !coupling.drawingPath.isEmpty()}"
+                     class="hb-drawing-preview">
+
+                    <div th:if="${#strings.endsWith(coupling.drawingPath, '.pdf')}"
+                         class="hb-drawing-preview-icon">
+                        <i class="bi bi-filetype-pdf"></i>
+                        <span th:text="${coupling.drawingOriginalName}">чертёж.pdf</span>
+                    </div>
+
+                    <img th:unless="${#strings.endsWith(coupling.drawingPath, '.pdf')}"
+                         th:src="@{${coupling.drawingPath}}"
+                         alt="Чертёж"/>
+
+                    <p>Текущий чертёж. Загрузите новый, чтобы заменить.</p>
                 </div>
             </div>
 

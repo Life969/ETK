@@ -4,7 +4,6 @@
 
 <div th:fragment="content" class="handbook-content">
 
-    <!-- ================= ЗАГОЛОВОК ================= -->
     <header class="handbook-header">
         <div class="handbook-title-wrap">
             <h1 class="handbook-title">Наружные резьбы</h1>
@@ -15,18 +14,25 @@
         <a th:href="@{/external-threads/new}"
            data-turbo-frame="app"
            class="btn-glass btn-glass-primary">
-            <i class="bi bi-plus-lg"></i> Добавить резьбу
+            <img class="btn-leaf-icon" src="/images/red_leaf.png" alt="" aria-hidden="true">
+            Добавить резьбу
         </a>
     </header>
 
-    <!-- ================= ПУСТО ================= -->
+    <!-- Уведомления -->
+    <div th:if="${message}" th:class="'handbook-alert handbook-alert-' + ${messageType}">
+        <i class="bi bi-info-circle"></i>
+        <span th:text="${message}">—</span>
+    </div>
+
+    <!-- Пусто -->
     <div th:if="${groupedThreads == null or groupedThreads.isEmpty()}"
          class="journal-empty">
         <i class="bi bi-inbox"></i>
         <span>Список резьб пуст</span>
     </div>
 
-    <!-- ================= АККОРДЕОН ПО ТИПУ ================= -->
+    <!-- Аккордеон -->
     <div class="hb-accordion"
          th:unless="${groupedThreads == null or groupedThreads.isEmpty()}">
 
@@ -34,7 +40,6 @@
 
             <button type="button"
                     class="hb-accordion-toggle"
-                    th:classappend="${iter.index == 0} ? 'open' : ''"
                     th:attr="data-target='et-body-' + ${iter.index}">
                 <i class="bi bi-chevron-right hb-chev"></i>
                 <span class="hb-accordion-name" th:text="${entry.key}">НКТ</span>
@@ -43,66 +48,67 @@
             </button>
 
             <div class="hb-accordion-body"
-                 th:classappend="${iter.index == 0} ? 'open' : ''"
                  th:id="'et-body-' + ${iter.index}">
 
-                <table class="journal-table hb-table">
-                    <thead>
-                    <tr>
-                        <th>Обозначение</th>
-                        <th>Цена изготовления, ₽</th>
-                        <th>Цена работнику, ₽</th>
-                        <th>ГОСТ</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="t : ${entry.value}">
-                        <td>
-                            <span class="product-name-wrapper">
-                                <span class="product-tooltip"
-                                      th:attr="data-id=${t.id},
-                                       data-name=${t.name},
-                                       data-type=${t.type},
-                                       data-pipe-kind='THREAD',
-                                       data-conditional-diameter=${t.conditionalDiameter},
-                                       data-standart=${t.standart != null ? t.standart : ''},
-                                       data-cost=${t.manufacturingCost != null ? t.manufacturingCost : ''},
-                                       data-price=${t.priceForEmployee != null ? t.priceForEmployee : ''},
-                                       data-description=${t.description != null ? t.description : ''},
-                                       data-image=${t.imagePath != null ? t.imagePath : ''}"
-                                      th:text="${t.name}">НКТ 73
-                                </span>
+                <div class="hb-cards-grid">
+                    <div th:each="t : ${entry.value}"
+                         class="handbook-card"
+                         th:attr="data-card-href=@{/external-threads/{id}(id=${t.id})}">
 
-                            </span>
-                        </td>
-                        <td th:text="${t.manufacturingCost}">—</td>
-                        <td th:text="${t.priceForEmployee}">—</td>
-                        <td th:text="${t.standart}">—</td>
-                        <td>
-                            <div class="hb-actions">
-                                <a th:href="@{/external-threads/edit/{id}(id=${t.id})}"
-                                   data-turbo-frame="app"
-                                   class="hb-icon-btn"
-                                   title="Редактировать">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+                        <!-- Фото или плейсхолдер -->
+                        <div class="handbook-card-image">
+                            <img th:if="${t.imagePath != null and !t.imagePath.isEmpty()}"
+                                 th:src="@{${t.imagePath}}"
+                                 th:alt="${t.name}"/>
 
-                                <form th:action="@{/external-threads/delete/{id}(id=${t.id})}"
-                                      method="post" class="m-0">
-                                    <button type="submit"
-                                            class="hb-icon-btn hb-icon-btn-danger"
-                                            title="Удалить"
-                                            onclick="return confirm('Удалить резьбу?');">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                            <div th:unless="${t.imagePath != null and !t.imagePath.isEmpty()}"
+                                 class="handbook-card-placeholder">
+                                <i class="bi bi-asterisk"></i>
                             </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                        </div>
+
+                        <!-- Бейджик -->
+                        <div class="handbook-card-badge product-tooltip"
+                             th:attr="data-id=${t.id},
+                                      data-name=${t.name},
+                                      data-type=${t.type},
+                                      data-pipe-kind='THREAD',
+                                      data-conditional-diameter=${t.conditionalDiameter},
+                                      data-standart=${t.standart != null ? t.standart : ''},
+                                      data-cost=${t.manufacturingCost != null ? t.manufacturingCost : ''},
+                                      data-price=${t.priceForEmployee != null ? t.priceForEmployee : ''},
+                                      data-description=${t.description != null ? t.description : ''},
+                                      data-image=${t.imagePath != null ? t.imagePath : ''}">
+                            <span th:text="${t.name}">НКТ 73</span>
+                        </div>
+
+                        <!-- Действия -->
+                        <div class="handbook-card-actions">
+                            <a th:href="@{/external-threads/edit/{id}(id=${t.id})}"
+                               data-turbo-frame="app"
+                               class="hb-icon-btn"
+                               title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <form th:action="@{/external-threads/delete/{id}(id=${t.id})}"
+                                  method="post"
+                                  onsubmit="return confirm('Удалить резьбу?');"
+                                  style="display:inline">
+                                <button type="button"
+                                        class="hb-icon-btn hb-icon-btn-danger"
+                                        title="Удалить"
+                                        th:attr="data-hb-delete=@{/external-threads/delete/{id}(id=${t.id})},
+                 data-hb-delete-label='резьбу'">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
