@@ -91,18 +91,13 @@
                                 <i class="bi bi-pencil"></i>
                             </a>
 
-                            <form th:action="@{/pipe-adapters/delete/{id}(id=${adapter.id})}"
-                                  method="post"
-                                  onsubmit="return confirm('Удалить переводник?');"
-                                  style="display:inline">
-                                <button type="button"
-                                        class="hb-icon-btn hb-icon-btn-danger"
-                                        title="Удалить"
-                                        th:attr="data-hb-delete=@{/pipe-adapters/delete/{id}(id=${adapter.id})},
-                 data-hb-delete-label='переводник'">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                            <button type="button"
+                                    class="hb-icon-btn hb-icon-btn-danger"
+                                    title="Удалить"
+                                    th:attr="data-hb-delete=@{/pipe-adapters/delete/{id}(id=${adapter.id})},
+                                                data-hb-delete-label='переводник'">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
 
                     </div>

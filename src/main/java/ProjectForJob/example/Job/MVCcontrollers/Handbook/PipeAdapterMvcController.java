@@ -11,9 +11,17 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Controller
@@ -66,6 +74,8 @@ public class PipeAdapterMvcController {
     public String save(@Valid @ModelAttribute("pipeAdapter") PipeAdapterEntity pipeAdapter,
                        BindingResult bindingResult,
                        @RequestParam(value = "imageBase64", required = false) String imageBase64,
+                       @RequestParam(value = "drawingBase64", required = false) String drawingBase64,
+                       @RequestParam(value = "drawingOriginalName", required = false) String drawingOriginalName,
                        Model model,
                        RedirectAttributes redirectAttributes) throws IOException {
 
@@ -74,6 +84,7 @@ public class PipeAdapterMvcController {
             return "welcomeToHome/layout";
         }
 
+        // ─── Фото ───
         if (imageBase64 != null && !imageBase64.isEmpty() && imageBase64.startsWith("data:image")) {
             String base64Data = imageBase64.substring(imageBase64.indexOf(",") + 1);
             byte[] imageBytes = Base64.getDecoder().decode(base64Data);
@@ -88,24 +99,46 @@ public class PipeAdapterMvcController {
 
             if (pipeAdapter.getId() != null) {
                 PipeAdapterEntity existing = pipeAdapterService.findById(pipeAdapter.getId());
-                deleteImageFile(existing.getImagePath());
+                deleteFile(existing.getImagePath());
             }
 
             String newFileName = UUID.randomUUID().toString() + extension;
-            String uploadDir = System.getProperty("user.dir") + "/uploads/adapters/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-
-            File destFile = new File(uploadDir + newFileName);
-            try (FileOutputStream fos = new FileOutputStream(destFile)) {
-                fos.write(imageBytes);
-            }
+            saveFile("uploads/adapters/", newFileName, imageBytes);
             pipeAdapter.setImagePath("/uploads/adapters/" + newFileName);
-        } else {
+        } else if (pipeAdapter.getId() != null) {
+            PipeAdapterEntity existing = pipeAdapterService.findById(pipeAdapter.getId());
+            pipeAdapter.setImagePath(existing.getImagePath());
+        }
+
+        // ─── Чертёж ───
+        if (drawingBase64 != null && !drawingBase64.isEmpty() && drawingBase64.startsWith("data:")) {
+            String base64Data = drawingBase64.substring(drawingBase64.indexOf(",") + 1);
+            byte[] drawingBytes = Base64.getDecoder().decode(base64Data);
+
+            String contentType = drawingBase64.substring(5, drawingBase64.indexOf(";"));
+            String extension = switch (contentType) {
+                case "application/pdf" -> ".pdf";
+                case "image/jpeg"      -> ".jpg";
+                case "image/png"       -> ".png";
+                default -> ".bin";
+            };
+
             if (pipeAdapter.getId() != null) {
                 PipeAdapterEntity existing = pipeAdapterService.findById(pipeAdapter.getId());
-                pipeAdapter.setImagePath(existing.getImagePath());
+                deleteFile(existing.getDrawingPath());
             }
+
+            String newFileName = UUID.randomUUID().toString() + extension;
+            saveFile("uploads/drawings/", newFileName, drawingBytes);
+            pipeAdapter.setDrawingPath("/uploads/drawings/" + newFileName);
+            pipeAdapter.setDrawingOriginalName(
+                    drawingOriginalName != null && !drawingOriginalName.isBlank()
+                            ? drawingOriginalName
+                            : newFileName);
+        } else if (pipeAdapter.getId() != null) {
+            PipeAdapterEntity existing = pipeAdapterService.findById(pipeAdapter.getId());
+            pipeAdapter.setDrawingPath(existing.getDrawingPath());
+            pipeAdapter.setDrawingOriginalName(existing.getDrawingOriginalName());
         }
 
         pipeAdapterService.save(pipeAdapter);
@@ -127,11 +160,64 @@ public class PipeAdapterMvcController {
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         PipeAdapterEntity existing = pipeAdapterService.findById(id);
-        deleteImageFile(existing.getImagePath());
+        deleteFile(existing.getImagePath());
+        deleteFile(existing.getDrawingPath());
         pipeAdapterService.deleteById(id);
         redirectAttributes.addFlashAttribute("message", "Переводник удалён");
         redirectAttributes.addFlashAttribute("messageType", "danger");
         return "redirect:/pipe-adapters";
+    }
+
+
+    // ===== Удаление чертежа =====
+    @PostMapping("/{id}/drawing/delete")
+    public String deleteDrawing(@PathVariable Long id, RedirectAttributes ra) {
+        PipeAdapterEntity adapter = pipeAdapterService.findById(id);
+        deleteFile(adapter.getDrawingPath());
+        adapter.setDrawingPath(null);
+        adapter.setDrawingOriginalName(null);
+        pipeAdapterService.save(adapter);
+
+        ra.addFlashAttribute("message", "Чертёж удалён");
+        ra.addFlashAttribute("messageType", "danger");
+        return "redirect:/pipe-adapters/" + id;
+    }
+
+    // ===== Скачивание чертежа =====
+    @GetMapping("/{id}/drawing/download")
+    public ResponseEntity<Resource> downloadDrawing(@PathVariable Long id) throws IOException {
+        PipeAdapterEntity adapter = pipeAdapterService.findById(id);
+        String path = adapter.getDrawingPath();
+        if (path == null || path.isBlank()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        File file = new File(System.getProperty("user.dir") + path);
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Resource resource = new FileSystemResource(file);
+
+        String originalName = adapter.getDrawingOriginalName() != null
+                ? adapter.getDrawingOriginalName()
+                : file.getName();
+
+        String encoded = URLEncoder.encode(originalName, StandardCharsets.UTF_8)
+                .replace("+", "%20");
+
+        String contentType;
+        String lower = file.getName().toLowerCase();
+        if (lower.endsWith(".pdf"))      contentType = "application/pdf";
+        else if (lower.endsWith(".png")) contentType = "image/png";
+        else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) contentType = "image/jpeg";
+        else contentType = "application/octet-stream";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + encoded + "\"; filename*=UTF-8''" + encoded)
+                .body(resource);
     }
 
     // ===== Просмотр =====
@@ -143,13 +229,24 @@ public class PipeAdapterMvcController {
         return "welcomeToHome/layout";
     }
 
-    private void deleteImageFile(String imagePath) {
-        if (imagePath != null && imagePath.startsWith("/uploads/")) {
+    private void saveFile(String relativeDir, String fileName, byte[] bytes) throws IOException {
+        String uploadDir = System.getProperty("user.dir") + "/" + relativeDir;
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        File destFile = new File(uploadDir + fileName);
+        try (FileOutputStream fos = new FileOutputStream(destFile)) {
+            fos.write(bytes);
+        }
+    }
+
+    private void deleteFile(String path) {
+        if (path != null && path.startsWith("/uploads/")) {
             try {
-                File file = new File(System.getProperty("user.dir") + imagePath);
+                File file = new File(System.getProperty("user.dir") + path);
                 if (file.exists()) file.delete();
             } catch (Exception e) {
-                log.warn("Не удалось удалить старый файл: {}", imagePath, e);
+                log.warn("Не удалось удалить файл: {}", path, e);
             }
         }
     }

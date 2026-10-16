@@ -16,6 +16,13 @@
             </h1>
         </div>
         <div class="hb-actions-row">
+            <button type="button"
+                    class="btn-glass btn-glass-info"
+                    id="drawingToggle"
+                    th:if="${pipeAdapter.drawingPath != null and !pipeAdapter.drawingPath.isEmpty()}">
+                <i class="bi bi-rulers"></i> Чертёж
+            </button>
+
             <a th:href="@{/pipe-adapters/edit/{id}(id=${pipeAdapter.id})}"
                data-turbo-frame="app" class="btn-glass btn-glass-primary">
                 <i class="bi bi-pencil"></i> Редактировать
@@ -29,6 +36,7 @@
         </div>
     </header>
 
+    <!-- ─── Карточка с характеристиками ─── -->
     <div class="hb-detail">
 
         <div class="hb-detail-image"
@@ -83,6 +91,56 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ─── Чертёж ─── -->
+    <div class="hb-drawing-panel"
+         id="drawingPanel"
+         th:if="${pipeAdapter.drawingPath != null and !pipeAdapter.drawingPath.isEmpty()}">
+
+        <div class="hb-drawing-panel-head">
+            <div class="hb-drawing-panel-title">
+                <i class="bi bi-rulers"></i>
+                <span>Чертёж</span>
+                <span class="hb-drawing-filename"
+                      th:text="${pipeAdapter.drawingOriginalName}">file.pdf</span>
+            </div>
+            <div class="hb-drawing-actions">
+                <a th:href="@{/pipe-adapters/{id}/drawing/download(id=${pipeAdapter.id})}"
+                   class="hb-icon-btn"
+                   data-turbo="false"
+                   title="Скачать">
+                    <i class="bi bi-download"></i>
+                </a>
+
+                <form th:action="@{/pipe-adapters/{id}/drawing/delete(id=${pipeAdapter.id})}"
+                      method="post"
+                      onsubmit="return confirm('Удалить чертёж?');"
+                      style="display:inline">
+                    <button type="submit"
+                            class="hb-icon-btn hb-icon-btn-danger"
+                            title="Удалить">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="hb-drawing-viewport">
+
+            <div th:if="${#strings.endsWith(pipeAdapter.drawingPath, '.pdf')}"
+                 class="hb-drawing-pdf-wrap">
+                <iframe th:src="@{${pipeAdapter.drawingPath}}"
+                        class="hb-drawing-pdf"
+                        title="Чертёж PDF"></iframe>
+            </div>
+
+            <img th:unless="${#strings.endsWith(pipeAdapter.drawingPath, '.pdf')}"
+                 th:src="@{${pipeAdapter.drawingPath}}"
+                 class="hb-drawing-image"
+                 th:attr="data-drawing-src=@{${pipeAdapter.drawingPath}}"
+                 alt="Чертёж переводника"/>
+        </div>
     </div>
 
 </div>

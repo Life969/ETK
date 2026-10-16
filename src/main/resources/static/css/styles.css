@@ -1364,6 +1364,39 @@ body.lights-on .lamp-glow-2 {
     letter-spacing: 3px;
 }
 
+/* Плейсхолдер и каретка */
+.form-field input::placeholder {
+    color: rgba(240, 230, 208, 0.35);
+}
+
+.form-field input {
+    caret-color: #ffd966;
+}
+
+/* ─── Победить автозаполнение Chrome ───
+   Chrome игнорирует background у autofill-полей.
+   Единственный способ — огромный inset box-shadow,
+   который перекрывает жёлтую заливку браузера.
+   Плюс -webkit-text-fill-color перебивает цвет текста. */
+.form-field input:-webkit-autofill,
+.form-field input:-webkit-autofill:hover,
+.form-field input:-webkit-autofill:focus,
+.form-field input:-webkit-autofill:active {
+    -webkit-text-fill-color: #f0e6d0 !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #ffd966;
+}
+
+/* Firefox — свой способ */
+.form-field input:autofill {
+    filter: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #f0e6d0;
+}
+
 /* =========================================
    ЛИСТЬЯ, ЛЕЖАЩИЕ НА СТЕКЛЕ
    Статичная кучка в углу панели.
