@@ -1,0 +1,1006 @@
+/* ==========================================
+   СПРАВОЧНИКИ — общий стиль
+   ========================================== */
+
+.handbook-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.handbook-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.handbook-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.handbook-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.handbook-count {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+}
+
+.hb-actions-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Кнопки в стиле стекла */
+.btn-glass {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+/* Мелкие иконки-кнопки в таблицах */
+.hb-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(240, 230, 208, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.hb-icon-btn:hover {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffd966;
+    border-color: rgba(230, 126, 34, 0.5);
+}
+
+.hb-back {
+    font-size: 16px;
+}
+
+/* Уведомления */
+.handbook-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.handbook-alert-success {
+    background: rgba(46, 204, 113, 0.18);
+    border: 1px solid rgba(46, 204, 113, 0.45);
+    color: #a8f0c0;
+}
+
+.handbook-alert-danger {
+    background: rgba(231, 76, 60, 0.18);
+    border: 1px solid rgba(231, 76, 60, 0.5);
+    color: #ffb0a0;
+}
+
+.handbook-alert-info {
+    background: rgba(52, 152, 219, 0.18);
+    border: 1px solid rgba(52, 152, 219, 0.45);
+    color: #a8d8f0;
+}
+
+/* ==========================================
+   Аккордеон для справочников (свой, без Bootstrap)
+   ========================================== */
+
+.hb-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hb-accordion-item {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hb-accordion-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: rgba(0, 0, 0, 0.18);
+    border: none;
+    color: #f0e6d0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.hb-accordion-toggle:hover {
+    background: rgba(230, 126, 34, 0.12);
+}
+
+.hb-accordion-toggle.open {
+    background: rgba(230, 126, 34, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hb-chev {
+    font-size: 12px;
+    color: #e67e22;
+    transition: transform 0.25s ease;
+}
+
+.hb-accordion-toggle.open .hb-chev {
+    transform: rotate(90deg);
+}
+
+.hb-accordion-name {
+    flex-grow: 1;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hb-accordion-count {
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.hb-accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+            max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.25s ease;
+}
+
+.hb-accordion-body.open {
+    opacity: 1;
+    /* max-height ставит JS inline-стилем — здесь ничего */
+}
+
+/* Таблица внутри аккордеона */
+.hb-table {
+    background: transparent;
+    border-radius: 0;
+}
+
+.hb-table thead th {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.hb-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+/* ==========================================
+   Форма справочника
+   ========================================== */
+
+.handbook-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.hb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 700px) {
+    .hb-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.hb-field-full {
+    grid-column: 1 / -1;
+}
+
+.hb-field label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+    font-weight: 400;
+}
+
+.hb-field .req {
+    color: #e67e22;
+}
+
+.hb-field input,
+.hb-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.hb-field input:focus,
+.hb-field textarea:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.hb-error {
+    font-size: 11px;
+    color: #ffb0a0;
+    letter-spacing: 0.5px;
+}
+
+.hb-image-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hb-image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    display: block;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.hb-image-preview p {
+    margin: 0;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1px;
+}
+
+.handbook-form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* ==========================================
+   КАСТОМНЫЕ ЧЕКБОКСЫ (.hb-check)
+   ========================================== */
+
+.hb-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    transition: background 0.18s ease, border-color 0.18s ease;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    font-family: inherit;
+}
+
+.hb-check:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(230, 126, 34, 0.4);
+}
+
+/* Сам чекбокс — рисуем свой, нативный скрываем */
+.hb-check input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    margin-top: 1px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.35);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 13px 13px;
+    cursor: pointer;
+    transition: background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.hb-check input[type="checkbox"]:hover {
+    border-color: rgba(230, 126, 34, 0.7);
+}
+
+.hb-check input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.3);
+}
+
+/* Отмечен — оранжевая заливка + тёмная галочка по центру.
+   Галочка — инлайн-SVG, идеально центрируется background-position. */
+.hb-check input[type="checkbox"]:checked {
+    background-color: #E67E22;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231a0e00' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.4' d='M3.5 8.5l3 3 6-6.5'/%3E%3C/svg%3E");
+    border-color: #F5A65B;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 8px rgba(230, 126, 34, 0.35);
+}
+
+/* Disabled — приглушаем */
+.hb-check input[type="checkbox"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Тело чекбокса (текст + описание) */
+.hb-check-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.hb-check-label {
+    font-size: 13px;
+    color: #f0e6d0;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+}
+
+.hb-check-desc {
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    line-height: 1.45;
+    letter-spacing: 0.3px;
+    font-weight: 400;
+}
+
+/* ==========================================
+   Detail — карточка муфты
+   ========================================== */
+
+.hb-detail {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 22px;
+}
+
+.hb-detail-image {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.hb-detail-image img {
+    max-width: 240px;
+    max-height: 240px;
+    border-radius: 10px;
+}
+
+.hb-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 24px;
+}
+
+@media (max-width: 700px) {
+    .hb-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hb-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hb-detail-full {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.hb-detail-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+.hb-detail-value {
+    font-size: 14px;
+    color: #f0e6d0;
+    font-weight: 500;
+}
+
+.hb-detail-value.accent {
+    color: #ffd966;
+    font-weight: 600;
+}
+
+/* ==========================================
+   Плавность Turbo Frames
+   ========================================== */
+
+.app-frame {
+    transition: opacity 0.2s ease;
+}
+
+/* Страховка: если анимация по какой-то причине не запустилась,
+   панель всё равно видна */
+.app-glass {
+    opacity: 1;
+}
+
+/* Для пользователей с reduced-motion — убираем анимацию вообще */
+@media (prefers-reduced-motion: reduce) {
+    .app-glass,
+    .panel-glass {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* ==========================================
+   СЕТКА КАРТОЧЕК ВНУТРИ АККОРДЕОНА
+   (муфты, переводники, резьбы — все справочники)
+   ========================================== */
+
+.hb-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 10px;
+    padding: 14px 15px 15px;
+}
+
+.handbook-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    cursor: pointer;
+    transition:
+            transform 0.22s ease,
+            background 0.22s ease,
+            border-color 0.22s ease,
+            box-shadow 0.22s ease;
+    user-select: none;
+}
+
+.handbook-card:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.45);
+    transform: translateY(-2px);
+    box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.35),
+            0 0 22px rgba(230, 126, 34, 0.14);
+}
+
+.handbook-card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(135deg,
+    rgba(0, 0, 0, 0.38),
+    rgba(0, 0, 0, 0.18));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;          /* 10 → 8 */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.handbook-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.handbook-card:hover .handbook-card-image img {
+    transform: scale(1.06);
+}
+
+.handbook-card-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 45%,
+    rgba(230, 126, 34, 0.20),
+    rgba(230, 126, 34, 0.04) 55%,
+    transparent 75%);
+    color: rgba(230, 126, 34, 0.55);
+    font-size: 34px;             /* 46 → 34 */
+    transition: color 0.3s ease, background 0.3s ease;
+}
+
+.handbook-card-placeholder i {
+    display: block;
+    transform-origin: center;
+    transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.handbook-card:hover .handbook-card-placeholder {
+    color: rgba(255, 200, 130, 0.9);
+    background: radial-gradient(circle at 50% 45%,
+    rgba(230, 126, 34, 0.32),
+    rgba(230, 126, 34, 0.08) 55%,
+    transparent 75%);
+}
+
+.handbook-card:hover .handbook-card-placeholder i {
+    transform: rotate(-22deg) scale(1.08);
+}
+
+/* ─── Бейджик: теперь он САМ — цель для тултипа ─── */
+.handbook-card-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 8px;             /* 7/10 → 5/8 */
+    min-height: 24px;             /* 32 → 24 */
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.18),
+    rgba(200, 90, 20, 0.08));
+    border: 1px solid rgba(230, 126, 34, 0.42);
+    border-radius: 6px;           /* 8 → 6 */
+    color: #f5f1e8;
+    font-size: 11px;              /* 12.5 → 11 */
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    text-align: center;
+    line-height: 1.3;
+    transition:
+            border-color 0.22s ease,
+            color 0.22s ease,
+            box-shadow 0.22s ease;
+    cursor: pointer;
+}
+
+/* Стираем правила для вложенного .product-tooltip — его больше нет */
+.handbook-card-badge.product-tooltip {
+    display: flex;
+    width: auto;
+    text-decoration: none;
+}
+
+/* При наведении на бейджик — подсветка + никакого подчёркивания */
+.handbook-card-badge.product-tooltip:hover {
+    border-color: rgba(255, 200, 130, 0.85);
+    color: #ffd966;
+    box-shadow: 0 0 14px rgba(230, 126, 34, 0.4);
+    text-decoration: none;
+}
+
+/* ─── Кнопки действий ─── */
+.handbook-card-actions {
+    position: absolute;
+    top: 11px;                   /* 14 → 11 */
+    right: 11px;
+    display: flex;
+    gap: 3px;
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+            opacity 0.22s ease,
+            transform 0.22s ease;
+    pointer-events: none;
+}
+
+.handbook-card:hover .handbook-card-actions,
+.handbook-card:focus-within .handbook-card-actions {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.handbook-card-actions .hb-icon-btn {
+    width: 22px;                 /* 26 → 22 */
+    height: 22px;
+    font-size: 10px;             /* 12 → 10 */
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(240, 230, 208, 0.9);
+}
+
+.handbook-card-actions .hb-icon-btn:hover {
+    background: rgba(230, 126, 34, 0.75);
+    color: #fff;
+    border-color: rgba(255, 200, 130, 0.9);
+    transform: scale(1.08);
+}
+
+.handbook-card-actions .hb-icon-btn-danger:hover {
+    background: rgba(231, 76, 60, 0.8) !important;
+    border-color: rgba(255, 120, 100, 0.9) !important;
+    color: #fff !important;
+}
+
+.handbook-card-actions form {
+    margin: 0;
+    display: inline;
+}
+
+@media (hover: none) {
+    .handbook-card-actions {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .handbook-card,
+    .handbook-card-image img,
+    .handbook-card-placeholder i,
+    .handbook-card-actions,
+    .hb-accordion-body {
+        transition: none !important;
+        transform: none !important;
+    }
+    .handbook-card:hover {
+        transform: none;
+    }
+}
+
+/* ─── Двухстрочный бейджик — для переводников ─── */
+.handbook-card-badge--stacked {
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 5px 6px;
+    line-height: 1.15;
+}
+
+.handbook-card-badge--stacked .badge-line {
+    display: block;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10.5px;
+    letter-spacing: 0.2px;
+}
+
+.handbook-card-badge--stacked .badge-line--second {
+    color: rgba(240, 230, 208, 0.7);
+    font-size: 10px;
+}
+
+.handbook-card:hover .handbook-card-badge--stacked .badge-line--second {
+    color: rgba(255, 220, 150, 0.85);
+}
+
+/* ==========================================
+   ЧЕРТЁЖ — превью в форме
+   ========================================== */
+
+.hb-drawing-preview {
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+}
+
+.hb-drawing-preview img {
+    max-width: 260px;
+    max-height: 200px;
+    display: block;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hb-drawing-preview-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.35);
+    border-radius: 8px;
+    color: #ffb0a0;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.hb-drawing-preview-icon i {
+    font-size: 26px;
+}
+
+.hb-drawing-preview p {
+    margin: 0;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1px;
+}
+
+/* ==========================================
+   ЧЕРТЁЖ — панель в деталях
+   ========================================== */
+
+.hb-drawing-panel {
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(52, 152, 219, 0.35);
+    border-radius: 14px;
+    overflow: hidden;
+
+    /* Плавное раскрытие */
+    max-height: 0;
+    opacity: 0;
+    transition:
+            max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.35s ease,
+            margin-top 0.35s ease;
+}
+
+.hb-drawing-panel.open {
+    opacity: 1;
+}
+
+.hb-drawing-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg,
+    rgba(52, 152, 219, 0.14),
+    rgba(41, 128, 185, 0.06));
+    border-bottom: 1px solid rgba(52, 152, 219, 0.28);
+    flex-wrap: wrap;
+}
+
+.hb-drawing-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a8d8f0;
+}
+
+.hb-drawing-panel-title i {
+    font-size: 15px;
+    color: #3498db;
+}
+
+.hb-drawing-filename {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: none;
+    color: rgba(240, 230, 208, 0.55);
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hb-drawing-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.hb-drawing-viewport {
+    padding: 18px;
+    background: rgba(0, 0, 0, 0.28);
+    display: flex;
+    justify-content: center;
+}
+
+.hb-drawing-pdf-wrap {
+    width: 100%;
+    height: 620px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hb-drawing-pdf {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.hb-drawing-image {
+    max-width: 100%;
+    max-height: 620px;
+    display: block;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: zoom-in;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hb-drawing-image:hover {
+    transform: scale(1.015);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================
+   ЛАЙТБОКС ЧЕРТЕЖА — зум по центру
+   ========================================== */
+
+.drawing-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    box-sizing: border-box;
+
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+}
+
+.drawing-lightbox.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawing-lightbox-image-wrap {
+    position: relative;
+    max-width: 95vw;
+    max-height: 95vh;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #0a0a0a;
+    box-shadow:
+            0 30px 90px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(255, 255, 255, 0.08);
+
+    /* Начальное состояние для анимации */
+    transform: scale(0.72);
+    opacity: 0;
+    transition:
+            transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.32s ease;
+}
+
+.drawing-lightbox.open .drawing-lightbox-image-wrap {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.drawing-lightbox-image {
+    display: block;
+    max-width: 95vw;
+    max-height: 95vh;
+    object-fit: contain;
+    cursor: zoom-out;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.drawing-lightbox-image.zoomed {
+    transform: scale(1.9);
+    cursor: zoom-in;
+}
+
+.drawing-lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #f0e6d0;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.drawing-lightbox-close:hover {
+    background: rgba(231, 76, 60, 0.6);
+    color: #fff;
+    border-color: rgba(255, 120, 100, 0.7);
+    transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hb-drawing-panel,
+    .drawing-lightbox,
+    .drawing-lightbox-image-wrap,
+    .drawing-lightbox-image,
+    .hb-drawing-image {
+        transition: none !important;
+    }
+}

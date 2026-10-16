@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <h1 class="handbook-title">Станки</h1>
+      <span class="handbook-count"
+            th:text="${machines != null ? #lists.size(machines) : 0} + ' шт.'">0 шт.</span>
+    </div>
+    <a th:href="@{/machines/new}" data-turbo-frame="app" class="btn-glass btn-glass-primary">
+      <i class="bi bi-plus-lg"></i> Добавить станок
+    </a>
+  </header>
+
+  <div th:if="${message}" th:class="'handbook-alert handbook-alert-' + ${messageType}">
+    <i class="bi bi-info-circle"></i>
+    <span th:text="${message}">—</span>
+  </div>
+
+  <div th:if="${machines == null or machines.isEmpty()}" class="journal-empty">
+    Список станков пуст
+  </div>
+
+  <table th:unless="${machines == null or machines.isEmpty()}" class="journal-table">
+    <thead>
+    <tr>
+      <th style="width: 80px;">ID</th>
+      <th>Название станка</th>
+      <th style="width: 120px;"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="machine : ${machines}">
+      <td th:text="${machine.id}">1</td>
+      <td th:text="${machine.name}">—</td>
+      <td class="hb-actions">
+        <a th:href="@{/machines/edit/{id}(id=${machine.id})}"
+           data-turbo-frame="app" class="hb-icon-btn" title="Редактировать">
+          <i class="bi bi-pencil"></i>
+        </a>
+        <form th:action="@{/machines/delete/{id}(id=${machine.id})}" method="post"
+              onsubmit="return confirm('Удалить станок?');" style="display:inline">
+          <button type="submit" class="hb-icon-btn" title="Удалить">
+            <i class="bi bi-trash"></i>
+          </button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>
+
+</body>
+</html>

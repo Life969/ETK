@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <a class="hb-icon-btn hb-back" data-turbo-frame="app" th:href="@{/orders/waiting}" title="Назад">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="handbook-title">Создание заказа</h1>
+        </div>
+    </header>
+
+    <form th:action="@{/orders/create}" th:object="${orderCreateDto}"
+          method="post" class="handbook-form" id="orderForm">
+
+        <div th:if="${#fields.hasAnyErrors()}" class="handbook-alert handbook-alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                <ul style="margin:0; padding-left:18px;">
+                    <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- pipeProductKind — заполнится в JS при выборе PIPE/NIPPLE -->
+        <input type="hidden" name="pipeProductKind" id="pipeProductKindHidden" value=""/>
+
+        <div class="hb-grid">
+
+            <!-- Компания -->
+            <div class="hb-field hb-field-full">
+                <label>Компания <span class="req">*</span></label>
+                <input type="text" th:field="*{companyName}" list="companyList" required
+                       placeholder="Введите или выберите компанию">
+                <datalist id="companyList">
+                    <option th:each="company : ${companies}" th:value="${company.name}"></option>
+                </datalist>
+                <div th:if="${#fields.hasErrors('companyName')}"
+                     class="hb-error" th:errors="*{companyName}"></div>
+            </div>
+
+            <!-- Тип продукции — 4 варианта -->
+            <div class="hb-field hb-field-full">
+                <label>Тип продукции <span class="req">*</span></label>
+                <div class="hb-radio-row">
+                    <label class="hb-radio">
+                        <input type="radio" name="productType" id="typeCoupling" value="COUPLING" required>
+                        <span><i class="bi bi-box-seam"></i> Муфта</span>
+                    </label>
+                    <label class="hb-radio">
+                        <input type="radio" name="productType" id="typeAdapter" value="ADAPTER">
+                        <span><i class="bi bi-arrow-left-right"></i> Переводник</span>
+                    </label>
+                    <label class="hb-radio">
+                        <input type="radio" name="productType" id="typePipe" value="PIPE">
+                        <span><i class="bi bi-horizontal-rule"></i> Труба</span>
+                    </label>
+                    <label class="hb-radio">
+                        <input type="radio" name="productType" id="typeNipple" value="NIPPLE">
+                        <span><i class="bi bi-distribute-vertical"></i> Патрубок</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- === БЛОК: Муфта === -->
+            <div id="couplingBlock" class="hb-field-full" style="display:none;">
+                <div class="hb-grid">
+                    <div class="hb-field">
+                        <label>Тип муфты</label>
+                        <select id="couplingTypeSelect" class="form-select">
+                            <option value="">-- Выберите тип --</option>
+                        </select>
+                    </div>
+                    <div class="hb-field">
+                        <label>Условный диаметр</label>
+                        <select id="couplingDiameterSelect" class="form-select" disabled>
+                            <option value="">-- Сначала выберите тип --</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden"/>
+            </div>
+
+            <!-- === БЛОК: Переводник === -->
+            <div id="adapterBlock" class="hb-field-full" style="display:none;">
+                <div class="hb-grid">
+                    <div class="hb-field">
+                        <label>Тип первой стороны</label>
+                        <select id="adapterTypeSelect" class="form-select">
+                            <option value="">-- Выберите тип --</option>
+                            <option th:each="type : ${adapterFirstSideTypes}"
+                                    th:value="${type}" th:text="${type}"></option>
+                        </select>
+                    </div>
+                    <div class="hb-field">
+                        <label>Переводник</label>
+                        <select id="adapterSelect" class="form-select" disabled>
+                            <option value="">-- Сначала выберите тип --</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" th:field="*{adapterId}" id="adapterIdHidden"/>
+            </div>
+
+            <!-- === БЛОК: Труба (PIPE) === -->
+            <div id="pipeBlock" class="hb-field-full" style="display:none;">
+                <div class="hb-grid">
+
+                    <div class="hb-field">
+                        <label>Тип резьбы (наружная) <span class="req">*</span></label>
+                        <select id="pipeThreadTypeSelect">
+                            <option value="">-- Выберите тип --</option>
+                            <option th:each="t : ${externalThreadTypes}"
+                                    th:value="${t}" th:text="${t}">НКТ</option>
+                        </select>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Условный диаметр <span class="req">*</span></label>
+                        <select id="pipeThreadDiameterSelect" disabled>
+                            <option value="">-- Сначала выберите тип --</option>
+                        </select>
+                        <input type="hidden" name="externalThreadId" id="pipeExternalThreadId" value=""/>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Толщина стенки, мм <span class="req">*</span></label>
+                        <input type="number" step="0.1"
+                               name="wallThicknessMm" id="pipeWallThickness"
+                               placeholder="например, 5.5"/>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Средняя длина одной трубы, м</label>
+                        <input type="number" step="0.1"
+                               name="averagePipeLengthM" id="pipeAvgLength"
+                               value="10" placeholder="10"/>
+                        <small style="opacity:0.6; display:block; margin-top:4px;">
+                            По ней оценивается количество труб.
+                        </small>
+                    </div>
+
+                    <div class="hb-field hb-field-full">
+                        <label>Как задаём заказ?</label>
+                        <div class="hb-radio-row">
+                            <label class="hb-radio">
+                                <input type="radio" id="pipeModeLength" name="_pipeMode" value="LENGTH" checked>
+                                <span>По метражу</span>
+                            </label>
+                            <label class="hb-radio">
+                                <input type="radio" id="pipeModeWeight" name="_pipeMode" value="WEIGHT">
+                                <span>По тоннажу</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Общий метраж, м</label>
+                        <input type="number" step="0.01"
+                               name="orderTotalLengthMeters" id="pipeTotalLength"
+                               placeholder="например, 620"/>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Общий вес, кг</label>
+                        <input type="number" step="0.01"
+                               name="orderTotalWeightKg" id="pipeTotalWeight"
+                               placeholder="например, 12000"/>
+                    </div>
+
+                    <div class="hb-field hb-field-full">
+                        <div class="hb-computed">
+                            <i class="bi bi-calculator"></i>
+                            Ориентировочно труб:
+                            <strong id="pipeComputedQty">—</strong> шт.
+                            <span class="muted">(через среднюю длину)</span>
+                        </div>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Цена за 1 тонну металла, ₽ <span class="req">*</span></label>
+                        <input type="number" step="0.01"
+                               name="pricePerTon" id="pipePricePerTon"
+                               placeholder="например, 80000"/>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- === БЛОК: Патрубок (NIPPLE) === -->
+            <div id="nippleBlock" class="hb-field-full" style="display:none;">
+                <div class="hb-grid">
+
+                    <div class="hb-field">
+                        <label>Тип резьбы (наружная) <span class="req">*</span></label>
+                        <select id="nippleThreadTypeSelect">
+                            <option value="">-- Выберите тип --</option>
+                            <option th:each="t : ${externalThreadTypes}"
+                                    th:value="${t}" th:text="${t}">НКТ</option>
+                        </select>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Условный диаметр <span class="req">*</span></label>
+                        <select id="nippleThreadDiameterSelect" disabled>
+                            <option value="">-- Сначала выберите тип --</option>
+                        </select>
+                        <input type="hidden" name="externalThreadId" id="nippleExternalThreadId" value=""/>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Толщина стенки, мм <span class="req">*</span></label>
+                        <input type="number" step="0.1"
+                               name="wallThicknessMm" id="nippleWallThickness"
+                               placeholder="например, 5.5"/>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Длина патрубка, мм <span class="req">*</span></label>
+                        <input type="number" step="0.1"
+                               name="pieceLengthMm" id="nipplePieceLength"
+                               placeholder="например, 2000"/>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Количество, шт <span class="req">*</span></label>
+                        <input type="number" step="1"
+                               name="quantity" id="nippleQuantity"
+                               placeholder="например, 120"/>
+                    </div>
+
+                    <div class="hb-field hb-field-full">
+                        <div class="hb-computed">
+                            <i class="bi bi-calculator"></i>
+                            Общий метраж: <strong id="nippleComputedLength">—</strong> м,
+                            вес: <strong id="nippleComputedWeight">—</strong> кг
+                        </div>
+                    </div>
+
+                    <div class="hb-field">
+                        <label>Цена за 1 тонну металла, ₽ <span class="req">*</span></label>
+                        <input type="number" step="0.01"
+                               name="pricePerTon" id="nipplePricePerTon"
+                               placeholder="например, 80000"/>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Количество — только для COUPLING / ADAPTER -->
+            <div class="hb-field" id="globalQuantityField">
+                <label>Количество <span class="req">*</span></label>
+                <input type="number" th:field="*{quantity}" id="globalQuantity" min="1">
+                <div th:if="${#fields.hasErrors('quantity')}"
+                     class="hb-error" th:errors="*{quantity}"></div>
+            </div>
+
+            <!-- Дедлайн -->
+            <div class="hb-field">
+                <label>Дедлайн (необязательно)</label>
+                <input type="date" th:field="*{deadline}">
+            </div>
+
+            <!-- Группа прочности -->
+            <div class="hb-field">
+                <label>Группа прочности стали</label>
+                <select id="steelGroupSelect" class="form-select">
+                    <option value="">-- Не указана --</option>
+                    <option th:each="g : ${steelGroups}"
+                            th:value="${g.id}"
+                            th:text="${g.code} + ' — ' + ${g.name} + ' (+' + ${g.markupPercent} + '%)'"></option>
+                </select>
+                <input type="hidden" th:field="*{strengthGroupId}" id="steelGroupIdHidden"/>
+                <small style="opacity:0.6; display:block; margin-top:4px;">
+                    Влияет на итоговую стоимость заказа.
+                </small>
+            </div>
+
+            <div class="hb-field">
+                <label>Марка стали</label>
+                <select id="steelGradeSelect" class="form-select" disabled>
+                    <option value="">-- Сначала выберите группу --</option>
+                </select>
+                <input type="hidden" th:field="*{steelGradeId}" id="steelGradeIdHidden"/>
+                <small style="opacity:0.6; display:block; margin-top:4px;">
+                    Информационное поле, на цену не влияет.
+                </small>
+            </div>
+
+            <!-- Доп. работы -->
+            <div class="hb-field hb-field-full">
+                <label>Дополнительные работы</label>
+
+                <div class="hb-works-picker" id="worksPicker">
+
+                    <div class="hb-works-search">
+                        <i class="bi bi-search hb-works-search-icon"></i>
+                        <input type="text" class="hb-works-search-input"
+                               placeholder="Поиск работы по названию...">
+                    </div>
+
+                    <div class="hb-works-chips">
+                        <button type="button" class="work-chip"
+                                th:each="work : ${additionalWorks}"
+                                th:data-work-id="${work.id}"
+                                th:data-work-name="${work.name}"
+                                th:data-work-price="${work.price}">
+                            <i class="bi bi-check-lg chip-check"></i>
+                            <span th:text="${work.name}">Работа</span>
+                            <span class="chip-price"
+                                  th:text="${#numbers.formatDecimal(work.price, 0, 0)} + ' ₽'"></span>
+                        </button>
+                    </div>
+
+                    <div class="hb-works-selected">
+                        <div class="hb-works-selected-header">
+                            <span><i class="bi bi-list-check"></i> Выбрано: <span class="selected-count">0</span></span>
+                            <span>Итого: <span class="hb-works-selected-total">0 ₽</span></span>
+                        </div>
+                        <div class="hb-works-selected-list"></div>
+                    </div>
+
+                    <div class="hb-works-hidden">
+                        <input type="checkbox" th:each="work : ${additionalWorks}"
+                               th:field="*{additionalWorkIds}" th:value="${work.id}"
+                               class="work-hidden-checkbox" style="display:none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="handbook-form-actions">
+            <button type="submit" class="btn-glass btn-glass-primary">
+                <i class="bi bi-save"></i> Создать
+            </button>
+            <a data-turbo-frame="app" th:href="@{/orders/waiting}" class="btn-glass btn-glass-ghost">
+                <i class="bi bi-x-circle"></i> Отмена
+            </a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

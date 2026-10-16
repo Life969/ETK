@@ -1,5 +1,6 @@
 package ProjectForJob.example.Job.services;
 
+import ProjectForJob.example.Job.entityJob.ForOrders.PipeProductKind;
 import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
 import ProjectForJob.example.Job.repositories.ProductionRecordRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 @Service
 public class ProductionRecordService {
 
@@ -39,75 +41,97 @@ public class ProductionRecordService {
         repository.deleteById(id);
     }
 
+    // ================================================================
+    // ФИЛЬТРЫ
+    // ================================================================
+
+    /**
+     * Полная версия с пагинацией. productType может быть:
+     *   - "COUPLING" / "ADAPTER" / "PIPE" / "NIPPLE" / null (все)
+     * externalThreadId — фильтр по конкретной резьбе (только для PIPE/NIPPLE).
+     */
     public Page<ProductionRecordEntity> findAllByFilters(String productType,
                                                          Long couplingId,
                                                          Long adapterId,
+                                                         Long externalThreadId,
                                                          Long employeeId,
                                                          Long machineId,
                                                          LocalDate startDate,
                                                          LocalDate endDate,
                                                          Pageable pageable) {
 
-        Specification<ProductionRecordEntity> spec = buildSpecification(productType, couplingId, adapterId, employeeId, machineId, startDate, endDate);
+        Specification<ProductionRecordEntity> spec = buildSpecification(
+                productType, couplingId, adapterId, externalThreadId,
+                employeeId, machineId, startDate, endDate);
+
         return repository.findAll(spec, pageable);
     }
 
+    /**
+     * Упрощённая версия для отчётов (без пагинации, с сортировкой).
+     */
     public List<ProductionRecordEntity> findAllByFilters(Long couplingId,
                                                          Long employeeId,
                                                          Long machineId,
                                                          LocalDate startDate,
                                                          LocalDate endDate,
                                                          Sort sort) {
-        // Передаём productType = null, adapterId = null для совместимости со старой сигнатурой
-        Specification<ProductionRecordEntity> spec = buildSpecification(null, couplingId, null, employeeId, machineId, startDate, endDate);
+        Specification<ProductionRecordEntity> spec = buildSpecification(
+                null, couplingId, null, null, employeeId, machineId, startDate, endDate);
         return repository.findAll(spec, sort);
     }
 
-
-    // Универсальный метод построения спецификации
     private Specification<ProductionRecordEntity> buildSpecification(String productType,
                                                                      Long couplingId,
                                                                      Long adapterId,
+                                                                     Long externalThreadId,
                                                                      Long employeeId,
                                                                      Long machineId,
                                                                      LocalDate startDate,
                                                                      LocalDate endDate) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            // --- Тип продукции ---
             if ("COUPLING".equals(productType)) {
                 predicates.add(cb.isNotNull(root.get("coupling")));
                 predicates.add(cb.isNull(root.get("adapter")));
+                predicates.add(cb.isNull(root.get("externalThread")));
             } else if ("ADAPTER".equals(productType)) {
                 predicates.add(cb.isNull(root.get("coupling")));
                 predicates.add(cb.isNotNull(root.get("adapter")));
+                predicates.add(cb.isNull(root.get("externalThread")));
+            } else if ("PIPE".equals(productType) || "NIPPLE".equals(productType)) {
+                predicates.add(cb.isNull(root.get("coupling")));
+                predicates.add(cb.isNull(root.get("adapter")));
+                predicates.add(cb.isNotNull(root.get("externalThread")));
+                predicates.add(cb.equal(root.get("pipeProductKind"),
+                        PipeProductKind.valueOf(productType)));
             }
 
-            // Фильтр по конкретной муфте
+            // --- Конкретная муфта / переводник / резьба ---
             if (couplingId != null) {
                 predicates.add(cb.equal(root.get("coupling").get("id"), couplingId));
             }
-
-            // Фильтр по конкретному переходнику
             if (adapterId != null) {
                 predicates.add(cb.equal(root.get("adapter").get("id"), adapterId));
             }
+            if (externalThreadId != null) {
+                predicates.add(cb.equal(root.get("externalThread").get("id"), externalThreadId));
+            }
 
-            // Фильтр по сотруднику
+            // --- Сотрудник / станок ---
             if (employeeId != null) {
                 predicates.add(cb.equal(root.get("employee").get("id"), employeeId));
             }
-
-            // Фильтр по станку
             if (machineId != null) {
                 predicates.add(cb.equal(root.get("machine").get("id"), machineId));
             }
 
-            // Фильтр по дате начала
+            // --- Даты ---
             if (startDate != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("productionDate"), startDate));
             }
-
-            // Фильтр по дате окончания
             if (endDate != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("productionDate"), endDate));
             }

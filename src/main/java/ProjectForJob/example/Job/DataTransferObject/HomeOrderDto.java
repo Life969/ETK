@@ -2,6 +2,8 @@ package ProjectForJob.example.Job.DataTransferObject;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class HomeOrderDto {
     private Long id;
@@ -10,6 +12,7 @@ public class HomeOrderDto {
     private String productType;
     private String productName;
     private Integer quantity;
-    private Long daysUntilDeadline;   // количество дней до дедлайна
+    private Long daysUntilDeadline;// количество дней до дедлайна
+    private LocalDate deadline; // дедлайн
     private String urgencyClass;      // класс Bootstrap для фона
 }

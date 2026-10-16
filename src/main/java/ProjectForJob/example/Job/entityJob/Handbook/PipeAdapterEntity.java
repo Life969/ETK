@@ -73,6 +73,12 @@ public class PipeAdapterEntity {
     @Column(name = "image_path")
     private String imagePath;
 
+    @Column(name = "drawing_path")
+    private String drawingPath;
+
+    @Column(name = "drawing_original_name")
+    private String drawingOriginalName;
+
     // Метод для отображения полного наименования
     public String getFullName() {
         return String.format("%s %s x %s %s",

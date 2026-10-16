@@ -1,216 +1,4 @@
-:root {
-    /* Основные цвета */
-    --bs-body-bg: #2C3E50;
-    --bs-body-color: #ECF0F1;
-    --bs-primary: #E67E22;
-    --bs-primary-rgb: 230, 126, 34;
-    --bs-link-color: #E67E22;
-    --bs-link-hover-color: #d35400;
 
-    /* Цвета обратной связи (можно оставить стандартные) */
-    --bs-success: #2ecc71;
-    --bs-success-rgb: 46, 204, 113;
-    --bs-danger: #e74c3c;
-    --bs-danger-rgb: 231, 76, 60;
-    --bs-warning: #f39c12;
-    --bs-info: #3498db;
-}
-
-/* Фон страницы и текста уже применены через переменные,
-   но можем явно задать для body */
-body {
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-}
-
-/* Блоки (карточки, модалки, выпадающие списки) */
-.card, .modal-content, .dropdown-menu, .list-group-item {
-    background-color: #34495e;
-    color: #ECF0F1;
-    border-color: #E67E22;
-}
-
-/* Таблицы */
-.table {
-    --bs-table-color: #ECF0F1;
-    --bs-table-bg: transparent;
-    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
-    --bs-table-hover-bg: rgba(230, 126, 34, 0.15);
-    --bs-table-border-color: #E67E22;
-}
-.table td,
-.table th {
-    color: inherit; /* наследуем от родителя .table */
-}
-.table thead {
-    --bs-table-bg: #1e2b38;
-    color: #E67E22;
-}
-.table thead th {
-    color: #E67E22; /* оранжевый */
-    /* можно также использовать переменную --bs-primary */
-}
-
-/* Кнопки */
-.btn-primary {
-    background-color: #E67E22;
-    border-color: #E67E22;
-}
-.btn-primary:hover {
-    background-color: #d35400;
-    border-color: #d35400;
-}
-.btn-outline-primary {
-    color: #E67E22;
-    border-color: #E67E22;
-}
-.btn-outline-primary:hover {
-    background-color: #E67E22;
-    color: #fff;
-}
-
-/* Поля ввода */
-.form-control, .form-select, .input-group-text {
-    background-color: #34495e;
-    border-color: #E67E22;
-    color: #ECF0F1;
-}
-.form-control:focus, .form-select:focus {
-    background-color: #3d566e;
-    border-color: #E67E22;
-    box-shadow: 0 0 0 0.25rem rgba(230, 126, 34, 0.25);
-}
-.form-control::placeholder {
-    color: #95a5a6;
-}
-
-/* Алерты */
-.alert-success {
-    background-color: #2ecc71;
-    color: #1e2b38;
-    border-color: #27ae60;
-}
-.alert-danger {
-    background-color: #e74c3c;
-    color: #1e2b38;
-    border-color: #c0392b;
-}
-.alert-warning {
-    background-color: #f39c12;
-    color: #1e2b38;
-    border-color: #e67e22;
-}
-.alert-info {
-    background-color: #3498db;
-    color: #1e2b38;
-    border-color: #2980b9;
-}
-
-/* Ссылки */
-a:not(.btn) {
-    color: #E67E22;
-}
-a:not(.btn):hover {
-    color: #d35400;
-}
-
-.corner-image {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 300px;   /* или любой размер */
-    height: auto;
-    opacity: 0.9;   /* можно сделать полупрозрачным, чтобы не отвлекал */
-    z-index: 100;   /* чтобы был поверх других элементов, если надо */
-    pointer-events: none; /* чтобы картинка не мешала кликать по кнопкам под ней */
-}
-
-.corner-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Подсказки (text-muted) на тёмном фоне */
-.form-text.text-muted {
-    color: #E67E22 !important; /* светло-серый, читаемый */
-    opacity: 0.9;
-}
-
-/* Сообщения об ошибках валидации */
-.invalid-feedback {
-    color: #e74c3c; /* красный, как в alert-danger */
-    font-weight: 500;
-}
-
-/* Поле с ошибкой — рамка красная, как в Bootstrap */
-.is-invalid {
-    border-color: #e74c3c !important;
-    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
-}
-
-/* Если поле успешно прошло валидацию (опционально) */
-.is-valid {
-    border-color: #2ecc71 !important;
-    box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
-}
-
-/* Звёздочка обязательного поля */
-.text-danger {
-    color: #e74c3c !important;
-}
-
-/* Специфичные классы для карточек срочности */
-.card.bg-danger {
-    background-color: #c0392b !important;  /* приглушённый тёмно-красный */
-    border-color: #e67e22;
-    color: #ecf0f1;
-}
-.card.bg-danger .card-title a {
-    color: #ecf0f1 !important;
-}
-.card.bg-danger .card-title a:hover {
-    text-decoration: underline;
-}
-
-.card.bg-warning {
-    background-color: #f39c12 !important;  /* золотисто-оранжевый */
-    border-color: #e67e22;
-    color: #1e2b38;                       /* тёмный текст для контраста */
-}
-.card.bg-warning .card-title a {
-    color: #1e2b38 !important;
-}
-.card.bg-warning .card-title a:hover {
-    color: #000 !important;
-}
-
-.card.bg-light {
-    background-color: #34495e !important; /* стандартный тёмный фон карточки */
-    border-color: #e67e22;
-    color: #ecf0f1;
-}
-.card.bg-light .card-title a {
-    color: #e67e22 !important;            /* ссылка оранжевая */
-}
-.card.bg-light .card-title a:hover {
-    color: #d35400;
-}
-
-.image-container {
-    background-color: #34495e;  /* родной фон карточки */
-    padding: 8px;
-    border-radius: 0.375rem;
-    display: inline-block;
-}
-
-.image-container img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    background: transparent !important;  /* убираем возможный фон у самого img */
-    border: none !important;
-}
 
 /* WoW Tooltip Style - финальный */
 .wow-tooltip {
@@ -225,7 +13,7 @@ a:not(.btn):hover {
     color: #f0e6d0;
     font-family: 'Friz Quadrata', 'Cinema', 'Verdana', sans-serif;
     font-size: 17px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     z-index: 10000;
     pointer-events: none;
     backdrop-filter: blur(2px);
@@ -267,7 +55,7 @@ a:not(.btn):hover {
     font-size: 25px;
     font-weight: bold;
     letter-spacing: 1px;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 .wow-tooltip .item-type {
@@ -313,7 +101,6 @@ a:not(.btn):hover {
 }
 
 
-
 .wow-tooltip .description {
     margin-top: 11px;
     font-style: italic;
@@ -322,6 +109,7 @@ a:not(.btn):hover {
     line-height: 1.5;
     text-align: center;
 }
+
 .wow-tooltip .coin {
     display: inline-flex;
     align-items: center;
@@ -341,22 +129,55 @@ a:not(.btn):hover {
     display: inline-block;
     margin-right: 4px;
 }
+
 /* Цвета качества предметов (как в WoW) */
-.quality0 { color: #9d9d9d; } /* серый */
-.quality1 { color: #ffffff; } /* белый */
-.quality2 { color: #1eff00; } /* зелёный */
-.quality3 { color: #0070dd; } /* синий */
-.quality4 { color: #a335ee; } /* фиолетовый */
-.quality5 { color: #ff8000; } /* оранжевый */
-.quality6 { color: #e5cc80; } /* жёлтый */
-.quality7 { color: #ff0000; } /* красный */
+.quality0 {
+    color: #9d9d9d;
+}
+
+/* серый */
+.quality1 {
+    color: #ffffff;
+}
+
+/* белый */
+.quality2 {
+    color: #1eff00;
+}
+
+/* зелёный */
+.quality3 {
+    color: #0070dd;
+}
+
+/* синий */
+.quality4 {
+    color: #a335ee;
+}
+
+/* фиолетовый */
+.quality5 {
+    color: #ff8000;
+}
+
+/* оранжевый */
+.quality6 {
+    color: #e5cc80;
+}
+
+/* жёлтый */
+.quality7 {
+    color: #ff0000;
+}
+
+/* красный */
 
 /* Применяем к названию в тултипе */
 .wow-tooltip .item-name {
     font-size: 22px;
     font-weight: bold;
     letter-spacing: 1px;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 /* Стилизованный прямоугольник для названия продукции */
@@ -387,6 +208,7 @@ a:not(.btn):hover {
     text-decoration: underline;
     color: #ffd966;
 }
+
 .product-name-wrapper {
     display: inline-block;
     background: #2a1a0a;
@@ -419,4 +241,5361 @@ a:not(.btn):hover {
 /* Дополнительная страховка для таблицы, чтобы не было подчёркивания по умолчанию */
 .table .product-tooltip {
     text-decoration: none !important;
+}
+
+/* =========================================
+   Страница фабрики WC1 — full screen, без letterbox
+   ========================================= */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.factory-page {
+    background-color: #f0e6d6;
+}
+
+/* Сцена занимает ровно весь viewport */
+.scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Картинка заполняет сцену, при несовпадении пропорций
+   обрезается по краям (object-fit: cover) — это нормально */
+.background-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    z-index: 1;
+}
+
+/* =========================================
+   ДЫМ
+   ========================================= */
+
+.smoke-container {
+    position: absolute;
+    top: 15%;
+    left: 55%;
+    width: 3vw;
+    height: 3vw;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.smoke {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 2.2vw;
+    height: 2.2vw;
+    background-color: #d4cfc9;
+    filter: blur(1px);
+    opacity: 0;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+
+    animation-name: puffUp;
+    animation-duration: 4s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}
+
+.smoke::before,
+.smoke::after {
+    content: '';
+    position: absolute;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.smoke::before {
+    width: 70%;
+    height: 70%;
+    top: -15%;
+    left: 15%;
+}
+
+.smoke::after {
+    width: 60%;
+    height: 60%;
+    top: 10%;
+    left: -15%;
+}
+
+@keyframes puffUp {
+    0% {
+        transform: translate(0, 0) scale(0.4) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.85;
+    }
+    50% {
+        transform: translate(-1vw, -4vw) scale(1.1) rotate(5deg);
+    }
+    100% {
+        transform: translate(-3vw, -11vw) scale(2.2) rotate(-10deg);
+        opacity: 0;
+    }
+}
+
+/* Задержки и стартовые позиции — тоже в vw */
+.puff-1 {
+    animation-delay: 0s;
+}
+
+.puff-2 {
+    animation-delay: 1s;
+    left: 0.8vw;
+    width: 1.4vw;
+    height: 1.4vw;
+}
+
+.puff-3 {
+    animation-delay: 2s;
+    left: -0.6vw;
+    width: 2.5vw;
+    height: 2.5vw;
+}
+
+.puff-4 {
+    animation-delay: 3s;
+    left: 0.3vw;
+    width: 1.7vw;
+    height: 1.7vw;
+}
+
+.smoke-container:hover .smoke {
+    animation-duration: 1.8s;
+    background-color: #e8e3dd;
+}
+
+/* =========================================
+   ОБЛАКА — в vw, движение через transform
+   ========================================= */
+
+.clouds-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.cloud {
+    position: absolute;
+    background-color: #fdf2e3;
+    border-radius: 999px;
+    opacity: 0.9;
+    left: 0;
+
+    /* СТАРТОВАЯ позиция — облако за левым краем */
+    transform: translateX(-25vw);
+    will-change: transform;
+
+    animation-name: drift;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.cloud::before {
+    content: '';
+    position: absolute;
+    background: inherit;
+    width: 55%;
+    height: 160%;
+    border-radius: 50%;
+    top: -80%;
+    left: 20%;
+    /* Тени в vw — плавно масштабируются с экраном, без дёрганий */
+    box-shadow: 1.4vw 0.3vw 0 -0.3vw #fdf2e3,
+    -1.1vw 0.5vw 0 -0.4vw #fdf2e3;
+}
+
+.cloud::after {
+    content: '';
+    position: absolute;
+    background: inherit;
+    width: 40%;
+    height: 130%;
+    border-radius: 50%;
+    top: -60%;
+    left: 40%;
+}
+
+/* Медленные скорости: 120–280 секунд на пролёт */
+
+.cloud-1 {
+    width: 9vw;
+    height: 2.1vw;
+    top: 15%;
+    animation-duration: 160s;
+    animation-delay: -20s;
+}
+
+.cloud-2 {
+    width: 12vw;
+    height: 2.9vw;
+    top: 28%;
+    animation-duration: 220s;
+    animation-delay: -80s;
+    opacity: 0.85;
+}
+
+.cloud-3 {
+    width: 5.2vw;
+    height: 1.4vw;
+    top: 8%;
+    animation-duration: 120s;
+    animation-delay: -50s;
+    opacity: 0.75;
+}
+
+.cloud-4 {
+    width: 7.3vw;
+    height: 1.7vw;
+    top: 36%;
+    animation-duration: 280s;
+    animation-delay: -200s;
+    opacity: 0.55;
+}
+
+.cloud-5 {
+    width: 10vw;
+    height: 2.4vw;
+    top: 20%;
+    animation-duration: 190s;
+    animation-delay: -110s;
+    opacity: 0.8;
+}
+
+.cloud-6 {
+    width: 6.5vw;
+    height: 1.6vw;
+    top: 5%;
+    animation-duration: 140s;
+    animation-delay: -90s;
+    opacity: 0.7;
+}
+
+.cloud-7 {
+    width: 14vw;
+    height: 3.2vw;
+    top: 32%;
+    animation-duration: 260s;
+    animation-delay: -220s;
+    opacity: 0.5;
+}
+
+.cloud-8 {
+    width: 8vw;
+    height: 2vw;
+    top: 12%;
+    animation-duration: 130s;
+    animation-delay: -60s;
+    opacity: 0.9;
+}
+
+/* Движение через transform — GPU, плавно, без дёрганий */
+@keyframes drift {
+    0% {
+        transform: translateX(-25vw);
+    }
+    100% {
+        transform: translateX(125vw);
+    }
+}
+
+/* =========================================
+   ВОДА В БОЧКЕ И ВЕДРЕ — с редкими порывами ветра
+   ========================================= */
+
+.water {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+
+    background-color: #8ec5e0;
+    border: 0.15vw solid #2a3b4a;
+    box-sizing: border-box;
+    border-radius: 50% 50% 48% 48% / 35% 35% 65% 65%;
+
+    /* Рябь от порыва ветра — редко, с большой паузой */
+    animation-name: waterRipple;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    will-change: transform;
+    transform-origin: center center;
+}
+
+/* Большой блик — «улыбка» на поверхности */
+.water::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 20%;
+    width: 45%;
+    height: 22%;
+    background-color: #ffffff;
+    border-radius: 50%;
+    opacity: 0.9;
+
+    /* Блик пробегает вслед за рябью — синхронно с водой */
+    animation-name: shineSweep;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+/* Маленький блик — точка (статичная) */
+.water::after {
+    content: '';
+    position: absolute;
+    top: 30%;
+    right: 18%;
+    width: 10%;
+    height: 12%;
+    background-color: #ffffff;
+    border-radius: 50%;
+    opacity: 0.85;
+}
+
+/* Вода в большой бочке — порыв примерно раз в 28 секунд */
+.barrel-water {
+    width: 4.1vw;
+    height: 0.73vw;
+    top: 77.9%;
+    left: 92.5%;
+    transform: translate(-50%, -50%);
+    animation-duration: 28s;
+    animation-delay: 0s;
+}
+
+/* Вода в ведре — порыв раз в 28 секунд, но на 1 секунду позже.
+   Ветер «доходит» до ведра с небольшой задержкой — так естественнее. */
+.bucket-water {
+    width: 2.36vw;
+    height: 0.78vw;
+    top: 86.3%;
+    left: 88.8%;
+    transform: translate(-50%, -50%);
+    animation-duration: 28s;
+    animation-delay: -27s; /* сдвиг цикла, чтобы рябь пришла на секунду позже */
+}
+
+/* Синхронизируем блик с водой — те же duration, что у родителя */
+.barrel-water::before {
+    animation-duration: 28s;
+    animation-delay: 0s;
+}
+
+.bucket-water::before {
+    animation-duration: 28s;
+    animation-delay: -27s;
+}
+
+/* =========================================
+   АНИМАЦИЯ РЯБИ
+   Первые 85% цикла — полная неподвижность.
+   В последние 15% (≈4 секунды) — короткий порыв
+   и затухание, как круги по воде.
+   ========================================= */
+
+@keyframes waterRipple {
+    0%, 85% {
+        transform: translate(-50%, -50%) scaleX(1) scaleY(1);
+    }
+    87% {
+        /* Ветер ударил: вода сжалась по горизонтали */
+        transform: translate(-50%, -50%) scaleX(1.08) scaleY(0.9);
+    }
+    90% {
+        /* Отдача: чуть раздалась в стороны */
+        transform: translate(-50%, -50%) scaleX(0.96) scaleY(1.03);
+    }
+    93% {
+        /* Второй более слабый всплеск */
+        transform: translate(-50%, -50%) scaleX(1.04) scaleY(0.98);
+    }
+    96% {
+        /* Затухание */
+        transform: translate(-50%, -50%) scaleX(0.99) scaleY(1.01);
+    }
+    100% {
+        transform: translate(-50%, -50%) scaleX(1) scaleY(1);
+    }
+}
+
+/* =========================================
+   БЛИК ПРОБЕГАЕТ ПО ПОВЕРХНОСТИ
+   Одновременно с рябью — сдвигается вправо
+   и обратно, будто отражает порыв.
+   ========================================= */
+
+@keyframes shineSweep {
+    0%, 85% {
+        transform: translateX(0);
+        opacity: 0.9;
+    }
+    88% {
+        transform: translateX(40%);
+        opacity: 0.6;
+    }
+    92% {
+        transform: translateX(70%);
+        opacity: 0.4;
+    }
+    96% {
+        transform: translateX(20%);
+        opacity: 0.75;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 0.9;
+    }
+}
+
+/* =========================================
+   МЕДВЕДЬ-АКТЁР
+   ========================================= */
+
+.ice-bear-actor {
+    position: absolute;
+    width: 9vw;
+    height: 9vw;
+    bottom: 8%; /* высота над землёй */
+    left: 32%; /* ← позиция по горизонтали */
+    z-index: 6;
+    pointer-events: none;
+}
+
+/* Все видео стопкой. Видно только то, у которого .active */
+.bear-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.bear-video.active {
+    opacity: 1;
+}
+
+/* =========================================
+   ПАДАЮЩИЕ ЛИСТЬЯ — мультяшный SVG-лист
+   ========================================= */
+
+.leaves-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.leaf {
+    position: absolute;
+    top: -8vh;
+    width: 1.2vw;
+    height: 1.8vw;
+    will-change: transform;
+    animation-name: leafFall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    /* Цвет листа задаётся через color — SVG берёт его через currentColor */
+    color: #e59449;
+}
+
+.leaf svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+/* =========================================
+   Индивидуальные настройки:
+   цвет (color) + позиция (left) + скорость + задержка
+   ========================================= */
+
+.leaf-1 {
+    color: #e59449;
+    left: 8%;
+    animation-duration: 22s;
+    animation-delay: 0s;
+}
+
+.leaf-2 {
+    color: #d97b3c;
+    left: 18%;
+    animation-duration: 26s;
+    animation-delay: -5s;
+    width: 1vw;
+    height: 1.5vw;
+}
+
+.leaf-3 {
+    color: #f0b86e;
+    left: 28%;
+    animation-duration: 20s;
+    animation-delay: -12s;
+}
+
+.leaf-4 {
+    color: #c96a2d;
+    left: 38%;
+    animation-duration: 28s;
+    animation-delay: -3s;
+    width: 1.4vw;
+    height: 2.1vw;
+}
+
+.leaf-5 {
+    color: #e59449;
+    left: 48%;
+    animation-duration: 24s;
+    animation-delay: -18s;
+}
+
+.leaf-6 {
+    color: #a85520;
+    left: 58%;
+    animation-duration: 30s;
+    animation-delay: -8s;
+    width: 1.1vw;
+    height: 1.65vw;
+}
+
+.leaf-7 {
+    color: #f0b86e;
+    left: 68%;
+    animation-duration: 21s;
+    animation-delay: -14s;
+}
+
+.leaf-8 {
+    color: #d97b3c;
+    left: 78%;
+    animation-duration: 25s;
+    animation-delay: -7s;
+    width: 1.3vw;
+    height: 1.95vw;
+}
+
+.leaf-9 {
+    color: #e59449;
+    left: 88%;
+    animation-duration: 23s;
+    animation-delay: -20s;
+}
+
+.leaf-10 {
+    color: #c96a2d;
+    left: 5%;
+    animation-duration: 27s;
+    animation-delay: -10s;
+    width: 1.2vw;
+    height: 1.8vw;
+}
+
+.leaf-11 {
+    color: #f0b86e;
+    left: 63%;
+    animation-duration: 19s;
+    animation-delay: -16s;
+}
+
+.leaf-12 {
+    color: #a85520;
+    left: 93%;
+    animation-duration: 29s;
+    animation-delay: -22s;
+    width: 1.35vw;
+    height: 2vw;
+}
+
+/* =========================================
+   Полёт: падает + качается + вращается
+   ========================================= */
+
+@keyframes leafFall {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 0;
+    }
+    8% {
+        opacity: 0.95;
+    }
+    25% {
+        transform: translate(-3vw, 25vh) rotate(120deg);
+    }
+    50% {
+        transform: translate(2.5vw, 50vh) rotate(240deg);
+    }
+    75% {
+        transform: translate(-2vw, 75vh) rotate(350deg);
+    }
+    92% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(2vw, 105vh) rotate(460deg);
+        opacity: 0;
+    }
+}
+
+/* =========================================
+   WELCOME PANEL — стеклянное табло
+   ========================================= */
+
+/* Затемнение поверх сцены, чтобы панель читалась */
+.welcome-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            ellipse at center,
+            rgba(15, 20, 30, 0.15) 0%,
+            rgba(10, 15, 25, 0.45) 100%
+    );
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Контейнер панели — центрирует её на экране */
+.welcome-panel {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    pointer-events: none;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Само стекло */
+.panel-glass {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    padding: 44px 40px 28px;
+
+    /* Стеклянность */
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+
+    /* Тонкая грань стекла */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+
+    /* Внутреннее свечение + тень */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
+    color: #f0e6d0;
+    font-family: 'Segoe UI', 'Verdana', sans-serif;
+
+    pointer-events: auto;
+
+    /* Появление */
+    opacity: 0;
+    transform: translateY(20px);
+    animation: panelAppear 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes panelAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Блик сверху стекла — тонкая светлая полоска */
+.panel-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.6),
+            transparent
+    );
+    border-radius: 1px;
+}
+
+/* Заголовок */
+.panel-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.panel-title {
+    margin: 0;
+    font-size: 44px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(255, 200, 130, 0.15);
+}
+
+.panel-subtitle {
+    margin: 12px 0 0;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+    font-weight: 300;
+}
+
+/* Тело — здесь будут формы авторизации позже */
+.panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 32px;
+}
+
+/* Кнопка входа */
+.btn-enter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: 100%;
+    padding: 16px 24px;
+
+    background: linear-gradient(
+            135deg,
+            rgba(230, 126, 34, 0.95),
+            rgba(200, 90, 20, 0.95)
+    );
+    border: 1px solid rgba(255, 200, 130, 0.4);
+    border-radius: 12px;
+
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-enter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(230, 126, 34, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    background: linear-gradient(
+            135deg,
+            rgba(240, 140, 50, 1),
+            rgba(210, 100, 25, 1)
+    );
+}
+
+.btn-enter:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-enter svg {
+    transition: transform 0.25s ease;
+}
+
+.btn-enter:hover svg {
+    transform: translateX(4px);
+}
+
+/* Футер */
+.panel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.4);
+}
+
+.panel-footer .version {
+    color: rgba(240, 230, 208, 0.55);
+}
+
+/* =========================================
+   ВЫКЛЮЧАТЕЛЬ СВЕТА — вписан в стиль картинки
+   ========================================= */
+
+.light-switch {
+    position: absolute;
+    left: 61.3%; /* ← справа от двери */
+    top: 68%; /* ← на уровне руки */
+    width: 1.4vw;
+    height: 2vw;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 7;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Корпус выключателя — кремовый, как окна здания */
+.switch-frame {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #f5ede0 0%, #e8dcc4 100%);
+    border: 0.16vw solid #2a1f18;
+    border-radius: 0.2vw;
+    box-shadow: inset 0 0.1vw 0 rgba(255, 255, 255, 0.6),
+    inset 0 -0.1vw 0 rgba(0, 0, 0, 0.15),
+    0 0.12vw 0.25vw rgba(0, 0, 0, 0.35);
+}
+
+/* Дорожка, по которой ходит рычажок */
+.switch-track {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    width: 0.55vw;
+    height: 70%;
+    transform: translateX(-50%);
+    background: #d4c8b0;
+    border: 0.1vw solid #2a1f18;
+    border-radius: 0.15vw;
+    box-shadow: inset 0 0.1vw 0.15vw rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+/* Сам рычажок — тёмный переключатель */
+.switch-knob {
+    position: absolute;
+    left: 50%;
+    bottom: 0; /* выключено — внизу */
+    width: 0.5vw;
+    height: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #4a4a4a 0%, #1a1a1a 100%);
+    border-radius: 0.1vw;
+    transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Красная точка-индикатор на рычажке */
+.knob-dot {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 0.22vw;
+    height: 0.22vw;
+    background: #8a1e12;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ВКЛЮЧЕНО — рычажок переезжает наверх */
+body.lights-on .switch-knob {
+    bottom: 50%;
+}
+
+/* И красная точка загорается */
+body.lights-on .knob-dot {
+    background: #ff4a3a;
+    box-shadow: 0 0 0.8vw rgba(255, 80, 60, 0.95);
+}
+
+/* Лёгкий отклик на нажатие */
+.light-switch:active {
+    transform: scale(0.95);
+}
+
+/* =========================================
+   СВЕЧЕНИЕ ФОНАРЕЙ
+   ========================================= */
+
+.lamp-glow {
+    position: absolute;
+    /* 12vw в диаметре — мягкое пятно света вокруг лампы */
+    width: 12vw;
+    height: 12vw;
+    pointer-events: none;
+    z-index: 3;
+
+    /* Тёплый свет в стиле ламп накаливания */
+    background: radial-gradient(
+            circle,
+            rgba(255, 220, 130, 0.85) 0%,
+            rgba(255, 190, 90, 0.45) 25%,
+            rgba(255, 160, 60, 0.15) 50%,
+            transparent 75%
+    );
+
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    mix-blend-mode: screen;
+}
+
+/* Позиция — центр первого фонаря (у здания) */
+.lamp-glow-1 {
+    left: 73.5%;
+    top: 55%;
+    transform: translate(-50%, -50%);
+}
+
+/* Позиция — центр второго фонаря (справа, край картинки) */
+.lamp-glow-2 {
+    left: 97%;
+    top: 53%;
+    transform: translate(-50%, -50%);
+}
+
+/* Загораются при включении */
+body.lights-on .lamp-glow {
+    opacity: 1;
+}
+
+/* Лёгкое мерцание — как живой свет */
+@keyframes flicker {
+    0%, 100% {
+        opacity: 1;
+    }
+    45% {
+        opacity: 0.94;
+    }
+    50% {
+        opacity: 0.88;
+    }
+    55% {
+        opacity: 0.96;
+    }
+    80% {
+        opacity: 0.92;
+    }
+}
+
+body.lights-on .lamp-glow-1 {
+    animation: flicker 4.2s ease-in-out infinite;
+}
+
+body.lights-on .lamp-glow-2 {
+    animation: flicker 5.7s ease-in-out infinite;
+    animation-delay: -1.5s;
+}
+
+/* =========================================
+   PANEL BODY — плавная смена высоты
+   ========================================= */
+
+.panel-body {
+    position: relative;
+    width: 100%;
+    /* Плавная смена высоты — как раз то, что убирает "дёргание" */
+    transition: height 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+/* Каждое состояние — абсолютное, но по ширине совпадает с panel-body */
+.panel-state {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+.panel-state.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Кнопка лопается при клике */
+.btn-enter.bursting {
+    animation: btnBurst 0.35s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes btnBurst {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    40% {
+        transform: scale(1.08);
+        opacity: 1;
+        filter: brightness(1.4);
+    }
+    100% {
+        transform: scale(0.2);
+        opacity: 0;
+        filter: brightness(2);
+    }
+}
+
+/* =========================================
+   ЧАСТИЦЫ ВЗРЫВА
+   ========================================= */
+
+.burst-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 8px rgba(255, 160, 80, 0.6);
+    animation: particleFly 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    70% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.2);
+        opacity: 0;
+    }
+}
+
+/* =========================================
+   ПОЛЯ ФОРМЫ ЛОГИНА
+   ========================================= */
+
+.form-field {
+    margin-bottom: 16px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+    font-weight: 400;
+}
+
+.form-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.25s ease;
+    -webkit-appearance: none;
+}
+
+.form-field input::placeholder {
+    color: rgba(240, 230, 208, 0.25);
+}
+
+.form-field input:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.form-field input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn-back {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    background: none;
+    border: none;
+    color: rgba(240, 230, 208, 0.45);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease, letter-spacing 0.2s ease;
+}
+
+.btn-back:hover {
+    color: rgba(240, 230, 208, 0.9);
+    letter-spacing: 3px;
+}
+
+/* Плейсхолдер и каретка */
+.form-field input::placeholder {
+    color: rgba(240, 230, 208, 0.35);
+}
+
+.form-field input {
+    caret-color: #ffd966;
+}
+
+/* ─── Победить автозаполнение Chrome ───
+   Chrome игнорирует background у autofill-полей.
+   Единственный способ — огромный inset box-shadow,
+   который перекрывает жёлтую заливку браузера.
+   Плюс -webkit-text-fill-color перебивает цвет текста. */
+.form-field input:-webkit-autofill,
+.form-field input:-webkit-autofill:hover,
+.form-field input:-webkit-autofill:focus,
+.form-field input:-webkit-autofill:active {
+    -webkit-text-fill-color: #f0e6d0 !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #ffd966;
+}
+
+/* Firefox — свой способ */
+.form-field input:autofill {
+    filter: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #f0e6d0;
+}
+
+/* =========================================
+   ЛИСТЬЯ, ЛЕЖАЩИЕ НА СТЕКЛЕ
+   Статичная кучка в углу панели.
+   Привязана к стеклу, не к форме.
+   ========================================= */
+
+.panel-leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3; /* поверх стекла */
+    border-radius: inherit;
+    overflow: hidden; /* не вылетают за скруглённые углы */
+}
+
+.p-leaf {
+    position: absolute;
+    width: 34px;
+    height: 48px;
+    color: #e59449;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+    /* Лежат статично, но чуть-чуть «дышат» — чтобы не выглядели мёртвыми */
+    animation: leafRest 7s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+/* Мягкое покачивание лежащих листьев */
+@keyframes leafRest {
+    0%, 100% {
+        transform: rotate(var(--rot, 0deg)) translateY(0);
+    }
+    50% {
+        transform: rotate(var(--rot, 0deg)) translateY(-1.5px);
+    }
+}
+
+/* Листья, разложенные по всему стеклу */
+
+.p-leaf-1 {
+    --rot: 22deg;
+    top: 140px;
+    left: 470px;
+    color: #e59449;
+    width: 36px;
+    height: 50px;
+    animation-delay: 0s;
+}
+
+.p-leaf-2 {
+    --rot: -38deg;
+    top: 140px;
+    left: 470px;
+    color: #d97b3c;
+    width: 30px;
+    height: 42px;
+    animation-delay: -1.4s;
+}
+
+.p-leaf-3 {
+    --rot: 8deg;
+    top: 140px;
+    left: 470px;
+    color: #f0b86e;
+    width: 26px;
+    height: 36px;
+    animation-delay: -3.1s;
+}
+
+.p-leaf-4 {
+    --rot: -62deg;
+    top: 140px;
+    left: 470px;
+    color: #c96a2d;
+    width: 28px;
+    height: 40px;
+    animation-delay: -2.2s;
+}
+
+.p-leaf-5 {
+    --rot: 110deg;
+    top: 145px;
+    left: 470px;
+    color: #a85520;
+    width: 24px;
+    height: 34px;
+    animation-delay: -4.6s;
+}
+
+.p-leaf-6 {
+    --rot: -15deg;
+    top: 48%;
+    right: 22px;
+    color: #e59478;
+    width: 22px;
+    height: 32px;
+    animation-delay: -5.5s;
+}
+
+/* ==========================================
+   LAYOUT — авторизованная зона
+   ========================================== */
+
+.app-panel {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    z-index: 30;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+.app-glass {
+    position: relative;
+    width: 100%;
+    max-width: 1360px;
+    height: 100%;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+
+    background: rgba(20, 25, 35, 0.42);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 24px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+
+    pointer-events: auto;
+    overflow: hidden;
+    color: #f0e6d0;
+    font-family: 'Segoe UI', 'Verdana', sans-serif;
+
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    animation: panelExpand 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+@keyframes panelExpand {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.app-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent,
+    rgba(255, 255, 255, 0.6), transparent);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* ==========================================
+   NAVBAR — стеклянная навигация
+   ========================================== */
+
+.app-glass .navbar {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px 24px 0 0;
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding: 6px 10px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 100;
+}
+
+.app-glass .navbar .container-fluid {
+    gap: 6px;
+}
+
+/* --- Базовая ссылка навигации --- */
+.app-glass .navbar .nav-link {
+    position: relative;
+    display: inline-flex; /* нужно для корректной работы маски кометы */
+    align-items: center;
+    justify-content: center;
+    isolation: isolate; /* ::before с z-index:-1 не улетит под фон */
+    overflow: visible !important; /* комета выходит за границы кнопки */
+    padding: 10px 16px !important;
+    margin: 0 2px;
+    border-radius: 10px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: rgba(240, 230, 208, 0.75) !important;
+    transition: color 0.25s ease;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+/* --- Базовая оранжевая заливка (растёт при hover и active) --- */
+.app-glass .navbar .nav-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+            180deg,
+            rgba(230, 126, 34, 0.06) 0%,
+            rgba(230, 126, 34, 0.20) 55%,
+            rgba(230, 126, 34, 0.34) 100%
+    );
+    transform: scale(0, 0);
+    transform-origin: center bottom;
+    transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* --- Глянцевый слой поверх заливки (только при .active) --- */
+.app-glass .navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    /* Стеклянный блик сверху + плотный градиент */
+    background: linear-gradient(180deg,
+    rgba(255, 245, 220, 0.55) 0%,
+    rgba(255, 240, 200, 0.22) 18%,
+    rgba(255, 235, 190, 0.04) 42%,
+    rgba(0, 0, 0, 0.00) 55%),
+    linear-gradient(180deg,
+            #d99a5c 0%,
+            #a86a34 30%,
+            #7a4620 62%,
+            #4a2812 100%);
+
+    box-shadow:
+            inset 0 2px 0 rgba(255, 250, 235, 1),
+            inset 0 3px 4px rgba(255, 235, 200, 0.35),
+            inset 0 -3px 8px rgba(0, 0, 0, 0.7),
+            inset 0 -1px 0 rgba(255, 200, 140, 0.20),
+            0 5px 14px rgba(0, 0, 0, 0.55),
+            0 1px 0 rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    transform: scale(0.88);
+    transform-origin: center center;
+    transition: opacity 0.34s ease,
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* --- Hover: заливка + подсветка текста --- */
+.app-glass .navbar .nav-link:hover {
+    color: #ffd966 !important;
+}
+
+.app-glass .navbar .nav-link:hover::before {
+    transform: scale(1, 1);
+}
+
+/* --- Открытый дропдаун ведёт себя как hover --- */
+.app-glass .navbar .nav-link.show {
+    color: #ffd966 !important;
+}
+
+.app-glass .navbar .nav-link.show::before {
+    transform: scale(1, 1);
+}
+
+/* ==========================================
+   АКТИВНАЯ ВКЛАДКА — объёмная, глянцевая
+   ========================================== */
+
+.app-glass .navbar .nav-link.active {
+    color: #fff4d6 !important;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55),
+    0 0 8px rgba(255, 200, 120, 0.35);
+}
+
+/* Hover / open dropdown / active — базовая заливка растёт */
+.app-glass .navbar .nav-link:hover::before,
+.app-glass .navbar .nav-link.show::before,
+.app-glass .navbar .nav-link.active::before {
+    transform: scale(1, 1);
+}
+
+/* Только active — поверх проявляется глянец */
+.app-glass .navbar .nav-link.active::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Обёртка, в которой будет жить SVG-луч */
+.app-glass .navbar .nav-link.active {
+    overflow: visible;
+}
+
+/* --- Дропдаун-меню — в тон стекла --- */
+.app-glass .navbar .dropdown-menu {
+    background: rgba(20, 25, 35, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 6px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    margin-top: 6px !important;
+}
+
+.app-glass .navbar .dropdown-item {
+    color: rgba(240, 230, 208, 0.8);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.app-glass .navbar .dropdown-item:hover,
+.app-glass .navbar .dropdown-item:focus {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffd966;
+}
+
+/* --- Иконки в nav-link — чуть золотим --- */
+.app-glass .navbar .nav-link i {
+    margin-right: 4px;
+    color: rgba(230, 126, 34, 0.85);
+    transition: color 0.25s ease;
+}
+
+.app-glass .navbar .nav-link:hover i,
+.app-glass .navbar .nav-link.show i,
+.app-glass .navbar .nav-link.active i {
+    color: #ffd966;
+}
+
+/* --- Toggler для мобилки — в тон --- */
+.app-glass .navbar .navbar-toggler {
+    border-color: rgba(230, 126, 34, 0.4);
+}
+
+.app-glass .navbar .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.25);
+}
+
+
+/* Область контента внутри frame */
+.app-frame {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px 32px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(230, 126, 34, 0.4) transparent;
+}
+
+.app-frame::-webkit-scrollbar {
+    width: 8px;
+}
+
+.app-frame::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.app-frame::-webkit-scrollbar-thumb {
+    background: rgba(230, 126, 34, 0.4);
+    border-radius: 4px;
+}
+
+
+
+/* ==========================================
+   HOME CONTENT
+   ========================================== */
+
+.home-content {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.home-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.home-date {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+.home-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.75);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title i {
+    color: #e67e22;
+    font-size: 14px;
+}
+
+/* Сетка срочных заказов */
+.urgent-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 1200px) {
+    .urgent-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .urgent-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.urgent-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.22s ease;
+}
+
+.urgent-card:hover {
+    background: rgba(255, 255, 255, 0.11);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.urgent-card.bg-danger {
+    background: rgba(192, 57, 43, 0.35) !important;
+    border-color: rgba(231, 76, 60, 0.55);
+}
+
+.urgent-card.bg-warning {
+    background: rgba(243, 156, 18, 0.28) !important;
+    border-color: rgba(243, 156, 18, 0.5);
+}
+
+.urgent-card.bg-light {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.urgent-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffb877;
+    align-self: flex-start;
+    font-weight: 500;
+}
+
+.urgent-company {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f5f1e8 !important;
+    text-decoration: none !important;
+    line-height: 1.25;
+    transition: color 0.2s ease;
+}
+
+.urgent-company:hover {
+    color: #ffd966 !important;
+}
+
+.urgent-product {
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.75);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.urgent-product i {
+    color: #e67e22;
+}
+
+.urgent-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.55);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 6px;
+    margin-top: 2px;
+}
+
+.urgent-days {
+    font-weight: 600;
+    color: #ffb877;
+}
+
+.urgent-card.bg-danger .urgent-days {
+    color: #ffb0a0;
+}
+
+.urgent-card.bg-warning .urgent-days {
+    color: #ffd88a;
+}
+
+/* Журнал */
+.journal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.journal-table thead th {
+    text-align: left;
+    padding: 9px 14px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(230, 126, 34, 0.9);
+    background: rgba(0, 0, 0, 0.28);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.journal-table tbody td {
+    padding: 9px 14px;
+    color: rgba(240, 230, 208, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.journal-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.journal-table tbody tr {
+    transition: background 0.18s ease;
+}
+
+.journal-table tbody tr:hover {
+    background: rgba(230, 126, 34, 0.09);
+}
+
+.journal-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.8);
+}
+
+.journal-type i {
+    color: #e67e22;
+}
+
+.journal-empty {
+    padding: 22px;
+    text-align: center;
+    color: rgba(240, 230, 208, 0.45);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+
+/* ==========================================
+   ЛОГОТИП-ЛИСТ В NAVBAR — картинка + анимация
+   ========================================== */
+
+.navbar-brand {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    margin-right: 4px;
+    border-radius: 12px;
+    transition: background 0.3s ease;
+}
+
+/* Мягкая подложка-свечение под листом */
+.navbar-brand::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+    rgba(255, 180, 80, 0.45),
+    rgba(255, 140, 40, 0.15) 45%,
+    transparent 72%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.navbar-brand:hover::before {
+    opacity: 1;
+}
+
+/* Сам лист */
+.brand-leaf {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+    transform-origin: 70% 15%;   /* точка вращения — у стебля (в верхнем правом углу) */
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.35s ease;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 4px rgba(230, 126, 34, 0.25));
+    z-index: 1;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER: покачивание + яркое свечение ─── */
+.navbar-brand:hover .brand-leaf {
+    animation: brandLeafSway 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 12px rgba(255, 180, 80, 0.9))
+    drop-shadow(0 0 26px rgba(230, 126, 34, 0.6));
+}
+
+@keyframes brandLeafSway {
+    0%, 100% { transform: rotate(-8deg) scale(1.10); }
+    50%      { transform: rotate(-20deg) scale(1.16); }
+}
+
+/* ─── ACTIVE: когда мы на главной — постоянное «дыхание» ─── */
+.navbar-brand.active::before {
+    opacity: 1;
+    animation: brandGlowPulse 3.6s ease-in-out infinite;
+}
+
+.navbar-brand.active .brand-leaf {
+    animation: brandLeafGlow 3.6s ease-in-out infinite;
+}
+
+.navbar-brand.active:hover .brand-leaf {
+    animation: brandLeafSway 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 16px rgba(255, 180, 80, 1))
+    drop-shadow(0 0 32px rgba(230, 126, 34, 0.75));
+}
+
+@keyframes brandLeafGlow {
+    0%, 100% {
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+        drop-shadow(0 0 6px rgba(255, 180, 80, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+        drop-shadow(0 0 16px rgba(255, 180, 80, 1))
+        drop-shadow(0 0 30px rgba(230, 126, 34, 0.7));
+    }
+}
+
+@keyframes brandGlowPulse {
+    0%, 100% { transform: scale(1);    opacity: 0.6; }
+    50%      { transform: scale(1.20); opacity: 1;   }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .navbar-brand .brand-leaf,
+    .navbar-brand.active .brand-leaf,
+    .navbar-brand:hover .brand-leaf,
+    .navbar-brand::before,
+    .navbar-brand.active::before {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+/* ==========================================
+   ОШИБКА АВТОРИЗАЦИИ
+   ========================================== */
+
+.auth-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: rgba(231, 76, 60, 0.18);
+    border: 1px solid rgba(231, 76, 60, 0.5);
+    border-radius: 10px;
+    color: #ffb0a0;
+    font-size: 12px;
+    letter-spacing: 1px;
+    animation: authShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+.auth-error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(231, 76, 60, 0.5);
+    color: #fff;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+@keyframes authShake {
+    10%, 90% {
+        transform: translateX(-2px);
+    }
+    20%, 80% {
+        transform: translateX(4px);
+    }
+    30%, 50%, 70% {
+        transform: translateX(-6px);
+    }
+    40%, 60% {
+        transform: translateX(6px);
+    }
+}
+
+/* ==========================================
+   ТОНА СРОЧНОСТИ (перебиваем Bootstrap)
+   ========================================== */
+
+.urgent-card.bg-danger {
+    background: linear-gradient(135deg,
+    rgba(192, 57, 43, 0.42),
+    rgba(160, 40, 30, 0.32)) !important;
+    border-color: rgba(255, 100, 80, 0.55) !important;
+}
+
+.urgent-card.bg-danger .urgent-days {
+    color: #ffb0a0;
+}
+
+.urgent-card.bg-warning {
+    background: linear-gradient(135deg,
+    rgba(243, 156, 18, 0.30),
+    rgba(210, 130, 10, 0.22)) !important;
+    border-color: rgba(243, 180, 60, 0.5) !important;
+}
+
+.urgent-card.bg-warning .urgent-days {
+    color: #ffd88a;
+}
+
+
+
+
+/* ==========================================
+   ЗАКАЗЫ — единый стеклянный стиль
+   ========================================== */
+
+/* Кнопки-переходы между статусами.
+   ВАЖНО: на всех страницах одинаковые. */
+
+
+.orders-nav-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Поиск */
+.hb-search {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+}
+
+.hb-search input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 44px 11px 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.hb-search input::placeholder {
+    color: rgba(240, 230, 208, 0.3);
+}
+
+.hb-search input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.hb-search-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(230, 126, 34, 0.25);
+    border: none;
+    color: #ffb877;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.hb-search-btn:hover {
+    background: rgba(230, 126, 34, 0.45);
+    color: #fff;
+}
+
+/* Сетка карточек заказов */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 1200px) {
+    .orders-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.order-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.22s ease;
+}
+
+.order-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================
+   КЛИКАБЕЛЬНАЯ КАРТОЧКА ЗАКАЗА
+   ==========================================
+   Весь .order-card работает как ссылка на /orders/{id},
+   кроме внутренних интерактивных элементов.
+   Обработчик клика — в app.js (делегирование).
+*/
+
+/* Визуальная подсказка: раз кликается — значит pointer */
+.order-card[data-order-href] {
+    cursor: pointer;
+}
+
+/* Текст внутри всё ещё можно выделять — селект блокирует навигацию */
+.order-card[data-order-href] * {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* Внутри карточки интерактивные элементы — обычный курсор */
+.order-card[data-order-href] a,
+.order-card[data-order-href] button,
+.order-card[data-order-href] input,
+.order-card[data-order-href] select,
+.order-card[data-order-href] textarea,
+.order-card[data-order-href] label {
+    cursor: pointer;   /* кнопки/ссылки остаются кликабельными по своему */
+}
+
+/* Карточка, которая уже уезжает / лопается — курсор не меняем */
+.order-card--departing,
+.order-card--popping {
+    cursor: default !important;
+}
+
+/* ─── Мягкий отклик на hover: лёгкая подсветка рамки ─── */
+.order-card[data-order-href]:hover {
+    border-color: rgba(230, 126, 34, 0.35);
+    /* фон и тень уже есть в .order-card:hover выше — не дублируем */
+}
+
+/* На всякий случай: ссылка-«пустышка», которую JS создаёт для Turbo-перехода */
+.order-card[data-order-href]::after {
+    content: '';
+    /* ничего визуального, но если решишь добавить ::before/::after — не мешаем */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-card[data-order-href]:hover {
+        transform: none !important;
+    }
+}
+
+.order-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.order-card-head-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.order-company {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f5f1e8 !important;
+    text-decoration: none !important;
+    line-height: 1.25;
+    transition: color 0.32s ease, text-shadow 0.32s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.order-company:hover {
+    color: #ffd966 !important;
+}
+
+.order-type-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    align-self: flex-start;
+}
+
+.order-type-badge.coupling {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffb877;
+}
+
+.order-type-badge.adapter {
+    background: rgba(52, 152, 219, 0.22);
+    color: #a8d8f0;
+}
+
+.order-type-badge.pipe {
+    background: rgba(30, 255, 0, 0.18);
+    color: #b8ffb0;
+    border: 1px solid rgba(30, 255, 0, 0.4);
+}
+
+.order-type-badge.nipple {
+    background: rgba(30, 255, 0, 0.18);
+    color: #b8ffb0;
+    border: 1px solid rgba(30, 255, 0, 0.4);
+}
+
+.order-product {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.75);
+    min-height: 26px;
+}
+
+.order-product > i {
+    color: #e67e22;
+    font-size: 14px;
+}
+
+.order-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+}
+
+.order-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 3px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.order-meta-row:last-child {
+    border-bottom: none;
+}
+
+.order-meta-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.45);
+}
+
+.order-meta-value {
+    color: #f0e6d0;
+    font-weight: 500;
+    text-align: right;
+}
+
+.order-meta-value.accent {
+    color: #ffd966;
+}
+
+.order-meta-value.soon {
+    color: #ffb877;
+}
+
+.order-meta-value.overdue {
+    color: #ffb0a0;
+}
+
+.order-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Мини-кнопки внутри карточки */
+.btn-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(240, 230, 208, 0.85);
+    white-space: nowrap;
+}
+
+.btn-mini:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffd966;
+    transform: translateY(-1px);
+}
+
+.btn-mini-success {
+    background: rgba(46, 204, 113, 0.18);
+    color: #a8f0c0;
+    border-color: rgba(46, 204, 113, 0.4);
+}
+
+.btn-mini-success:hover {
+    background: rgba(46, 204, 113, 0.32);
+    color: #fff;
+    border-color: rgba(46, 204, 113, 0.6);
+}
+
+.btn-mini-warning {
+    background: rgba(230, 126, 34, 0.18);
+    color: #ffb877;
+    border-color: rgba(230, 126, 34, 0.4);
+}
+
+.btn-mini-warning:hover {
+    background: rgba(230, 126, 34, 0.32);
+    color: #fff;
+    border-color: rgba(230, 126, 34, 0.6);
+}
+
+.btn-mini-danger {
+    background: rgba(231, 76, 60, 0.18);
+    color: #ffb0a0;
+    border-color: rgba(231, 76, 60, 0.4);
+}
+
+.btn-mini-danger:hover {
+    background: rgba(231, 76, 60, 0.32);
+    color: #fff;
+    border-color: rgba(231, 76, 60, 0.6);
+}
+
+.btn-mini-info {
+    background: rgba(52, 152, 219, 0.18);
+    color: #a8d8f0;
+    border-color: rgba(52, 152, 219, 0.4);
+}
+
+.btn-mini-info:hover {
+    background: rgba(52, 152, 219, 0.32);
+    color: #fff;
+    border-color: rgba(52, 152, 219, 0.6);
+}
+
+/* Пагинация */
+.hb-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0 4px;
+}
+
+.hb-page-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(240, 230, 208, 0.8);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.hb-page-btn:hover:not(.disabled) {
+    background: rgba(230, 126, 34, 0.18);
+    border-color: rgba(230, 126, 34, 0.5);
+    color: #ffd966;
+}
+
+.hb-page-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.hb-page-info {
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0 14px;
+    font-weight: 500;
+}
+
+/* Панель КП */
+.offer-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.18), rgba(46, 204, 113, 0.08));
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.offer-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #a8f0c0;
+}
+
+.offer-count i {
+    font-size: 16px;
+    color: #2ecc71;
+}
+
+.offer-count #offerCount {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.offer-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Кнопка добавления в КП (в углу карточки) */
+.order-offer-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    background: rgba(46, 204, 113, 0.12);
+    color: #a8f0c0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.order-offer-btn:hover {
+    background: rgba(46, 204, 113, 0.3);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.order-offer-btn.active {
+    background: rgba(46, 204, 113, 0.85);
+    color: #fff;
+    border-color: rgba(46, 204, 113, 1);
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
+}
+
+/* Детали заказа (view) */
+.order-detail-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 24px;
+}
+
+.order-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.order-status-pill.waiting {
+    background: rgba(52, 152, 219, 0.22);
+    color: #a8d8f0;
+    border: 1px solid rgba(52, 152, 219, 0.5);
+}
+
+.order-status-pill.production {
+    background: rgba(230, 126, 34, 0.22);
+    color: #ffb877;
+    border: 1px solid rgba(230, 126, 34, 0.5);
+}
+
+.order-status-pill.completed {
+    background: rgba(46, 204, 113, 0.22);
+    color: #a8f0c0;
+    border: 1px solid rgba(46, 204, 113, 0.5);
+}
+
+/* ==========================================
+   КАСТОМНАЯ МОДАЛКА (.hb-modal-overlay)
+   Не Bootstrap — своя, чтобы не конфликтовать
+   со stacking context от .app-panel
+   ========================================== */
+
+.hb-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+}
+
+.hb-modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hb-modal {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    padding: 22px 24px 20px;
+
+    background: linear-gradient(145deg, #1e1a15 0%, #14110d 100%);
+    border: 1px solid rgba(230, 126, 34, 0.45);
+    border-radius: 16px;
+
+    box-shadow:
+            0 24px 60px rgba(0, 0, 0, 0.75),
+            0 0 0 1px rgba(255, 200, 130, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    transform: translateY(12px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #f0e6d0;
+    font-family: inherit;
+}
+
+.hb-modal-overlay.show .hb-modal {
+    transform: translateY(0) scale(1);
+}
+
+.hb-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 200, 130, 0.6), transparent);
+    border-radius: 1px;
+    pointer-events: none;
+}
+
+.hb-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hb-modal-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f5f1e8;
+}
+
+.hb-modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(240, 230, 208, 0.7);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-size: 13px;
+    padding: 0;
+}
+
+.hb-modal-close:hover {
+    background: rgba(231, 76, 60, 0.25);
+    color: #ffb0a0;
+    border-color: rgba(231, 76, 60, 0.5);
+}
+
+.hb-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.hb-modal-hint {
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: rgba(240, 230, 208, 0.7);
+    line-height: 1.5;
+}
+
+.hb-modal-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.6);
+}
+
+.hb-modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.18s ease;
+}
+
+.hb-modal-input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+/* Значок календаря в тёмной теме (Chrome/Safari) */
+.hb-modal-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.75) sepia(1) saturate(4) hue-rotate(-10deg);
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.hb-modal-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.hb-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 500px) {
+    .hb-modal {
+        max-width: 100%;
+        padding: 20px;
+    }
+    .hb-modal-footer {
+        flex-direction: column-reverse;
+    }
+    .hb-modal-footer .btn-glass {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================
+   УЛУЧШЕНИЕ КОНТРАСТА КНОПОК
+   ========================================== */
+
+/* Ghost — был серым на сером, теперь читаемый */
+.btn-glass-ghost {
+    background: rgba(255, 255, 255, 0.10);
+    color: #f0e6d0;
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.btn-glass-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffd966;
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+/* Mini-кнопки — плотнее фон, ярче текст */
+.btn-mini {
+    background: rgba(255, 255, 255, 0.09);
+    color: #f0e6d0;
+    border-color: rgba(255, 255, 255, 0.18);
+    font-weight: 500;
+}
+
+.btn-mini-success {
+    background: rgba(46, 204, 113, 0.25);
+    color: #c8ffd9;
+    border-color: rgba(46, 204, 113, 0.55);
+}
+
+.btn-mini-success:hover {
+    background: rgba(46, 204, 113, 0.45);
+    color: #fff;
+}
+
+.btn-mini-warning {
+    background: rgba(230, 126, 34, 0.25);
+    color: #ffcf9b;
+    border-color: rgba(230, 126, 34, 0.55);
+}
+
+.btn-mini-warning:hover {
+    background: rgba(230, 126, 34, 0.45);
+    color: #fff;
+}
+
+.btn-mini-danger {
+    background: rgba(231, 76, 60, 0.25);
+    color: #ffc4b8;
+    border-color: rgba(231, 76, 60, 0.55);
+}
+
+.btn-mini-danger:hover {
+    background: rgba(231, 76, 60, 0.45);
+    color: #fff;
+}
+
+.btn-mini-info {
+    background: rgba(52, 152, 219, 0.25);
+    color: #bfe1ff;
+    border-color: rgba(52, 152, 219, 0.55);
+}
+
+.btn-mini-info:hover {
+    background: rgba(52, 152, 219, 0.45);
+    color: #fff;
+}
+
+/* ==========================================
+   Радио-кнопки "Муфта / Переводник"
+   ========================================== */
+
+.hb-radio-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.hb-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    color: rgba(240, 230, 208, 0.85);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+}
+
+.hb-radio:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #ffd966;
+}
+
+.hb-radio input {
+    display: none;
+}
+
+.hb-radio input:checked + span {
+    color: #ffb877;
+    font-weight: 600;
+}
+
+.hb-radio:has(input:checked) {
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.22), rgba(200, 90, 20, 0.15));
+    border-color: rgba(230, 126, 34, 0.65);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.12);
+}
+
+/* ==========================================
+   ПИКЕР ДОП. РАБОТ — чипы (в стиле HH)
+   ========================================== */
+
+.hb-works-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+/* Поиск */
+.hb-works-search {
+    position: relative;
+}
+
+.hb-works-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 14px 11px 40px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.18s ease;
+}
+
+.hb-works-search-input::placeholder {
+    color: rgba(240, 230, 208, 0.32);
+}
+
+.hb-works-search-input:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.15);
+}
+
+.hb-works-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(230, 126, 34, 0.75);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* Облако чипов */
+.hb-works-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    min-height: 90px;
+    max-height: 260px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(230, 126, 34, 0.4) transparent;
+}
+
+.hb-works-chips::-webkit-scrollbar {
+    width: 6px;
+}
+
+.hb-works-chips::-webkit-scrollbar-thumb {
+    background: rgba(230, 126, 34, 0.4);
+    border-radius: 3px;
+}
+
+/* Один чип */
+.work-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    color: rgba(240, 230, 208, 0.85);
+    font-size: 12.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.work-chip:hover {
+    background: rgba(230, 126, 34, 0.16);
+    border-color: rgba(230, 126, 34, 0.5);
+    color: #ffd966;
+    transform: translateY(-1px);
+}
+
+.work-chip .chip-check {
+    width: 0;
+    opacity: 0;
+    transition: all 0.2s ease;
+    color: #fff;
+    font-size: 12px;
+}
+
+.work-chip .chip-price {
+    font-size: 11px;
+    opacity: 0.7;
+    padding-left: 6px;
+    border-left: 1px solid currentColor;
+    margin-left: 3px;
+}
+
+/* ВЫБРАННЫЙ чип */
+.work-chip.selected {
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.85), rgba(200, 90, 20, 0.85));
+    border-color: rgba(255, 200, 130, 0.7);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 3px 10px rgba(230, 126, 34, 0.35);
+}
+
+.work-chip.selected .chip-check {
+    width: 12px;
+    opacity: 1;
+}
+
+.work-chip.selected .chip-price {
+    opacity: 0.9;
+}
+
+/* Список выбранных */
+.hb-works-selected {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.10), rgba(46, 204, 113, 0.05));
+    border: 1px solid rgba(46, 204, 113, 0.28);
+    border-radius: 12px;
+}
+
+.hb-works-selected-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(168, 240, 192, 0.8);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(46, 204, 113, 0.25);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hb-works-selected-header i {
+    color: #2ecc71;
+    margin-right: 4px;
+}
+
+.hb-works-selected-total {
+    color: #ffd966;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.hb-works-selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 26px;
+}
+
+.hb-works-selected-empty {
+    color: rgba(240, 230, 208, 0.35);
+    font-size: 12px;
+    font-style: italic;
+    align-self: center;
+}
+
+.selected-work-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 5px 5px 12px;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.28), rgba(46, 204, 113, 0.16));
+    border: 1px solid rgba(46, 204, 113, 0.55);
+    border-radius: 20px;
+    color: #c8ffd9;
+    font-size: 12px;
+    animation: chipPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes chipPop {
+    0% {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.selected-work-chip .chip-price {
+    font-size: 10.5px;
+    opacity: 0.8;
+    padding-left: 5px;
+    border-left: 1px solid rgba(200, 255, 217, 0.4);
+}
+
+.selected-work-chip .remove-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.28);
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    padding: 0;
+    margin-left: 2px;
+    transition: all 0.15s ease;
+}
+
+.selected-work-chip .remove-btn:hover {
+    background: rgba(231, 76, 60, 0.7);
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+/* ==========================================
+   КНОПКИ — плотные и контрастные
+   ========================================== */
+
+/* Основная (Создать заказ / В производство) — плотный оранжевый */
+.btn-glass-primary {
+    background: #E67E22;
+    color: #1a0e00; /* ← тёмный текст на оранжевом */
+    border: 1px solid #F5A65B;
+    font-weight: 700;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-glass-primary:hover {
+    background: #F08B2E;
+    color: #1a0e00;
+    border-color: #ffbc70;
+    transform: translateY(-1px);
+}
+
+.btn-glass-success {
+    background: #27AE60;
+    color: #f0fff5; /* почти белый, но с зелёным отливом */
+    border: 1px solid #52d989;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 14px rgba(39, 174, 96, 0.4);
+}
+
+.btn-glass-success:hover {
+    background: #2FCC71;
+    color: #ffffff;
+    border-color: #6bffa4;
+}
+
+.btn-glass-info {
+    background: #2980B9;
+    color: #f0f8ff;
+    border: 1px solid #5fb3e8;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 14px rgba(41, 128, 185, 0.4);
+}
+
+.btn-glass-info:hover {
+    background: #3498DB;
+    color: #ffffff;
+    border-color: #7fc8f0;
+}
+
+.btn-glass-danger {
+    background: #C0392B;
+    color: #fff0ee;
+    border: 1px solid #e06253;
+    font-weight: 600;
+}
+
+.btn-glass-danger:hover {
+    background: #E74C3C;
+    color: #ffffff;
+}
+
+.btn-glass-ghost {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f0e6d0;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    font-weight: 600;
+}
+
+.btn-glass-ghost:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffd966;
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ==========================================
+   ИКОНКА-КАРТИНКА В КНОПКАХ (листочек и т.п.)
+   ========================================== */
+
+.btn-glass .btn-leaf-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+
+    /* Мягкая тень + тёплый ореол — чтобы тёмный листок не терялся
+       на оранжевом градиенте кнопки */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35))
+    drop-shadow(0 0 4px rgba(255, 210, 130, 0.35));
+
+    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+    transform-origin: 70% 15%; /* точка вращения — у стебля, как у логотипа в навбаре */
+    will-change: transform, filter;
+}
+
+/* ─── HOVER: листок «оживает» — поворот, лёгкий рост, ярче свечение ─── */
+.btn-glass-primary:hover .btn-leaf-icon {
+    transform: rotate(-14deg) scale(1.18);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 0 10px rgba(255, 220, 150, 0.85))
+    drop-shadow(0 0 20px rgba(230, 126, 34, 0.5));
+}
+
+/* ─── Мягкое покачивание, пока мышь на кнопке ─── */
+.btn-glass-primary:hover .btn-leaf-icon {
+    animation: btnLeafSway 1.8s ease-in-out 0.3s infinite;
+}
+
+@keyframes btnLeafSway {
+    0%, 100% { transform: rotate(-14deg) scale(1.18); }
+    50%      { transform: rotate(-6deg)  scale(1.22); }
+}
+
+/* ─── При клике — «дёргается» как живой ─── */
+.btn-glass-primary:active .btn-leaf-icon {
+    transform: rotate(2deg) scale(0.92);
+    transition: transform 0.08s ease;
+    animation: none;
+}
+
+
+@keyframes btnLeafIntro {
+    0%   { transform: rotate(0deg)   scale(0.4); opacity: 0; }
+    55%  { transform: rotate(-22deg) scale(1.25); opacity: 1; }
+    100% { transform: rotate(0deg)   scale(1);   opacity: 1; }
+}
+
+/* ─── Reduced motion — уважаем пользователя ─── */
+@media (prefers-reduced-motion: reduce) {
+    .btn-glass .btn-leaf-icon,
+    .btn-glass-primary .btn-leaf-icon,
+    .btn-glass-primary:hover .btn-leaf-icon,
+    .btn-glass-primary:active .btn-leaf-icon {
+        animation: none !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+
+/* Иконки внутри активной ссылки — тоже золотим */
+.app-glass .navbar .nav-link.active i,
+.app-glass .navbar .nav-link.show i,
+.app-glass .navbar .nav-link:hover i {
+    color: #ffd966;
+}
+
+/* ==========================================
+   ЛУЧ ПО КОНТУРУ АКТИВНОЙ КНОПКИ (SVG)
+   ========================================== */
+
+.nav-beam {
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 2;
+}
+
+.nav-beam rect {
+    animation-name: navBeamRun;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes navBeamRun {
+    from { stroke-dashoffset: var(--beam-start, 0); }
+    to   { stroke-dashoffset: var(--beam-end, -1000); }
+}
+
+/* ==========================================
+   КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ
+   ========================================== */
+
+.offer-content {
+    /* просто наследуем handbook-content, тут ничего не нужно */
+}
+
+/* Карточка компании */
+.offer-company-card {
+    position: relative;
+    padding: 18px 22px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.14),
+    rgba(200, 90, 20, 0.06));
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.offer-company-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right,
+    transparent,
+    rgba(255, 200, 130, 0.6),
+    transparent);
+}
+
+.offer-company-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.85);
+    margin-bottom: 6px;
+}
+
+.offer-company-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: #f5f1e8;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    margin-bottom: 8px;
+}
+
+.offer-company-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.65);
+}
+
+.offer-company-meta i {
+    color: #e67e22;
+    margin-right: 4px;
+}
+
+.offer-company-sep {
+    color: rgba(240, 230, 208, 0.25);
+}
+
+/* Обёртка таблицы, чтобы не выходила за скруглённые углы */
+.offer-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.offer-table {
+    margin: 0;
+    min-width: 680px;
+}
+
+/* Номер строки */
+.offer-row-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(240, 230, 208, 0.4);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Ячейка с продуктом */
+.offer-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.offer-product-name {
+    color: #f5f1e8;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+/* Числа — табличные, чтобы колонки не «прыгали» */
+.offer-num {
+    font-variant-numeric: tabular-nums;
+    color: rgba(240, 230, 208, 0.85);
+    font-size: 13px;
+}
+
+.offer-num-accent {
+    color: #ffd966;
+    font-weight: 600;
+}
+
+/* Строка «Итого» */
+.offer-total-row {
+    background: linear-gradient(180deg,
+    rgba(230, 126, 34, 0.10),
+    rgba(230, 126, 34, 0.04));
+    border-top: 1px solid rgba(230, 126, 34, 0.35);
+}
+
+.offer-total-row td {
+    padding: 16px 14px !important;
+    border-bottom: none !important;
+}
+
+.offer-total-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.9);
+    font-weight: 500;
+}
+
+.offer-total-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 12px rgba(255, 200, 120, 0.35);
+}
+
+.offer-total-value i {
+    font-size: 15px;
+    margin-right: 4px;
+    color: #ffb877;
+}
+
+.offer-currency {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-left: 4px;
+    letter-spacing: 1px;
+}
+
+/* Внутри offer-table journal-table уже даёт hover — оставляем */
+.offer-table tbody tr:hover {
+    background: rgba(230, 126, 34, 0.07);
+}
+
+/* Адаптив: на узких экранах делаем таблицу скроллируемой */
+@media (max-width: 900px) {
+    .offer-company-name {
+        font-size: 18px;
+    }
+}
+
+/* ==========================================
+   Select внутри .hb-field — в стиле инпутов
+   ========================================== */
+.hb-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 38px 12px 14px;
+    background-color: rgba(0, 0, 0, 0.25);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23e67e22' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f0e6d0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.hb-field select:focus {
+    border-color: rgba(230, 126, 34, 0.75);
+    background-color: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.hb-field select option {
+    background: #1a1410;
+    color: #f0e6d0;
+}
+
+/* Disabled select — тот же тёмный стиль, но приглушённый.
+   Перебиваем Bootstrap-овский .form-select:disabled, который
+   подсовывает светлый фон. */
+.hb-field select:disabled,
+.hb-field select[disabled] {
+    background-color: rgba(0, 0, 0, 0.18);
+    color: rgba(240, 230, 208, 0.35);
+    border-color: rgba(255, 255, 255, 0.08);
+    cursor: not-allowed;
+    opacity: 1; /* убираем браузерное «затухание» */
+    -webkit-text-fill-color: rgba(240, 230, 208, 0.35); /* Safari */
+
+    /* Приглушённая стрелка вместо оранжевой */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666055' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+}
+
+/* В disabled-селекте option-ы тоже приглушаем */
+.hb-field select:disabled option {
+    background: #1a1410;
+    color: rgba(240, 230, 208, 0.45);
+}
+
+/* ==========================================
+   ЖУРНАЛ ПРОИЗВОДСТВА
+   ========================================== */
+
+/* ---------- Фильтры ---------- */
+.journal-filters {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.journal-filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    color: #f0e6d0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-align: left;
+}
+
+.journal-filters-toggle:hover {
+    background: rgba(230, 126, 34, 0.10);
+}
+
+.journal-filters-toggle i:first-child {
+    color: #e67e22;
+    font-size: 14px;
+}
+
+.journal-filters-chev {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+    color: rgba(240, 230, 208, 0.5);
+    font-size: 12px;
+}
+
+.journal-filters.open .journal-filters-chev {
+    transform: rotate(180deg);
+}
+
+.journal-filters-body {
+    display: none;
+    padding: 18px 20px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.journal-filters.open .journal-filters-body {
+    display: block;
+    animation: filtersOpen 0.28s ease;
+}
+
+@keyframes filtersOpen {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.journal-filters-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 1100px) {
+    .journal-filters-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .journal-filters-grid { grid-template-columns: 1fr; }
+}
+
+.journal-filters-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Пусто ---------- */
+.journal-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px dashed rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    color: rgba(240, 230, 208, 0.45);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.journal-empty i {
+    font-size: 32px;
+    color: rgba(230, 126, 34, 0.5);
+}
+
+/* ---------- Лента ---------- */
+.journal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.journal-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 14px 18px 14px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    transition: all 0.22s ease;
+}
+
+.journal-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #e67e22, #a85520);
+    opacity: 0.55;
+    transition: opacity 0.22s ease;
+}
+
+.journal-entry:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.35);
+    transform: translateX(2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.journal-entry:hover::before {
+    opacity: 1;
+}
+
+/* Дата-бейдж */
+.journal-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.20),
+    rgba(168, 85, 32, 0.10));
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.journal-date-day {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffd966;
+    letter-spacing: -0.5px;
+}
+
+.journal-date-month {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.9);
+    margin-top: 4px;
+}
+
+.journal-date-year {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(240, 230, 208, 0.4);
+    margin-top: 2px;
+}
+
+/* Тело */
+.journal-entry-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.journal-entry-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.journal-entry-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f5f1e8;
+    letter-spacing: 0.3px;
+}
+
+.journal-entry-qty {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: rgba(46, 204, 113, 0.20);
+    color: #c8ffd9;
+    border: 1px solid rgba(46, 204, 113, 0.40);
+}
+
+.journal-entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.7);
+}
+
+.journal-entry-meta i {
+    color: #e67e22;
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.journal-meta-sep {
+    color: rgba(240, 230, 208, 0.2);
+}
+
+.journal-entry-created {
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    color: rgba(240, 230, 208, 0.4);
+    text-transform: uppercase;
+}
+
+.journal-entry-comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(240, 230, 208, 0.55);
+    font-style: italic;
+    padding-top: 4px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.06);
+    margin-top: 1px;
+}
+
+.journal-entry-comment i {
+    color: rgba(230, 126, 34, 0.55);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Действия */
+.journal-entry-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.hb-icon-btn-danger:hover {
+    background: rgba(231, 76, 60, 0.30) !important;
+    color: #ffc4b8 !important;
+    border-color: rgba(231, 76, 60, 0.55) !important;
+}
+
+/* Мобильная адаптация карточки */
+@media (max-width: 640px) {
+    .journal-entry {
+        grid-template-columns: 58px 1fr;
+    }
+    .journal-date {
+        width: 58px;
+        height: 58px;
+    }
+    .journal-date-day { font-size: 20px; }
+    .journal-entry-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        margin-top: 4px;
+    }
+}
+
+/* ==========================================
+   ОТЧЁТЫ
+   ========================================== */
+
+.report-content {
+    /* просто наследуем handbook-content */
+}
+
+/* ---------- Фильтры ---------- */
+.report-filters {
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 18px 20px;
+}
+
+.report-filters-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+}
+
+@media (max-width: 1000px) {
+    .report-filters-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .report-filters-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .report-filters-grid { grid-template-columns: 1fr; }
+}
+
+.report-filters-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ---------- Обёртка результата ---------- */
+.report-result {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ---------- Большая карточка-итог ---------- */
+.report-summary {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    padding: 22px 26px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.14),
+    rgba(200, 90, 20, 0.05));
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.report-summary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right,
+    transparent,
+    rgba(255, 200, 130, 0.6),
+    transparent);
+}
+
+/* Машинный отчёт — чуть холоднее, синий акцент */
+.report-summary--machine {
+    background: linear-gradient(135deg,
+    rgba(52, 152, 219, 0.14),
+    rgba(41, 128, 185, 0.05));
+    border-color: rgba(52, 152, 219, 0.35);
+}
+
+.report-summary--machine::before {
+    background: linear-gradient(to right,
+    transparent,
+    rgba(150, 210, 255, 0.6),
+    transparent);
+}
+
+.report-summary-left {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.report-summary-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.85);
+    margin-bottom: 6px;
+}
+
+.report-summary--machine .report-summary-label {
+    color: rgba(168, 216, 240, 0.9);
+}
+
+.report-summary-name {
+    font-size: 26px;
+    font-weight: 600;
+    color: #f5f1e8;
+    letter-spacing: 0.4px;
+    margin-bottom: 8px;
+    line-height: 1.15;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.report-summary-period {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: rgba(240, 230, 208, 0.6);
+    font-variant-numeric: tabular-nums;
+}
+
+.report-summary-period i {
+    color: #e67e22;
+}
+
+.report-summary--machine .report-summary-period i {
+    color: #3498db;
+}
+
+/* Правая часть — большая цифра */
+.report-summary-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.report-summary-total {
+    font-size: 38px;
+    font-weight: 700;
+    color: #ffd966;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(255, 200, 120, 0.35);
+}
+
+.report-summary--machine .report-summary-total {
+    color: #a8d8f0;
+    text-shadow: 0 0 20px rgba(120, 200, 255, 0.35);
+}
+
+.report-summary-currency {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.report-summary-caption {
+    margin-top: 6px;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+/* ---------- Мини-статистика в ряд ---------- */
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+@media (max-width: 600px) {
+    .report-stats { grid-template-columns: 1fr; }
+}
+
+.report-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.report-stat:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.35);
+    transform: translateY(-2px);
+}
+
+.report-stat i {
+    font-size: 16px;
+    color: #e67e22;
+    margin-bottom: 2px;
+}
+
+.report-stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f5f1e8;
+    font-variant-numeric: tabular-nums;
+}
+
+.report-stat-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+}
+
+/* ---------- Таблица отчёта ---------- */
+.report-table .report-product-name {
+    color: #f5f1e8;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.report-table tbody td {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Excel-кнопка — в стиле success, но заглушенная */
+.btn-glass-success[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: saturate(0.6);
+}
+
+
+.report-table tbody tr:hover .product-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .report-table tbody tr:hover .product-icon-img {
+        animation: none !important;
+    }
+}
+
+/* ==========================================
+   ДЕДЛАЙН В СРОЧНЫХ ЗАКАЗАХ (ДЭШБОРД)
+   ========================================== */
+
+.urgent-meta {
+    gap: 8px;   /* чтобы 3 элемента дышали, а не слипались */
+}
+
+.urgent-qty {
+    flex-shrink: 0;
+    color: rgba(240, 230, 208, 0.6);
+}
+
+.urgent-qty strong {
+    color: #f5f1e8;
+    font-weight: 600;
+}
+
+/* Группа "дата + дни" справа, прижата к краю */
+.urgent-deadline-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;   /* ← прижимает группу к правому краю */
+    flex-wrap: nowrap;
+}
+
+.urgent-deadline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: rgba(240, 230, 208, 0.75);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.urgent-deadline i {
+    color: #e67e22;
+    font-size: 11px;
+}
+
+.urgent-card:hover .urgent-deadline i {
+    color: #ffd966;
+}
+
+.urgent-no-deadline {
+    margin-left: auto;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.3);
+    font-style: italic;
+    white-space: nowrap;
+}
+
+/* На узких карточках — компактнее */
+@media (max-width: 700px) {
+    .urgent-meta {
+        font-size: 10.5px;
+    }
+    .urgent-deadline {
+        font-size: 10.5px;
+    }
+}
+
+/* ==========================================
+   ИКОНКИ ПРОДУКЦИИ (МУФТА / ПЕРЕВОДНИК)
+   ========================================== */
+
+.product-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.18);
+    padding: 2px;
+    box-sizing: border-box;
+
+    /* Мягкая тень, чтобы тёмный силуэт не растворялся на стекле */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+
+    transition: transform 0.35s ease, filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Больший размер — для журнала (карточки выше и текст крупнее) */
+.product-icon--lg {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    padding: 3px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+/* ─── Покачивание при наведении на карточку ───
+   Очень лёгкое (±3°), медленное (2.4s) — не отвлекает, но оживляет */
+.urgent-card:hover .product-icon,
+.journal-entry:hover .product-icon {
+    animation: productIconSway 2.4s ease-in-out infinite;
+    filter:
+            drop-shadow(0 2px 6px rgba(230, 126, 34, 0.55))
+            drop-shadow(0 0 10px rgba(230, 126, 34, 0.35));
+}
+
+@keyframes productIconSway {
+    0%, 100% { transform: rotate(-3deg) scale(1.06); }
+    50%      { transform: rotate(3deg)  scale(1.10); }
+}
+
+/* В срочных заказах чуть больше воздуха в ряду */
+.urgent-product {
+    gap: 8px;
+}
+
+/* В журнале — иконка первой, но чуть отступ справа */
+.journal-entry-head .product-icon {
+    margin-right: 4px;
+}
+
+/* Reduced motion — без анимации */
+@media (prefers-reduced-motion: reduce) {
+    .urgent-card:hover .product-icon,
+    .journal-entry:hover .product-icon {
+        animation: none !important;
+    }
+}
+
+/* ==========================================
+   ДЭШБОРД — компактный журнал
+   ========================================== */
+
+.dashboard-journal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dashboard-journal-entry {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 14px 9px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.dashboard-journal-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+    background: linear-gradient(180deg, #e67e22, #a85520);
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.dashboard-journal-entry:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(230, 126, 34, 0.35);
+    transform: translateX(2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-journal-entry:hover::before {
+    opacity: 1;
+}
+
+/* ==========================================
+   ДЭШБОРД — иконки продукции с цветовыми подложками
+   ========================================== */
+
+.dj-icon {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    padding: 3px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+/* ─── МУФТА — фиолетовая подложка (легендарное качество, #a335ee) ─── */
+.dj-icon--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.24),
+    rgba(110, 25, 170, 0.10));
+    border: 1px solid rgba(163, 53, 238, 0.48);
+    box-shadow:
+            inset 0 0 10px rgba(163, 53, 238, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── ПЕРЕВОДНИК — оранжевая подложка (легендарное качество, #ff8000) ─── */
+.dj-icon--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 128, 0, 0.28),
+    rgba(200, 90, 10, 0.12));
+    border: 1px solid rgba(255, 160, 50, 0.60);
+    box-shadow:
+            inset 0 0 12px rgba(255, 140, 30, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35),
+            0 0 10px rgba(255, 128, 0, 0.20);
+}
+
+/* Картинка внутри подложки */
+.dj-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    transition: transform 0.35s ease, filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER на карточку: подложка вспыхивает, иконка покачивается ─── */
+
+.dashboard-journal-entry:hover .dj-icon--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.42),
+    rgba(120, 30, 190, 0.22));
+    border-color: rgba(200, 110, 255, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(163, 53, 238, 0.40),
+            0 0 16px rgba(163, 53, 238, 0.45);
+}
+
+.dashboard-journal-entry:hover .dj-icon--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 140, 20, 0.50),
+    rgba(220, 100, 15, 0.26));
+    border-color: rgba(255, 200, 90, 0.95);
+    box-shadow:
+            inset 0 0 14px rgba(255, 160, 40, 0.45),
+            0 0 20px rgba(255, 128, 0, 0.60),
+            0 0 40px rgba(255, 100, 0, 0.30);
+}
+
+.dashboard-journal-entry:hover .dj-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+/* Reduced motion — без анимации картинки */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-journal-entry:hover .dj-icon-img {
+        animation: none !important;
+    }
+}
+
+/* Текстовая часть */
+.dj-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dj-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Компактная обёртка тултипа */
+.dj-head .product-name-wrapper {
+    padding: 1px 7px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.dj-head .product-name-wrapper .product-tooltip {
+    font-size: 13px;
+}
+
+.dj-product-plain {
+    font-size: 13px;
+    color: #f5f1e8;
+    font-weight: 500;
+}
+
+.dj-qty {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(46, 204, 113, 0.20);
+    color: #c8ffd9;
+    border: 1px solid rgba(46, 204, 113, 0.40);
+}
+
+.dj-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: rgba(240, 230, 208, 0.65);
+    flex-wrap: wrap;
+}
+
+.dj-meta i {
+    color: #e67e22;
+    font-size: 11px;
+    margin-right: 2px;
+}
+
+.dj-sep {
+    color: rgba(240, 230, 208, 0.2);
+}
+
+/* Дата справа */
+.dj-date-block {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    padding-left: 10px;
+    border-left: 1px dashed rgba(255, 255, 255, 0.08);
+    min-width: 72px;
+}
+
+.dj-date {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: rgba(255, 184, 119, 0.9);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.dj-time {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(240, 230, 208, 0.4);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .dj-date-block { display: none; }
+    .dj-icon { width: 30px; height: 30px; font-size: 14px; }
+}
+
+/* ==========================================
+   ИКОНКА ПРОДУКЦИИ В ПОДЛОЖКЕ
+   (журнал + срочные заказы)
+   ========================================== */
+
+.product-icon-tile {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+/* Маленькая — для срочных заказов на дашборде */
+.product-icon-tile--sm {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    padding: 2px;
+}
+
+/* Большая — для журнала (там карточка выше и текст крупнее) */
+.product-icon-tile--lg {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    padding: 3px;
+    margin-right: 4px;
+}
+
+/* ─── МУФТА — фиолетовая подложка (epic, #a335ee) ─── */
+.product-icon-tile--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.24),
+    rgba(110, 25, 170, 0.10));
+    border: 1px solid rgba(163, 53, 238, 0.48);
+    box-shadow:
+            inset 0 0 10px rgba(163, 53, 238, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── ПЕРЕВОДНИК — оранжевая подложка (legendary, #ff8000) ─── */
+.product-icon-tile--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 128, 0, 0.28),
+    rgba(200, 90, 10, 0.12));
+    border: 1px solid rgba(255, 160, 50, 0.60);
+    box-shadow:
+            inset 0 0 12px rgba(255, 140, 30, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35),
+            0 0 10px rgba(255, 128, 0, 0.20);
+}
+
+/* ─── ТРУБА / ПАТРУБОК — зелёная подложка (uncommon, #1eff00) ─── */
+.product-icon-tile--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.20),
+    rgba(20, 170, 0, 0.08));
+    border: 1px solid rgba(30, 255, 0, 0.45);
+    box-shadow:
+            inset 0 0 10px rgba(30, 255, 0, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* Картинка внутри подложки */
+.product-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    transition: transform 0.35s ease, filter 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER: подложка вспыхивает, иконка покачивается ─── */
+
+.urgent-card:hover .product-icon-tile--coupling,
+.journal-entry:hover .product-icon-tile--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.42),
+    rgba(120, 30, 190, 0.22));
+    border-color: rgba(200, 110, 255, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(163, 53, 238, 0.40),
+            0 0 16px rgba(163, 53, 238, 0.45);
+}
+
+.urgent-card:hover .product-icon-tile--adapter,
+.journal-entry:hover .product-icon-tile--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 140, 20, 0.50),
+    rgba(220, 100, 15, 0.26));
+    border-color: rgba(255, 200, 90, 0.95);
+    box-shadow:
+            inset 0 0 14px rgba(255, 160, 40, 0.45),
+            0 0 20px rgba(255, 128, 0, 0.60),
+            0 0 40px rgba(255, 100, 0, 0.30);
+}
+
+.urgent-card:hover .product-icon-tile--pipe,
+.journal-entry:hover .product-icon-tile--pipe,
+.order-card:hover .product-icon-tile--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.40),
+    rgba(20, 200, 0, 0.20));
+    border-color: rgba(80, 255, 60, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(30, 255, 0, 0.40),
+            0 0 16px rgba(30, 255, 0, 0.45);
+}
+
+.urgent-card:hover .product-icon-img,
+.journal-entry:hover .product-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .urgent-card:hover .product-icon-img,
+    .journal-entry:hover .product-icon-img {
+        animation: none !important;
+    }
+}
+/* Иконка продукции внутри текстовой строки (view.html) */
+.product-icon-tile--inline {
+    vertical-align: middle;
+    margin-right: 6px;
+    margin-top: -2px;   /* компенсирует baseline, чтобы линия смотрелась ровно */
+}
+
+/* Hover-анимация в карточках заказов — такая же как в срочных и журнале */
+.order-card:hover .product-icon-tile--coupling {
+    background: linear-gradient(135deg,
+    rgba(163, 53, 238, 0.42),
+    rgba(120, 30, 190, 0.22));
+    border-color: rgba(200, 110, 255, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(163, 53, 238, 0.40),
+            0 0 16px rgba(163, 53, 238, 0.45);
+}
+
+.order-card:hover .product-icon-tile--adapter {
+    background: linear-gradient(135deg,
+    rgba(255, 140, 20, 0.50),
+    rgba(220, 100, 15, 0.26));
+    border-color: rgba(255, 200, 90, 0.95);
+    box-shadow:
+            inset 0 0 14px rgba(255, 160, 40, 0.45),
+            0 0 20px rgba(255, 128, 0, 0.60),
+            0 0 40px rgba(255, 100, 0, 0.30);
+}
+
+.order-card:hover .product-icon-img {
+    animation: productIconSway 2.4s ease-in-out infinite;
+}
+
+/* Чуть больше воздуха между иконкой и названием в карточке заказа */
+.order-product {
+    gap: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-card:hover .product-icon-img {
+        animation: none !important;
+    }
+}
+
+/* ==========================================
+   МАГИЯ ПЕРЕВОДА ЗАКАЗА — ЛИСТОК-КУРЬЕР
+   ========================================== */
+
+/* --- Уезжающая карточка — НЕ исчезает полностью, просто тускнеет и сжимается --- */
+.order-card--departing {
+    pointer-events: none;
+    animation: orderCardDepart 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes orderCardDepart {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0) saturate(1);
+    }
+    55% {
+        opacity: 0.7;
+        transform: scale(0.98) translateY(-1px);
+        filter: blur(0.4px) saturate(0.8);
+    }
+    100% {
+        /* ВАЖНО: не в 0 — оставляем «призрак», чтобы место не пустовало,
+           пока Turbo не подменит фрейм */
+        opacity: 0.42;
+        transform: scale(0.955) translateY(2px);
+        filter: blur(1.4px) saturate(0.55);
+    }
+}
+
+/* --- Слой для летящего листка --- */
+.leaf-flight-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1500; /* выше навбара, ниже модалок (2000) */
+}
+
+.leaf-flyer {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity, filter;
+    pointer-events: none;
+    filter:
+            drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))
+            drop-shadow(0 0 22px rgba(255, 170, 70, 0.85))
+            drop-shadow(0 0 48px rgba(230, 126, 34, 0.5));
+}
+
+/* Свечение-аура вокруг листа */
+.leaf-flyer::before {
+    content: '';
+    position: absolute;
+    inset: -55%;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+    rgba(255, 180, 80, 0.55) 0%,
+    rgba(230, 126, 34, 0.25) 35%,
+    transparent 70%);
+    filter: blur(6px);
+    z-index: -1;
+    animation: leafAuraPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes leafAuraPulse {
+    0%, 100% { transform: scale(1);    opacity: 0.85; }
+    50%      { transform: scale(1.25); opacity: 1;    }
+}
+
+.leaf-flyer img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* --- Пульс на кнопке-цели, когда лист «влетает» в неё --- */
+.btn-glass.leaf-target-pulse,
+.orders-nav-btns a.leaf-target-pulse {
+    animation: leafTargetPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes leafTargetPulse {
+    0% {
+        box-shadow:
+                0 0 0 0 rgba(255, 180, 80, 0.9),
+                0 4px 14px rgba(230, 126, 34, 0.4);
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.06);
+    }
+    100% {
+        box-shadow:
+                0 0 0 22px rgba(255, 180, 80, 0),
+                0 4px 14px rgba(230, 126, 34, 0.4);
+        transform: scale(1);
+    }
+}
+
+/* --- Дополнительная плавность подмены фрейма --- */
+.app-frame {
+    transition: opacity 0.22s ease;
+}
+
+
+/* reduced-motion — не мучаем людей */
+@media (prefers-reduced-motion: reduce) {
+    .order-card--departing,
+    .leaf-flyer,
+    .leaf-flyer::before,
+    .leaf-target-pulse {
+        animation: leafTargetPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .order-card--departing { opacity: 0; }
+}
+
+/* ==========================================
+   УДАЛЕНИЕ ЗАКАЗА — ПУЗЫРЬ + ВЕТЕР
+   ========================================== */
+
+/* --- Карточка лопается как пузырь --- */
+.order-card--popping,
+.order-detail-card--popping {
+    pointer-events: none;
+    animation: orderCardPop 0.32s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+    transform-origin: center center;
+}
+
+@keyframes orderCardPop {
+    0% {
+        transform: scale(1, 1) rotate(0deg);
+        opacity: 1;
+        filter: blur(0) brightness(1);
+    }
+    18% {
+        /* Сжатие по вертикали — «воздух вышел» */
+        transform: scale(1.02, 0.86) rotate(-1.5deg);
+        opacity: 0.96;
+        filter: blur(0) brightness(1.05);
+    }
+    38% {
+        /* Отскок — пузырь ещё держится, чуть распух */
+        transform: scale(1.06, 1.04) rotate(1.2deg);
+        opacity: 0.93;
+        filter: blur(0.2px) brightness(1.12);
+    }
+    58% {
+        /* Быстрое схлопывание */
+        transform: scale(0.55, 0.5) rotate(-2.5deg);
+        opacity: 0.78;
+        filter: blur(1px) brightness(1.35);
+    }
+    82% {
+        /* Почти точка — вот-вот лопнет */
+        transform: scale(0.18, 0.14) rotate(3deg);
+        opacity: 0.6;
+        filter: blur(2px) brightness(1.75);
+    }
+    100% {
+        /* Лопнула — исчезла во вспышке */
+        transform: scale(0.02, 0.02) rotate(0deg);
+        opacity: 0;
+        filter: blur(6px) brightness(2.4);
+    }
+}
+
+/* --- Слой пузырьковых брызг --- */
+.bubble-burst-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1490;   /* выше карточек, ниже листика (1500) и модалок (2000) */
+}
+
+.bubble-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 32%,
+    rgba(255, 248, 220, 1) 0%,
+    rgba(255, 210, 140, 0.9) 28%,
+    rgba(230, 126, 34, 0.7) 62%,
+    rgba(230, 126, 34, 0) 100%);
+    box-shadow:
+            0 0 10px rgba(255, 200, 120, 0.7),
+            inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    transform: translate(-50%, -50%);
+    animation: bubblePop 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes bubblePop {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.4);
+        opacity: 1;
+    }
+    55% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%)
+        translate(var(--dx), var(--dy))
+        scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* --- Круговая ударная волна в момент лопания --- */
+.bubble-shockwave {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 205, 130, 0.95);
+    box-shadow:
+            0 0 18px rgba(255, 180, 80, 0.75),
+            inset 0 0 10px rgba(255, 210, 140, 0.6);
+    transform: translate(-50%, -50%) scale(0.15);
+    transform-origin: center;
+    opacity: 0;
+    pointer-events: none;
+    animation: shockwaveExpand 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes shockwaveExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.15);
+        opacity: 1;
+        border-width: 4px;
+    }
+    60% {
+        opacity: 0.85;
+        border-width: 3px;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(9);
+        opacity: 0;
+        border-width: 1px;
+    }
+}
+
+/* --- Листик, уносимый ветром --- */
+.leaf-flyer--wind {
+    /* Лёгкий наклон вперёд — «ветер в спину» */
+    animation: windShake 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes windShake {
+    0%   { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 26px rgba(255, 170, 70, 0.95))
+    drop-shadow(0 0 58px rgba(230, 126, 34, 0.6)); }
+    100% { filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 34px rgba(255, 190, 90, 1))
+    drop-shadow(0 0 70px rgba(255, 140, 40, 0.75)); }
+}
+
+/* --- Искорки ветра в шлейфе --- */
+.wind-spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+    rgba(255, 240, 200, 1) 0%,
+    rgba(255, 190, 90, 0.7) 45%,
+    rgba(255, 140, 40, 0) 100%);
+    box-shadow: 0 0 10px rgba(255, 190, 90, 0.85);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: windSparkFly 1.55s cubic-bezier(0.3, 0.55, 0.4, 1) forwards;
+}
+
+@keyframes windSparkFly {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.35);
+    }
+    15% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%)
+        translate(var(--dx), var(--dy))
+        scale(0.3);
+    }
+}
+
+/* reduced-motion — не мучаем людей */
+@media (prefers-reduced-motion: reduce) {
+    .order-card--popping,
+    .order-detail-card--popping,
+    .bubble-particle,
+    .bubble-shockwave
+    .leaf-flyer--wind,
+    .wind-spark {
+        animation: none !important;
+    }
+    .order-card--popping,
+    .order-detail-card--popping {
+        opacity: 0;
+    }
+}
+
+/* ==========================================
+   PRODUCT-TYPE-BADGE — pill-бейдж редкости
+   ========================================== */
+
+.product-type-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    align-self: flex-start;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.product-type-badge--coupling {
+    background: rgba(163, 53, 238, 0.22);
+    color: #d9a8ff;
+    border: 1px solid rgba(163, 53, 238, 0.55);
+}
+
+.product-type-badge--adapter {
+    background: rgba(255, 128, 0, 0.22);
+    color: #ffbb7c;
+    border: 1px solid rgba(255, 128, 0, 0.55);
+}
+
+.product-type-badge--pipe {
+    background: rgba(30, 255, 0, 0.18);
+    color: #b8ffb0;
+    border: 1px solid rgba(30, 255, 0, 0.45);
+}
+
+.product-type-badge--nipple {
+    background: rgba(0, 112, 221, 0.22);
+    color: #9bcaff;
+    border: 1px solid rgba(0, 112, 221, 0.55);
+}
+
+/* ==========================================
+   DJ-ICON — добавочные цвета: зелёный (труба), синий (патрубок)
+   ========================================== */
+
+.dj-icon--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.20),
+    rgba(20, 170, 0, 0.08));
+    border: 1px solid rgba(30, 255, 0, 0.45);
+    box-shadow:
+            inset 0 0 10px rgba(30, 255, 0, 0.18),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.dj-icon--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 112, 221, 0.24),
+    rgba(0, 60, 130, 0.10));
+    border: 1px solid rgba(0, 112, 221, 0.55);
+    box-shadow:
+            inset 0 0 10px rgba(0, 112, 221, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.dashboard-journal-entry:hover .dj-icon--pipe {
+    background: linear-gradient(135deg,
+    rgba(30, 255, 0, 0.40),
+    rgba(20, 200, 0, 0.20));
+    border-color: rgba(80, 255, 60, 0.85);
+    box-shadow:
+            inset 0 0 12px rgba(30, 255, 0, 0.40),
+            0 0 16px rgba(30, 255, 0, 0.45);
+}
+
+.dashboard-journal-entry:hover .dj-icon--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 140, 255, 0.45),
+    rgba(0, 80, 180, 0.22));
+    border-color: rgba(120, 190, 255, 0.90);
+    box-shadow:
+            inset 0 0 14px rgba(0, 140, 255, 0.45),
+            0 0 20px rgba(0, 112, 221, 0.60);
+}
+
+/* ==========================================
+   PRODUCT-ICON-TILE — синий вариант для патрубка
+   ========================================== */
+
+.product-icon-tile--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 112, 221, 0.24),
+    rgba(0, 60, 130, 0.10));
+    border: 1px solid rgba(0, 112, 221, 0.55);
+    box-shadow:
+            inset 0 0 10px rgba(0, 112, 221, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.urgent-card:hover .product-icon-tile--nipple,
+.journal-entry:hover .product-icon-tile--nipple,
+.order-card:hover .product-icon-tile--nipple {
+    background: linear-gradient(135deg,
+    rgba(0, 140, 255, 0.45),
+    rgba(0, 80, 180, 0.22));
+    border-color: rgba(120, 190, 255, 0.90);
+    box-shadow:
+            inset 0 0 14px rgba(0, 140, 255, 0.45),
+            0 0 20px rgba(0, 112, 221, 0.60);
+}
+
+
+/* ==========================================
+   ЗАКАЗ — ЗАГОТОВКА, ИТОГО, РАСШИФРОВКА
+   ========================================== */
+
+/* ---------- Заготовка: аккуратные плитки ---------- */
+.workpiece-badge {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.workpiece-part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    border-radius: 10px;
+    min-width: 84px;
+    transition: all 0.2s ease;
+}
+
+.workpiece-part:hover {
+    border-color: rgba(255, 200, 130, 0.65);
+    background: rgba(0, 0, 0, 0.38);
+    transform: translateY(-1px);
+}
+
+.workpiece-part .wp-label {
+    font-size: 9.5px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(240, 230, 208, 0.5);
+    margin-bottom: 3px;
+}
+
+.workpiece-part .wp-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 8px rgba(255, 200, 120, 0.25);
+}
+
+/* ---------- Итого + кнопка расшифровки ---------- */
+.hb-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 0 4px;
+    margin-top: 10px;
+    border-top: 2px solid rgba(230, 126, 34, 0.25);
+}
+
+.hb-total-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.95);
+    font-weight: 600;
+}
+
+.hb-total-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.hb-total-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 18px rgba(255, 200, 120, 0.35);
+}
+
+.hb-total-currency {
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.75;
+    margin-left: 3px;
+}
+
+/* Кнопка «Расшифровка» */
+.btn-breakdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.18),
+    rgba(200, 90, 20, 0.10));
+    border: 1px solid rgba(230, 126, 34, 0.5);
+    border-radius: 10px;
+    color: #ffd966;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-breakdown:hover {
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.3),
+    rgba(200, 90, 20, 0.2));
+    border-color: rgba(255, 200, 130, 0.85);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(230, 126, 34, 0.3);
+}
+
+.btn-breakdown .bi-chevron-down {
+    font-size: 11px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-breakdown.open .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* ---------- Панель расшифровки ---------- */
+.cost-breakdown {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-top: 0;
+    transition:
+            max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.4s ease,
+            margin-top 0.35s ease;
+}
+
+.cost-breakdown.open {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 18px;
+}
+
+.cost-breakdown-inner {
+    position: relative;
+    padding: 22px 24px;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.08),
+    rgba(200, 90, 20, 0.03));
+    border: 1px solid rgba(230, 126, 34, 0.3);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cost-breakdown-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right,
+    transparent,
+    rgba(255, 200, 130, 0.6),
+    transparent);
+    pointer-events: none;
+}
+
+.cost-breakdown-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.95);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(230, 126, 34, 0.3);
+}
+
+.cost-breakdown-title i {
+    font-size: 15px;
+    color: #e67e22;
+}
+
+/* Шаг формулы */
+.cost-step {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.cost-step:last-of-type {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.cost-step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg,
+    rgba(230, 126, 34, 0.9),
+    rgba(200, 90, 20, 0.8));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(230, 126, 34, 0.4);
+}
+
+.cost-step-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.cost-step-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f5f1e8;
+    margin-bottom: 8px;
+}
+
+.cost-hint {
+    font-size: 10.5px;
+    font-weight: 400;
+    font-style: italic;
+    color: rgba(240, 230, 208, 0.5);
+    letter-spacing: 0.3px;
+}
+
+/* Формула */
+.cost-step-formula {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 9px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: rgba(240, 230, 208, 0.85);
+}
+
+.cf-num {
+    color: #f0e6d0;
+    font-weight: 500;
+}
+
+.cf-op {
+    color: rgba(255, 184, 119, 0.75);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.cf-result {
+    color: #ffd966;
+    font-weight: 700;
+    margin-left: 4px;
+    text-shadow: 0 0 8px rgba(255, 200, 120, 0.3);
+}
+
+/* Список доп.работ */
+.cost-works-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.cost-work-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 9px 14px;
+    background: rgba(46, 204, 113, 0.08);
+    border: 1px solid rgba(46, 204, 113, 0.22);
+    border-radius: 8px;
+    font-size: 12.5px;
+}
+
+.cw-name {
+    color: #c8ffd9;
+    font-weight: 500;
+}
+
+.cw-formula {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Итого */
+.cost-breakdown-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 2px solid rgba(230, 126, 34, 0.4);
+}
+
+.cost-breakdown-total-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 184, 119, 0.95);
+    font-weight: 600;
+}
+
+.cost-breakdown-total-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffd966;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 20px rgba(255, 200, 120, 0.4);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .cost-breakdown,
+    .btn-breakdown,
+    .btn-breakdown .bi-chevron-down {
+        transition: none !important;
+    }
+}
+
+/* ==========================================
+   ИКОНКИ-КАРТИНКИ В NAVBAR (книга, листик и т.п.)
+   ========================================== */
+
+.nav-leaf-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: -3px;        /* выравниваем по baseline текста */
+    margin-right: 6px;
+    flex-shrink: 0;
+
+    /* Точка вращения — корешок книги, снизу-слева */
+    transform-origin: 45% 70%;
+
+    transition:
+            transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.35s ease;
+
+    /* Мягкая тень + тёплое свечение — как у листика-логотипа */
+    filter:
+            drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 3px rgba(230, 126, 34, 0.28));
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ─── HOVER / ОТКРЫТЫЙ ДРОПДАУН — книга оживает ─── */
+.app-glass .navbar .nav-link:hover .nav-leaf-icon,
+.app-glass .navbar .nav-link.show .nav-leaf-icon {
+    transform: rotate(-6deg) scale(1.12);
+    filter:
+            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 10px rgba(255, 180, 80, 0.85))
+            drop-shadow(0 0 20px rgba(230, 126, 34, 0.5));
+    animation: navBookSway 2.2s ease-in-out 0.25s infinite;
+}
+
+@keyframes navBookSway {
+    0%, 100% { transform: rotate(-6deg)  scale(1.12); }
+    50%      { transform: rotate(-14deg) scale(1.16); }
+}
+
+/* ─── ACTIVE — книга «дышит» на активной вкладке ─── */
+.app-glass .navbar .nav-link.active .nav-leaf-icon {
+    filter:
+            drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 6px rgba(255, 180, 80, 0.75))
+            drop-shadow(0 0 14px rgba(230, 126, 34, 0.4));
+}
+
+.app-glass .navbar .nav-link.active:hover .nav-leaf-icon {
+    animation: navBookSway 2.2s ease-in-out infinite;
+}
+
+/* ─── Reduced motion — без анимации ─── */
+@media (prefers-reduced-motion: reduce) {
+    .nav-leaf-icon,
+    .app-glass .navbar .nav-link:hover .nav-leaf-icon,
+    .app-glass .navbar .nav-link.show .nav-leaf-icon,
+    .app-glass .navbar .nav-link.active:hover .nav-leaf-icon {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
 }

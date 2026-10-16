@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <a th:href="@{/steel-groups}" data-turbo-frame="app"
+               class="hb-icon-btn hb-back" title="Назад">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="handbook-title"
+                th:text="${group.id == null} ? 'Новая группа прочности' : 'Редактирование группы'">
+                Новая группа прочности
+            </h1>
+        </div>
+    </header>
+
+    <form th:action="@{/steel-groups/save}" th:object="${group}" method="post"
+          class="handbook-form">
+
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="hb-grid">
+
+            <div class="hb-field">
+                <label for="code">Код группы <span class="req">*</span></label>
+                <input type="text" id="code" th:field="*{code}" required
+                       maxlength="10" placeholder="Д / К / Е / Л / М / Р"/>
+                <span class="hb-error" th:if="${#fields.hasErrors('code')}"
+                      th:errors="*{code}"></span>
+            </div>
+
+            <div class="hb-field">
+                <label for="markupPercent">Надбавка, % <span class="req">*</span></label>
+                <input type="number" step="0.01" min="0" max="100"
+                       id="markupPercent" th:field="*{markupPercent}" required/>
+                <span class="hb-error" th:if="${#fields.hasErrors('markupPercent')}"
+                      th:errors="*{markupPercent}"></span>
+            </div>
+
+            <div class="hb-field hb-field-full">
+                <label for="name">Наименование <span class="req">*</span></label>
+                <input type="text" id="name" th:field="*{name}" required/>
+                <span class="hb-error" th:if="${#fields.hasErrors('name')}"
+                      th:errors="*{name}"></span>
+            </div>
+
+            <div class="hb-field hb-field-full">
+                <label for="description">Описание</label>
+                <textarea id="description" th:field="*{description}" rows="3"
+                          placeholder="Необязательно"></textarea>
+            </div>
+
+            <div class="hb-field">
+                <label class="hb-check">
+                    <input type="checkbox" th:field="*{isDefault}"
+                           th:disabled="${group.isDefault != null and group.isDefault}"/>
+                    <div class="hb-check-body">
+                        <span class="hb-check-label">Группа по умолчанию</span>
+                        <span class="hb-check-desc">
+                            Применяется к старым заказам без явно указанной группы.
+                            Может быть только одна. Чтобы сменить — назначьте другую.
+                        </span>
+                    </div>
+                </label>
+                <!-- disabled-чекбокс не уходит в POST. Дублируем значение скрытым полем, -->
+                <input type="hidden" th:if="${group.isDefault != null and group.isDefault}"
+                       name="isDefault" value="true"/>
+            </div>
+
+            <div class="hb-field">
+                <label class="hb-check">
+                    <input type="checkbox" th:field="*{active}"/>
+                    <div class="hb-check-body">
+                        <span class="hb-check-label">Активна</span>
+                        <span class="hb-check-desc">
+                            Неактивные группы не показываются в форме заказа.
+                        </span>
+                    </div>
+                </label>
+            </div>
+
+
+        </div>
+
+        <div class="handbook-form-actions">
+            <button type="submit" class="btn-glass btn-glass-primary">
+                <i class="bi bi-check-lg"></i> Сохранить
+            </button>
+            <a th:href="@{/steel-groups}" data-turbo-frame="app"
+               class="btn-glass btn-glass-ghost">
+                Отмена
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>

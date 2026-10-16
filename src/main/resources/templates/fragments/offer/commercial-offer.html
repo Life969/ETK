@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content offer-content">
+
+    <!-- ===================== HEADER ===================== -->
+    <div class="handbook-header">
+        <div class="handbook-title-wrap">
+            <h1 class="handbook-title">
+                <i class="bi bi-file-earmark-text"></i>
+                Коммерческое предложение
+            </h1>
+            <span class="handbook-count"
+                  th:text="${#lists.size(offerItems)} + ' поз.'">0 поз.</span>
+        </div>
+
+        <div class="hb-actions-row">
+            <a class="btn-glass btn-glass-ghost"
+               data-turbo-frame="app"
+               href="/orders/waiting">
+                <i class="bi bi-arrow-left"></i> К заказам
+            </a>
+
+            <button type="button"
+                    class="btn-glass btn-glass-ghost"
+                    id="pdfBtn"
+                    disabled
+                    title="Формирование PDF скоро">
+                <i class="bi bi-file-pdf"></i> PDF
+            </button>
+
+            <form th:action="@{/commercial-offer/clear}"
+                  method="post"
+                  data-turbo-frame="app"
+                  class="d-inline m-0">
+                <button type="submit" class="btn-glass btn-glass-danger">
+                    <i class="bi bi-trash"></i> Сбросить КП
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================== ОШИБКА ===================== -->
+    <div th:if="${error}" class="handbook-alert handbook-alert-danger">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${error}">Ошибка</span>
+    </div>
+
+    <!-- ===================== КАРТОЧКА КОМПАНИИ ===================== -->
+    <div class="offer-company-card">
+        <div class="offer-company-label">
+            <i class="bi bi-building"></i> Компания
+        </div>
+        <div class="offer-company-name" th:text="${companyName}">ООО «Ромашка»</div>
+        <div class="offer-company-meta">
+            <span>
+                <i class="bi bi-list-check"></i>
+                <span th:text="${#lists.size(offerItems)}">0</span> позиций
+            </span>
+            <span class="offer-company-sep">•</span>
+            <span>
+                <i class="bi bi-calendar3"></i>
+                <span th:text="${#temporals.format(#temporals.createNow(), 'dd.MM.yyyy')}">01.01.2025</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ===================== ТАБЛИЦА ===================== -->
+    <div class="hb-accordion">
+        <div class="hb-accordion-item">
+            <div class="offer-table-wrap">
+                <table class="journal-table offer-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 40px;">№</th>
+                        <th>Наименование продукции</th>
+                        <th class="text-center" style="width: 90px;">Кол-во</th>
+                        <th class="text-end" style="width: 140px;">Цена за ед.</th>
+                        <th class="text-end" style="width: 160px;">Стоимость</th>
+                        <th class="text-center" style="width: 70px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item, iter : ${offerItems}"
+                        th:with="order=${item['order']}">
+
+                        <td class="offer-row-num" th:text="${iter.count}">1</td>
+
+                        <td>
+                            <div class="offer-product-cell">
+
+                                <!-- Иконка: 4 цвета -->
+                                <span class="product-icon-tile product-icon-tile--sm"
+                                      th:with="pt=${order.productType}"
+                                      th:classappend="${pt == 'COUPLING' ? 'product-icon-tile--coupling'
+                      : (pt == 'ADAPTER' ? 'product-icon-tile--adapter'
+                      : (pt == 'NIPPLE' ? 'product-icon-tile--nipple'
+                      : 'product-icon-tile--pipe'))}">
+                <img class="product-icon-img"
+                     th:src="${pt == 'COUPLING'} ? @{/images/product-coupling.png}
+                     : (${pt == 'ADAPTER'} ? @{/images/product-adapter.png}
+                     : @{/images/product-pipe.png})"
+                                 alt="" aria-hidden="true">
+            </span>
+
+                                <!-- Pill-badge: 4 цвета -->
+                                <span class="product-type-badge"
+                                      th:with="pt=${order.productType}"
+                                      th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling'
+                      : (pt == 'ADAPTER' ? 'product-type-badge--adapter'
+                      : (pt == 'NIPPLE' ? 'product-type-badge--nipple'
+                      : 'product-type-badge--pipe'))}"
+                                      th:text="${pt == 'COUPLING' ? 'Муфта'
+                      : (pt == 'ADAPTER' ? 'Переводник'
+                      : (pt == 'PIPE' ? 'Труба'
+                      : (pt == 'NIPPLE' ? 'Патрубок' : '—')))}">—</span>
+
+                                <!-- МУФТА -->
+                                <span th:if="${item['product'] != null and item['productType'] == 'COUPLING'}"
+                                      class="product-name-wrapper">
+                <span class="product-tooltip"
+                      th:attr="data-id=${item['product'].id},
+                               data-name=${item['product'].name},
+                               data-type=${item['product'].type},
+                               data-diameter=${item['product'].conditionalDiameter},
+                               data-length=${item['product'].lengthMm != null ? item['product'].lengthMm : ''},
+                               data-weight=${item['product'].weightKg != null ? item['product'].weightKg : ''},
+                               data-outer-diameter=${item['product'].outerDiameterMm != null ? item['product'].outerDiameterMm : ''},
+                               data-inner-diameter=${item['product'].innerDiameterMm != null ? item['product'].innerDiameterMm : ''},
+                               data-cost=${item['product'].manufacturingCost != null ? item['product'].manufacturingCost : ''},
+                               data-price=${item['product'].priceForEmployee != null ? item['product'].priceForEmployee : ''},
+                               data-description=${item['product'].description != null ? item['product'].description : ''},
+                               data-image=${item['product'].imagePath != null ? item['product'].imagePath : ''}"
+                      th:text="${item['product'].name}">—</span>
+            </span>
+
+                                <!-- ПЕРЕВОДНИК -->
+                                <span th:if="${item['product'] != null and item['productType'] == 'ADAPTER'}"
+                                      class="product-name-wrapper">
+                <span class="product-tooltip"
+                      th:attr="data-id=${item['product'].id},
+                               data-name=${item['product'].fullName},
+                               data-first-type=${item['product'].firstSideType},
+                               data-first-diameter=${item['product'].firstSideDiameter},
+                               data-second-type=${item['product'].secondSideType},
+                               data-second-diameter=${item['product'].secondSideDiameter},
+                               data-length=${item['product'].lengthMm != null ? item['product'].lengthMm : ''},
+                               data-weight=${item['product'].weightKg != null ? item['product'].weightKg : ''},
+                               data-outer-diameter=${item['product'].outerDiameterMm != null ? item['product'].outerDiameterMm : ''},
+                               data-inner-diameter=${item['product'].innerDiameterMm != null ? item['product'].innerDiameterMm : ''},
+                               data-cost=${item['product'].manufacturingCost != null ? item['product'].manufacturingCost : ''},
+                               data-price=${item['product'].priceForEmployee != null ? item['product'].priceForEmployee : ''},
+                               data-description=${item['product'].description != null ? item['product'].description : ''},
+                               data-image=${item['product'].imagePath != null ? item['product'].imagePath : ''}"
+                      th:text="${item['product'].fullName}">—</span>
+            </span>
+
+                                <!-- ТРУБА / ПАТРУБОК -->
+                                <span th:if="${item['product'] == null and (order.productType == 'PIPE' or order.productType == 'NIPPLE')}"
+                                      class="product-name-wrapper">
+                <span class="product-tooltip"
+                      th:attr="data-pipe-kind=${order.productType},
+                               data-name=${order.externalThreadName},
+                               data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
+                               data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
+                               data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
+                               data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
+                               data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
+                               data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
+                               data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''}"
+                              th:text="${order.productType == 'NIPPLE' and order.pieceLengthMm != null
+                            ? order.externalThreadName + ' L-' + #numbers.formatInteger(order.pieceLengthMm, 0)
+                            : order.externalThreadName}">—
+                </span>
+            </span>
+
+                                <!-- Fallback -->
+                                <span th:if="${item['product'] == null and order.productType != 'PIPE' and order.productType != 'NIPPLE'}"
+                                      class="offer-product-name"
+                                      th:text="${order.productName}">—</span>
+
+                            </div>
+                        </td>
+
+                        <td class="text-center" th:text="${order.quantity}">1</td>
+
+                        <td class="text-end offer-num">
+        <span th:if="${order.quantity != null and order.quantity > 0 and order.totalCost != null}"
+              th:text="${#numbers.formatDecimal(order.totalCost / order.quantity, 0, 'COMMA', 2, 'POINT')}">0,00</span>
+                            <span th:unless="${order.quantity != null and order.quantity > 0 and order.totalCost != null}">—</span>
+                        </td>
+
+                        <td class="text-end offer-num offer-num-accent">
+        <span th:if="${order.totalCost != null}"
+              th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')}">0,00</span>
+                            <span th:unless="${order.totalCost != null}">—</span>
+                        </td>
+
+                        <td class="text-center">
+                            <form th:action="@{/commercial-offer/remove/{id}(id=${order.id})}"
+                                  method="post"
+                                  data-turbo-frame="app"
+                                  class="m-0">
+                                <button type="submit" class="hb-icon-btn" title="Убрать из КП">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr class="offer-total-row">
+                        <td colspan="4" class="text-end offer-total-label">
+                            Итого:
+                        </td>
+                        <td class="text-end offer-total-value">
+                            <i class="bi bi-coin"></i>
+                            <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 2, 'POINT')}">0,00</span>
+                            <span class="offer-currency">руб.</span>
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
