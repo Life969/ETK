@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductionRecordListDto {
-    private Long id;
+    private Long id; //UUID
     private LocalDate productionDate;
     private String productName;
     private Integer quantity;
@@ -20,7 +20,7 @@ public class ProductionRecordListDto {
     private LocalDateTime createdAt;
     private String comment;
     private String productType;   // COUPLING / ADAPTER / PIPE / NIPPLE
-    private Double pieceLengthMm;
+    private Double pieceLengthMm; //BigDecimal
 
     /** Только для формы редактирования: id'шники, чтобы предзаполнить селекты. */
     private Long couplingId;

@@ -16,6 +16,7 @@ import ProjectForJob.example.Job.services.OrderService;
 import ProjectForJob.example.Job.services.Handbook.SteelStrengthGroupService;
 import ProjectForJob.example.Job.DataTransferObject.CostBreakdownDto;
 import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.services.CostBreakdownService;
 
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,6 +56,7 @@ public class OrderController {
     private final PipeAdapterService pipeAdapterService;
     private final SteelStrengthGroupService steelStrengthGroupService;
     private final ExternalThreadService externalThreadService;
+    private final CostBreakdownService costBreakdownService;
 
     private static final String LAYOUT = "welcomeToHome/layout";
 
@@ -71,10 +73,10 @@ public class OrderController {
     private void fillFormRefs(Model model) {
         model.addAttribute("companies", companyService.findAll());
         model.addAttribute("couplings", couplingService.findAll());
+        model.addAttribute("couplingTypes", couplingService.findAllDistinctTypes());
         model.addAttribute("additionalWorks", additionalWorkService.findAll());
         model.addAttribute("adapterFirstSideTypes", pipeAdapterService.findAllDistinctFirstSideTypes());
         model.addAttribute("steelGroups", steelStrengthGroupService.findAllActive());
-        // типы наружных резьб — для каскада в форме трубы/патрубка
         model.addAttribute("externalThreadTypes", externalThreadService.findAllDistinctTypes());
     }
 
@@ -207,7 +209,7 @@ public class OrderController {
         log.info("OrderController viewOrder GET order with id={}", id);
         OrderDto order = orderService.getOrderById(id);
         model.addAttribute("order", order);
-        model.addAttribute("breakdown", buildBreakdown(order));   // ← НОВОЕ
+        model.addAttribute("breakdown", costBreakdownService.buildBreakdown(order));
         model.addAttribute("contentTemplate", FRAGMENT_VIEW);
         return LAYOUT;
     }
@@ -365,13 +367,22 @@ public class OrderController {
     @GetMapping("/api/couplings/by-type")
     @ResponseBody
     public List<Map<String, Object>> getCouplingsByType(@RequestParam String type) {
-        List<CouplingEntity> couplings = couplingService.findByType(type);
-        return couplings.stream()
+        return couplingService.findByType(type).stream()
                 .map(c -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", c.getId());
-                    map.put("diameter", c.getConditionalDiameter());
-                    return map;
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", c.getId());
+                    m.put("name", c.getName());
+                    m.put("type", c.getType());
+                    m.put("conditionalDiameter", c.getConditionalDiameter());
+                    m.put("lengthMm", c.getLengthMm());
+                    m.put("weightKg", c.getWeightKg());
+                    m.put("outerDiameterMm", c.getOuterDiameterMm());
+                    m.put("innerDiameterMm", c.getInnerDiameterMm());
+                    m.put("manufacturingCost", c.getManufacturingCost());
+                    m.put("priceForEmployee", c.getPriceForEmployee());
+                    m.put("description", c.getDescription());
+                    m.put("imagePath", c.getImagePath());
+                    return m;
                 })
                 .collect(Collectors.toList());
     }
@@ -385,13 +396,24 @@ public class OrderController {
     @GetMapping("/api/adapters/by-first-side-type")
     @ResponseBody
     public List<Map<String, Object>> getAdaptersByFirstSideType(@RequestParam String type) {
-        List<PipeAdapterEntity> adapters = pipeAdapterService.findByFirstSideType(type);
-        return adapters.stream()
+        return pipeAdapterService.findByFirstSideType(type).stream()
                 .map(a -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", a.getId());
-                    map.put("fullName", a.getFullName());
-                    return map;
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", a.getId());
+                    m.put("fullName", a.getFullName());
+                    m.put("firstSideType", a.getFirstSideType());
+                    m.put("firstSideDiameter", a.getFirstSideDiameter());
+                    m.put("secondSideType", a.getSecondSideType());
+                    m.put("secondSideDiameter", a.getSecondSideDiameter());
+                    m.put("lengthMm", a.getLengthMm());
+                    m.put("weightKg", a.getWeightKg());
+                    m.put("outerDiameterMm", a.getOuterDiameterMm());
+                    m.put("innerDiameterMm", a.getInnerDiameterMm());
+                    m.put("manufacturingCost", a.getManufacturingCost());
+                    m.put("priceForEmployee", a.getPriceForEmployee());
+                    m.put("description", a.getDescription());
+                    m.put("imagePath", a.getImagePath());
+                    return m;
                 })
                 .collect(Collectors.toList());
     }
@@ -424,81 +446,18 @@ public class OrderController {
                 .map(t -> {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", t.getId());
+                    m.put("type", t.getType());
                     m.put("conditionalDiameter", t.getConditionalDiameter());
                     m.put("name", t.getName());
+                    m.put("standart", t.getStandart());
+                    m.put("manufacturingCost", t.getManufacturingCost());
+                    m.put("priceForEmployee", t.getPriceForEmployee());
+                    m.put("description", t.getDescription());
+                    m.put("imagePath", t.getImagePath());
                     return m;
                 })
                 .collect(Collectors.toList());
     }
 
 
-    private CostBreakdownDto buildBreakdown(OrderDto order) {
-        CostBreakdownDto b = new CostBreakdownDto();
-        b.setProductType(order.getProductType());
-        b.setQuantity(order.getQuantity());
-        b.setTotalCost(order.getTotalCost());
-        b.setStrengthGroupCode(order.getStrengthGroupCode());
-
-        BigDecimal qty = BigDecimal.valueOf(order.getQuantity() != null ? order.getQuantity() : 0);
-        BigDecimal markupPct = order.getAppliedMarkupPercent() != null
-                ? order.getAppliedMarkupPercent() : BigDecimal.ZERO;
-        b.setMarkupPercent(markupPct);
-
-        String pt = order.getProductType();
-
-        if ("COUPLING".equals(pt) || "ADAPTER".equals(pt)) {
-            BigDecimal unit = order.getProductManufacturingCost() != null
-                    ? order.getProductManufacturingCost() : BigDecimal.ZERO;
-            b.setUnitCost(unit);
-            b.setBaseCost(unit.multiply(qty));
-            b.setTotalWeightKg(order.getWorkpieceWeightKg());
-        } else if ("PIPE".equals(pt) || "NIPPLE".equals(pt)) {
-            BigDecimal thread = order.getExternalThreadManufacturingCost() != null
-                    ? order.getExternalThreadManufacturingCost() : BigDecimal.ZERO;
-            b.setThreadCost(thread);
-            BigDecimal threadsCost = thread.multiply(BigDecimal.valueOf(2)).multiply(qty);
-            b.setThreadsCost(threadsCost);
-
-            BigDecimal ppt = order.getPricePerTon() != null
-                    ? order.getPricePerTon() : BigDecimal.ZERO;
-            b.setPricePerTon(ppt);
-            double wKg = order.getOrderTotalWeightKg() != null ? order.getOrderTotalWeightKg() : 0;
-            b.setTotalWeightKg(wKg);
-
-            BigDecimal metalCost = ppt
-                    .multiply(BigDecimal.valueOf(wKg))
-                    .divide(new BigDecimal("1000"), 4, RoundingMode.HALF_UP);
-            b.setMetalCost(metalCost);
-            b.setBaseCost(threadsCost.add(metalCost));
-        } else {
-            b.setBaseCost(BigDecimal.ZERO);
-        }
-
-        BigDecimal markup = b.getBaseCost()
-                .multiply(markupPct)
-                .divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
-        b.setMarkupCost(markup);
-
-        double weight = b.getTotalWeightKg() != null ? b.getTotalWeightKg() : 0;
-        double billing = Math.max(weight, 100);
-        b.setBillingWeight(billing);
-
-        List<CostBreakdownDto.WorkLine> lines = new ArrayList<>();
-        BigDecimal worksTotal = BigDecimal.ZERO;
-        if (order.getAdditionalWorkIds() != null) {
-            for (Long wid : order.getAdditionalWorkIds()) {
-                AdditionalWorkEntity w = additionalWorkService.findById(wid);
-                if (w == null || w.getPrice() == null) continue;
-                BigDecimal cost = w.getPrice()
-                        .multiply(BigDecimal.valueOf(billing))
-                        .divide(new BigDecimal("1000"), 4, RoundingMode.HALF_UP);
-                lines.add(new CostBreakdownDto.WorkLine(w.getName(), w.getPrice(), cost));
-                worksTotal = worksTotal.add(cost);
-            }
-        }
-        b.setWorks(lines);
-        b.setWorksTotal(worksTotal);
-
-        return b;
-    }
 }

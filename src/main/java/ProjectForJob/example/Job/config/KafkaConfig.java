@@ -1,7 +1,5 @@
 package ProjectForJob.example.Job.config;
-
-
-
+/* ProducerFactory лучше через Spring, либо тюнинг через yaml*/
 
 import ProjectForJob.example.Job.DataTransferObject.kafkaDto.OrderStartedEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;

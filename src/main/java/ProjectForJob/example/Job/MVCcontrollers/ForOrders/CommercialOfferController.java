@@ -5,6 +5,7 @@ import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
 import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
 import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
 import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.services.CostBreakdownService;
 import ProjectForJob.example.Job.services.Handbook.CouplingService;
 import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
 import ProjectForJob.example.Job.services.OrderService;
@@ -27,12 +28,11 @@ public class CommercialOfferController {
     private final OrderService orderService;
     private final CouplingService couplingService;
     private final PipeAdapterService pipeAdapterService;
+    private final CostBreakdownService costBreakdownService;
 
-    // ==== layout + фрагмент (единый стиль с остальными страницами) ====
     private static final String LAYOUT = "welcomeToHome/layout";
     private static final String FRAGMENT_OFFER = "fragments/offer/commercial-offer :: content";
 
-    // Отображение страницы КП
     @GetMapping
     public String showCommercialOffer(HttpSession session, Model model) {
         log.info("CommercialOfferController showCommercialOffer");
@@ -41,9 +41,8 @@ public class CommercialOfferController {
             return "redirect:/orders/waiting";
         }
 
-        // Берём DTO (в нём есть поля для тултипов)
         List<OrderDto> validOrders = orderIds.stream()
-                .map(orderService::getOrderById)          // ← метод, который отдаёт OrderDto
+                .map(orderService::getOrderById)
                 .filter(dto -> dto.getStatus() == OrderStatus.WAITING)
                 .toList();
 
@@ -52,9 +51,6 @@ public class CommercialOfferController {
             return "redirect:/orders/waiting?error=empty";
         }
 
-        Long firstCompanyId = null;
-        // проверка «одна компания» — по имени как раньше
-        // (в OrderDto нет companyId, есть companyName)
         String firstCompany = validOrders.get(0).getCompanyName();
         boolean sameCompany = validOrders.stream()
                 .allMatch(o -> firstCompany.equals(o.getCompanyName()));
@@ -67,7 +63,6 @@ public class CommercialOfferController {
                 .map(OrderDto::getTotalCost)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // === Собираем offerItems ровно как waitingItems в OrderController ===
         List<Map<String, Object>> offerItems = new ArrayList<>();
         for (OrderDto dto : validOrders) {
             Map<String, Object> item = new HashMap<>();
@@ -87,6 +82,10 @@ public class CommercialOfferController {
             } else if ("PIPE".equals(pt) || "NIPPLE".equals(pt)) {
                 item.put("productType", pt);
             }
+
+            // ← НОВОЕ: детальная расшифровка по позиции
+            item.put("breakdown", costBreakdownService.buildBreakdown(dto));
+
             offerItems.add(item);
         }
 
@@ -98,7 +97,6 @@ public class CommercialOfferController {
         return LAYOUT;
     }
 
-    // AJAX: добавить/удалить заказ в КП
     @PostMapping("/add/{orderId}")
     @ResponseBody
     public Map<String, Object> toggleOrder(@PathVariable Long orderId, HttpSession session) {
@@ -143,14 +141,12 @@ public class CommercialOfferController {
         return response;
     }
 
-    // Очистка всей КП
     @PostMapping("/clear")
     public String clearCommercialOffer(HttpSession session) {
         session.removeAttribute("commercialOffer");
         return "redirect:/orders/waiting";
     }
 
-    // Удаление одного заказа из КП
     @PostMapping("/remove/{orderId}")
     public String removeOrder(@PathVariable Long orderId, HttpSession session) {
         Set<Long> orderIds = getOrderIdsFromSession(session);

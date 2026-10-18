@@ -9,110 +9,6 @@ window.OrdersForm = (function () {
         return Array.from((root || document).querySelectorAll(sel));
     }
 
-
-    // ================= Селекты муфт =================
-    function initCouplingSelects() {
-        const typeSelect = document.getElementById('couplingTypeSelect');
-        const diamSelect = document.getElementById('couplingDiameterSelect');
-        const idHidden = document.getElementById('couplingIdHidden');
-        if (!typeSelect || !diamSelect) return;
-        if (typeSelect.dataset.initialized === 'true') return;
-        typeSelect.dataset.initialized = 'true';
-
-        const form = typeSelect.closest('form');
-        const initialType = form?.dataset.initialCouplingType || '';
-        const initialId = form?.dataset.initialCouplingId || '';
-
-        fetch('/orders/api/couplings/types')
-            .then(r => r.json())
-            .then(types => {
-                typeSelect.innerHTML = '<option value="">-- Выберите тип --</option>';
-                types.forEach(t => {
-                    const o = new Option(t, t);
-                    if (t === initialType) o.selected = true;
-                    typeSelect.add(o);
-                });
-                if (initialType) typeSelect.dispatchEvent(new Event('change'));
-            });
-
-        typeSelect.addEventListener('change', function () {
-            const type = this.value;
-            diamSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
-            if (idHidden) idHidden.value = '';
-            if (!type) {
-                diamSelect.disabled = true;
-                return;
-            }
-            diamSelect.disabled = false;
-
-            fetch(`/orders/api/couplings/by-type?type=${encodeURIComponent(type)}`)
-                .then(r => r.json())
-                .then(list => {
-                    list.forEach(c => diamSelect.add(new Option(c.diameter, c.id)));
-                    if (initialId) {
-                        const opt = Array.from(diamSelect.options).find(o => o.value == initialId);
-                        if (opt) {
-                            opt.selected = true;
-                            if (idHidden) idHidden.value = initialId;
-                        }
-                    }
-                });
-        });
-
-        diamSelect.addEventListener('change', function () {
-            if (idHidden) idHidden.value = this.value;
-        });
-    }
-
-    // ================= Селекты переводников =================
-    function initAdapterSelects() {
-        const typeSelect = document.getElementById('adapterTypeSelect');
-        const adapterSelect = document.getElementById('adapterSelect');
-        const idHidden = document.getElementById('adapterIdHidden');
-        if (!typeSelect || !adapterSelect) return;
-        if (typeSelect.dataset.initialized === 'true') return;
-        typeSelect.dataset.initialized = 'true';
-
-        const form = typeSelect.closest('form');
-        const initialType = form?.dataset.initialAdapterFirstSideType || '';
-        const initialId = form?.dataset.initialAdapterId || '';
-
-        function loadAdapters(type, selectedId) {
-            if (!type) {
-                adapterSelect.disabled = true;
-                return;
-            }
-            adapterSelect.disabled = false;
-            fetch(`/orders/api/adapters/by-first-side-type?type=${encodeURIComponent(type)}`)
-                .then(r => r.json())
-                .then(list => {
-                    adapterSelect.innerHTML = '<option value="">-- Выберите переводник --</option>';
-                    list.forEach(a => {
-                        const o = new Option(a.fullName, a.id);
-                        if (a.id == selectedId) o.selected = true;
-                        adapterSelect.add(o);
-                    });
-                    if (selectedId && idHidden) idHidden.value = selectedId;
-                });
-        }
-
-        if (initialType) {
-            typeSelect.value = initialType;
-            loadAdapters(initialType, initialId);
-        }
-
-        typeSelect.addEventListener('change', function () {
-            const type = this.value;
-            adapterSelect.innerHTML = '<option value="">-- Сначала выберите тип --</option>';
-            if (idHidden) idHidden.value = '';
-            loadAdapters(type, null);
-        });
-
-        adapterSelect.addEventListener('change', function () {
-            if (idHidden) idHidden.value = this.value;
-        });
-    }
-
     // ================= Пикер доп. работ =================
     function initWorksPicker() {
         const picker = document.getElementById('worksPicker');
@@ -280,22 +176,13 @@ window.OrdersForm = (function () {
     }
 
     // ================================================================
-    // ТРУБА / ПАТРУБОК — блоки, каскады, живой пересчёт
+    // ПИКЕР КАРТОЧЕК — замена <select> диаметров / переводников / резьб
     // ================================================================
 
     /** Плотность стали, кг/м³ — синхронно с WorkpieceCalculator. */
     const STEEL_DENSITY_JS = 7850.0;
 
-    /** Из "НКТ 73" → 73.0; из "ОТТМ 89" → 89.0; null если не нашли. */
-    function parseDiameter(text) {
-        if (!text) return null;
-        const m = String(text).match(/(\d+(\.\d+)?)/);
-        if (!m) return null;
-        const v = parseFloat(m[1]);
-        return isFinite(v) && v > 0 ? v : null;
-    }
-
-    /** M = π · ρ · S · (D − S) · L / 1e6  (та же формула, что в WorkpieceCalculator). */
+    /** M = π · ρ · S · (D − S) · L / 1e6 */
     function calcWeightFromLength(D, S, L) {
         if (D <= 0 || S <= 0 || L <= 0) return 0;
         return Math.PI * STEEL_DENSITY_JS * S * (D - S) * L / 1_000_000.0;
@@ -313,63 +200,288 @@ window.OrdersForm = (function () {
     }
 
     /**
-     * Универсальный каскад «тип резьбы → условный диаметр».
-     * Заполняет hidden-input externalThreadId.
-     * После смены диаметра триггерит событие pipe:recalc для live-пересчёта.
+     * Создать DOM-карточку для пикера.
+     *
+     * kind: 'coupling' | 'adapter' | 'thread'
+     *   - 'coupling' → WoW-тултип как у муфты (data-type / data-diameter ...)
+     *   - 'adapter'  → WoW-тултип как у переводника (data-first-type ...)
+     *   - 'thread'   → WoW-тултип справочника резьб (data-pipe-kind="THREAD")
      */
-    function initExternalThreadCascade(typeId, diamId, hiddenId) {
-        const typeSelect = document.getElementById(typeId);
-        const diamSelect = document.getElementById(diamId);
-        const hidden     = document.getElementById(hiddenId);
-        if (!typeSelect || !diamSelect) return;
-        if (typeSelect.dataset.wired === 'true') return;
-        typeSelect.dataset.wired = 'true';
+    function createPickerCard(item, kind, onSelect) {
+        const card = document.createElement('div');
+        card.className = 'order-picker-card product-tooltip';
+        card.dataset.pickerId = item.id;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
 
-        const form = typeSelect.closest('form');
-        const initialType = form?.dataset.initialExternalThreadType || '';
-        const initialId   = form?.dataset.initialExternalThreadId || '';
+        // ─── Картинка / иконка ───
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'order-picker-card-image';
+        if (item.imagePath) {
+            const img = document.createElement('img');
+            let src = item.imagePath;
+            if (!src.startsWith('/') && !src.startsWith('http')) src = '/uploads/' + src;
+            img.src = src;
+            img.alt = '';
+            img.onerror = () => { img.style.display = 'none'; };
+            imgWrap.appendChild(img);
+        } else {
+            const i = document.createElement('i');
+            i.className = kind === 'coupling' ? 'bi bi-gear-wide-connected'
+                : kind === 'adapter'  ? 'bi bi-arrow-left-right'
+                    :                       'bi bi-record-circle';
+            imgWrap.appendChild(i);
+        }
+        card.appendChild(imgWrap);
 
-        // Загружаем типы — они уже в опциях (th:each), но initialType надо выставить
-        if (initialType) {
-            typeSelect.value = initialType;
-            // сразу загрузить диаметры для этого типа
-            loadDiameters(initialType, initialId);
+        // ─── Основная подпись ───
+        const label = document.createElement('div');
+        label.className = 'order-picker-card-label';
+        if (kind === 'adapter') {
+            label.textContent = (item.firstSideType || '') + ' ' + (item.firstSideDiameter || '');
+        } else {
+            label.textContent = item.conditionalDiameter || item.name || '—';
+        }
+        card.appendChild(label);
+
+        // ─── Подпись (× НКТ 89 / ГОСТ) ───
+        if (kind === 'adapter' && item.secondSideType) {
+            const sub = document.createElement('div');
+            sub.className = 'order-picker-card-sublabel';
+            sub.textContent = '× ' + item.secondSideType + ' ' + (item.secondSideDiameter || '');
+            card.appendChild(sub);
+        } else if (kind === 'thread' && item.standart) {
+            const sub = document.createElement('div');
+            sub.className = 'order-picker-card-sublabel';
+            sub.textContent = item.standart;
+            card.appendChild(sub);
         }
 
-        function loadDiameters(type, selectedId) {
-            diamSelect.innerHTML = '<option value="">-- Выберите диаметр --</option>';
-            if (hidden) hidden.value = '';
+        // ─── data-* для WowTooltip ───
+        if (kind === 'coupling') {
+            card.dataset.id            = item.id;
+            card.dataset.name          = item.name || '';
+            card.dataset.type          = item.type || '';
+            card.dataset.diameter      = item.conditionalDiameter || '';
+            card.dataset.length        = item.lengthMm ?? '';
+            card.dataset.weight        = item.weightKg ?? '';
+            card.dataset.outerDiameter = item.outerDiameterMm ?? '';
+            card.dataset.innerDiameter = item.innerDiameterMm ?? '';
+            card.dataset.cost          = item.manufacturingCost ?? '';
+            card.dataset.price         = item.priceForEmployee ?? '';
+            card.dataset.description   = item.description || '';
+            card.dataset.image         = item.imagePath || '';
+        } else if (kind === 'adapter') {
+            card.dataset.id             = item.id;
+            card.dataset.name           = item.fullName || '';
+            card.dataset.firstType      = item.firstSideType || '';
+            card.dataset.firstDiameter  = item.firstSideDiameter || '';
+            card.dataset.secondType     = item.secondSideType || '';
+            card.dataset.secondDiameter = item.secondSideDiameter || '';
+            card.dataset.length         = item.lengthMm ?? '';
+            card.dataset.weight         = item.weightKg ?? '';
+            card.dataset.outerDiameter  = item.outerDiameterMm ?? '';
+            card.dataset.innerDiameter  = item.innerDiameterMm ?? '';
+            card.dataset.cost           = item.manufacturingCost ?? '';
+            card.dataset.price          = item.priceForEmployee ?? '';
+            card.dataset.description    = item.description || '';
+            card.dataset.image          = item.imagePath || '';
+        } else if (kind === 'thread') {
+            card.dataset.pipeKind            = 'THREAD';
+            card.dataset.id                  = item.id;
+            card.dataset.name                = item.name || '';
+            card.dataset.conditionalDiameter = item.conditionalDiameter || '';
+            card.dataset.standart            = item.standart || '';
+            card.dataset.cost                = item.manufacturingCost ?? '';
+            card.dataset.price               = item.priceForEmployee ?? '';
+            card.dataset.description         = item.description || '';
+            card.dataset.image               = item.imagePath || '';
+        }
+
+        const activate = () => onSelect(item);
+        card.addEventListener('click', activate);
+        card.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); activate(); }
+        });
+
+        return card;
+    }
+
+    /**
+     * Универсальный пикер «тип → карточки в скроллбаре».
+     *
+     * cfg:
+     *   typeSelectId  — id <select> с типом
+     *   containerId   — id div-контейнера карточек
+     *   hiddenId      — id hidden-input, куда пишем выбранный id
+     *   kind          — 'coupling' | 'adapter' | 'thread'
+     *   emptyHint     — текст «-- Сначала выберите тип --»
+     *   noItemsHint   — текст «Нет данных»
+     *   buildUrl(type) → url
+     *   getInitial()  → { type, id } | null   (для edit-режима)
+     */
+    function initCardPicker(cfg) {
+        const typeSelect = document.getElementById(cfg.typeSelectId);
+        const picker     = document.getElementById(cfg.containerId);
+        const hidden     = document.getElementById(cfg.hiddenId);
+        if (!typeSelect || !picker) return;
+        if (typeSelect.dataset.pickerWired === 'true') return;
+        typeSelect.dataset.pickerWired = 'true';
+
+        const initial = typeof cfg.getInitial === 'function' ? cfg.getInitial() : null;
+
+        function renderEmpty(text) {
+            picker.innerHTML = '';
+            const e = document.createElement('div');
+            e.className = 'order-picker-empty';
+            e.textContent = text;
+            picker.appendChild(e);
+            picker.dataset.selectedDiameter = '';
+        }
+
+        function select(item) {
+            if (hidden) hidden.value = item.id;
+            picker.dataset.selectedDiameter = item.conditionalDiameter || '';
+
+            picker.dataset.selectedCost    = item.manufacturingCost ?? '';
+            picker.dataset.selectedOuterD  = item.outerDiameterMm  ?? '';
+            picker.dataset.selectedInnerD  = item.innerDiameterMm  ?? '';
+            picker.dataset.selectedLength  = item.lengthMm         ?? '';
+            picker.dataset.selectedWeight  = item.weightKg         ?? '';
+
+            picker.querySelectorAll('.order-picker-card').forEach(c => {
+                c.classList.toggle('selected', String(c.dataset.pickerId) === String(item.id));
+            });
+            document.dispatchEvent(new CustomEvent('pipe:recalc'));
+        }
+
+        function loadItems(type, selectedId) {
             if (!type) {
-                diamSelect.disabled = true;
+                renderEmpty(cfg.emptyHint || '-- Сначала выберите тип --');
+                if (hidden) hidden.value = '';
                 return;
             }
-            diamSelect.disabled = false;
-            fetch(`/orders/api/external-threads/by-type?type=${encodeURIComponent(type)}`)
+            renderEmpty('Загрузка...');
+
+            fetch(cfg.buildUrl(type))
                 .then(r => r.json())
-                .then(list => {
-                    list.forEach(t => {
-                        const o = new Option(t.name, t.id);
-                        if (selectedId && String(t.id) === String(selectedId)) o.selected = true;
-                        diamSelect.add(o);
+                .then(items => {
+                    if (!Array.isArray(items) || items.length === 0) {
+                        renderEmpty(cfg.noItemsHint || 'Нет данных для этого типа');
+                        if (hidden) hidden.value = '';
+                        return;
+                    }
+                    picker.innerHTML = '';
+                    items.forEach(item => {
+                        const card = createPickerCard(item, cfg.kind, (it) => select(it));
+                        picker.appendChild(card);
                     });
-                    if (selectedId && hidden) hidden.value = selectedId;
+
+                    // автоселект (edit-режим)
+                    if (selectedId) {
+                        const toSelect = items.find(it => String(it.id) === String(selectedId));
+                        if (toSelect) {
+                            select(toSelect);
+                            return;
+                        }
+                    }
+                    // если не выбрали — сбрасываем данные пикера
+                    picker.dataset.selectedDiameter = '';
                     document.dispatchEvent(new CustomEvent('pipe:recalc'));
                 })
                 .catch(err => {
-                    console.error('Ошибка загрузки диаметров резьбы:', err);
-                    diamSelect.innerHTML = '<option value="">-- Ошибка --</option>';
+                    console.error('Picker load error:', err);
+                    renderEmpty('Ошибка загрузки');
                 });
         }
 
-        typeSelect.addEventListener('change', function () {
-            loadDiameters(this.value, null);
-        });
+        // Стартовое состояние (edit-mode)
+        if (initial && initial.type) {
+            typeSelect.value = initial.type;
+            loadItems(initial.type, initial.id);
+        } else {
+            renderEmpty(cfg.emptyHint || '-- Сначала выберите тип --');
+        }
 
-        diamSelect.addEventListener('change', function () {
-            if (hidden) hidden.value = this.value || '';
-            document.dispatchEvent(new CustomEvent('pipe:recalc'));
+        // Смена типа пользователем → перезагружаем карточки
+        typeSelect.addEventListener('change', function () {
+            if (hidden) hidden.value = '';
+            picker.dataset.selectedDiameter = '';
+            loadItems(this.value, null);
         });
     }
+
+    // --- три конкретные инициализации ---
+
+    function initCouplingPicker() {
+        initCardPicker({
+            typeSelectId: 'couplingTypeSelect',
+            containerId:  'couplingDiameterPicker',
+            hiddenId:     'couplingIdHidden',
+            kind:         'coupling',
+            emptyHint:    '-- Сначала выберите тип --',
+            noItemsHint:  'Нет муфт с таким типом',
+            buildUrl: (t) => `/orders/api/couplings/by-type?type=${encodeURIComponent(t)}`,
+            getInitial: () => {
+                const form = document.getElementById('orderForm');
+                if (!form) return null;
+                const checked = form.querySelector('input[name="productType"]:checked');
+                if (checked?.value !== 'COUPLING') return null;
+                const t = form.dataset.initialCouplingType || '';
+                const id = form.dataset.initialCouplingId || '';
+                return t ? { type: t, id } : null;
+            }
+        });
+    }
+
+    function initAdapterPicker() {
+        initCardPicker({
+            typeSelectId: 'adapterTypeSelect',
+            containerId:  'adapterPicker',
+            hiddenId:     'adapterIdHidden',
+            kind:         'adapter',
+            emptyHint:    '-- Сначала выберите тип --',
+            noItemsHint:  'Нет переводников с таким типом',
+            buildUrl: (t) => `/orders/api/adapters/by-first-side-type?type=${encodeURIComponent(t)}`,
+            getInitial: () => {
+                const form = document.getElementById('orderForm');
+                if (!form) return null;
+                const checked = form.querySelector('input[name="productType"]:checked');
+                if (checked?.value !== 'ADAPTER') return null;
+                const t = form.dataset.initialAdapterFirstSideType || '';
+                const id = form.dataset.initialAdapterId || '';
+                return t ? { type: t, id } : null;
+            }
+        });
+    }
+
+    function initThreadPicker(which /* 'pipe' | 'nipple' */) {
+        const cap = which === 'pipe' ? 'pipe' : 'nipple';
+        initCardPicker({
+            typeSelectId: `${cap}ThreadTypeSelect`,
+            containerId:  `${cap}ThreadDiameterPicker`,
+            hiddenId:     `${cap}ExternalThreadId`,
+            kind:         'thread',
+            emptyHint:    '-- Сначала выберите тип --',
+            noItemsHint:  'Нет резьб с таким типом',
+            buildUrl: (t) => `/orders/api/external-threads/by-type?type=${encodeURIComponent(t)}`,
+            getInitial: () => {
+                const form = document.getElementById('orderForm');
+                const kindH = document.getElementById('pipeProductKindHidden');
+                const kind = kindH?.value || '';
+                if (!form) return null;
+                if (which === 'pipe'   && kind !== 'PIPE')   return null;
+                if (which === 'nipple' && kind !== 'NIPPLE') return null;
+                const t = form.dataset.initialExternalThreadType || '';
+                const id = form.dataset.initialExternalThreadId || '';
+                return t ? { type: t, id } : null;
+            }
+        });
+    }
+
+    // ================================================================
+    // ТРУБА / ПАТРУБОК — живой пересчёт
+    // ================================================================
 
     /** Живой пересчёт для трубы: метраж ↔ тоннаж + оценка количества. */
     function initPipeLiveCalculation() {
@@ -379,19 +491,20 @@ window.OrdersForm = (function () {
 
         const modeLengthRadio = document.getElementById('pipeModeLength');
         const modeWeightRadio = document.getElementById('pipeModeWeight');
-        const diamSelect = document.getElementById('pipeThreadDiameterSelect');
-        const wallInput  = document.getElementById('pipeWallThickness');
-        const totalLen   = document.getElementById('pipeTotalLength');
-        const totalW     = document.getElementById('pipeTotalWeight');
-        const avgLen     = document.getElementById('pipeAvgLength');
-        const computedQty = document.getElementById('pipeComputedQty');
+        const picker          = document.getElementById('pipeThreadDiameterPicker');
+        const wallInput       = document.getElementById('pipeWallThickness');
+        const totalLen        = document.getElementById('pipeTotalLength');
+        const totalW          = document.getElementById('pipeTotalWeight');
+        const avgLen          = document.getElementById('pipeAvgLength');
+        const computedQty     = document.getElementById('pipeComputedQty');
 
         if (!totalLen || !totalW) return;
 
         function getDiameter() {
-            if (!diamSelect || !diamSelect.value) return null;
-            const opt = diamSelect.options[diamSelect.selectedIndex];
-            return parseDiameter(opt ? opt.text : '');
+            const d = picker?.dataset?.selectedDiameter;
+            if (!d) return null;
+            const v = parseFloat(d);
+            return isFinite(v) && v > 0 ? v : null;
         }
 
         function recalcFrom(source) {
@@ -455,25 +568,26 @@ window.OrdersForm = (function () {
         if (!block || block.dataset.liveWired === 'true') return;
         block.dataset.liveWired = 'true';
 
-        const diamSelect = document.getElementById('nippleThreadDiameterSelect');
-        const wallInput  = document.getElementById('nippleWallThickness');
-        const pieceLen   = document.getElementById('nipplePieceLength');
-        const qtyInput   = document.getElementById('nippleQuantity');
-        const outLength  = document.getElementById('nippleComputedLength');
-        const outWeight  = document.getElementById('nippleComputedWeight');
+        const picker    = document.getElementById('nippleThreadDiameterPicker');
+        const wallInput = document.getElementById('nippleWallThickness');
+        const pieceLen  = document.getElementById('nipplePieceLength');
+        const qtyInput  = document.getElementById('nippleQuantity');
+        const outLength = document.getElementById('nippleComputedLength');
+        const outWeight = document.getElementById('nippleComputedWeight');
         if (!pieceLen || !qtyInput) return;
 
         function getDiameter() {
-            if (!diamSelect || !diamSelect.value) return null;
-            const opt = diamSelect.options[diamSelect.selectedIndex];
-            return parseDiameter(opt ? opt.text : '');
+            const d = picker?.dataset?.selectedDiameter;
+            if (!d) return null;
+            const v = parseFloat(d);
+            return isFinite(v) && v > 0 ? v : null;
         }
 
         function recalc() {
-            const D = getDiameter();
-            const S = parseFloat(wallInput?.value);
+            const D  = getDiameter();
+            const S  = parseFloat(wallInput?.value);
             const Lp = parseFloat(pieceLen.value);
-            const Q = parseInt(qtyInput.value);
+            const Q  = parseInt(qtyInput.value);
 
             if (!D || !(S > 0) || !(Lp > 0) || !(Q > 0)) {
                 if (outLength) outLength.textContent = '—';
@@ -496,9 +610,286 @@ window.OrdersForm = (function () {
         recalc();
     }
 
+    // ================================================================
+// LIVE РАСЧЁТ СТОИМОСТИ ЗАКАЗА
+// ================================================================
+
+    function initLiveCostCalculation() {
+        const panel = document.getElementById('liveCostPanel');
+        if (!panel || panel.dataset.wired === 'true') return;
+        panel.dataset.wired = 'true';
+
+        // ---- helpers ----
+        function fmt(v) {
+            return Number(v || 0).toLocaleString('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        function setText(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+        function escapeHtml(s) {
+            return String(s || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        }
+        function getProductType() {
+            const c = document.querySelector('input[name="productType"]:checked');
+            return c ? c.value : null;
+        }
+        function getQuantity() {
+            const t = getProductType();
+            if (t === 'COUPLING' || t === 'ADAPTER') {
+                return parseInt(document.getElementById('globalQuantity')?.value) || 0;
+            }
+            if (t === 'NIPPLE') {
+                return parseInt(document.getElementById('nippleQuantity')?.value) || 0;
+            }
+            if (t === 'PIPE') {
+                const raw = document.getElementById('pipeComputedQty')?.textContent;
+                const n = parseInt(raw);
+                return isFinite(n) ? n : 0;
+            }
+            return 0;
+        }
+        function getMarkup() {
+            const sel = document.getElementById('steelGroupSelect');
+            if (!sel || !sel.value) return { percent: 0, code: '' };
+            const opt = sel.options[sel.selectedIndex];
+            const txt = opt.textContent || '';
+            const m = txt.match(/\(\+([\d.]+)%\)/);
+            return {
+                percent: m ? parseFloat(m[1]) : 0,
+                code: (txt.split('—')[0] || '').trim()
+            };
+        }
+        function getSelectedWorks() {
+            const arr = [];
+            document.querySelectorAll('#worksPicker .work-chip.selected').forEach(ch => {
+                arr.push({
+                    name: ch.dataset.workName || '',
+                    price: parseFloat(ch.dataset.workPrice) || 0
+                });
+            });
+            return arr;
+        }
+        function getPickerSelectedCost(id) {
+            const el = document.getElementById(id);
+            return parseFloat(el?.dataset.selectedCost) || 0;
+        }
+        function getPickerSelectedOuter(id) {
+            return parseFloat(document.getElementById(id)?.dataset.selectedOuterD) || 0;
+        }
+        function getPickerSelectedInner(id) {
+            return parseFloat(document.getElementById(id)?.dataset.selectedInnerD) || 0;
+        }
+        function getPickerSelectedLength(id) {
+            return parseFloat(document.getElementById(id)?.dataset.selectedLength) || 0;
+        }
+        function getPickerSelectedWeight(id) {
+            return parseFloat(document.getElementById(id)?.dataset.selectedWeight) || 0;
+        }
+
+        // ---- toggle раскрытия ----
+        const toggle = document.getElementById('liveBreakdownToggle');
+        const breakdown = document.getElementById('liveCostBreakdown');
+        if (toggle && breakdown) {
+            toggle.classList.add('open');
+            breakdown.classList.add('open');
+            toggle.addEventListener('click', () => {
+                const open = breakdown.classList.toggle('open');
+                toggle.classList.toggle('open', open);
+                const txt = toggle.querySelector('.btn-breakdown-text');
+                if (txt) txt.textContent = open ? 'Скрыть' : 'Расшифровка';
+            });
+        }
+
+        // ---- главный пересчёт ----
+        function recalc() {
+            const type = getProductType();
+            if (!type) {
+                panel.style.display = 'none';
+                return;
+            }
+            panel.style.display = 'block';
+
+            const qty = getQuantity();
+            const works = getSelectedWorks();
+            const markup = getMarkup();
+
+            let baseCost     = 0;
+            let weightKg     = 0;
+            let unitCost     = 0;
+            let threadCost   = 0;
+            let threadsCost  = 0;
+            let pricePerTon  = 0;
+            let metalCost    = 0;
+
+            const couplingSteps = document.getElementById('lcCouplingSteps');
+            const pipeSteps     = document.getElementById('lcPipeSteps');
+
+            if (type === 'COUPLING' || type === 'ADAPTER') {
+                couplingSteps.style.display = 'block';
+                pipeSteps.style.display = 'none';
+
+                const pickerId = type === 'COUPLING' ? 'couplingDiameterPicker' : 'adapterPicker';
+                unitCost = getPickerSelectedCost(pickerId);
+                baseCost = unitCost * qty;
+
+                // общий вес всех штук
+                weightKg = getPickerSelectedWeight(pickerId);
+                if (!weightKg && qty > 0) {
+                    const D = getPickerSelectedOuter(pickerId);
+                    const d = getPickerSelectedInner(pickerId);
+                    const L = getPickerSelectedLength(pickerId); // мм на 1 шт
+                    if (D > 0 && d > 0 && L > 0) {
+                        const S = (D - d) / 2;
+                        const totalLenM = (L * qty) / 1000;
+                        weightKg = Math.PI * 7850 * S * (D - S) * totalLenM / 1_000_000;
+                    }
+                }
+
+                setText('lcUnitCost', fmt(unitCost));
+                setText('lcQty', qty);
+                setText('lcBaseCostCoupling', fmt(baseCost));
+            } else {
+                couplingSteps.style.display = 'none';
+                pipeSteps.style.display = 'block';
+
+                const pickerId = type === 'PIPE'
+                    ? 'pipeThreadDiameterPicker'
+                    : 'nippleThreadDiameterPicker';
+                threadCost = getPickerSelectedCost(pickerId);
+                threadsCost = threadCost * 2 * qty;
+
+                if (type === 'PIPE') {
+                    pricePerTon = parseFloat(document.getElementById('pipePricePerTon')?.value) || 0;
+                    weightKg = parseFloat(document.getElementById('pipeTotalWeight')?.value) || 0;
+                } else {
+                    pricePerTon = parseFloat(document.getElementById('nipplePricePerTon')?.value) || 0;
+                    const wTxt = document.getElementById('nippleComputedWeight')?.textContent || '';
+                    weightKg = parseFloat(wTxt.replace(',', '.')) || 0;
+                }
+                metalCost = pricePerTon * weightKg / 1000;
+                baseCost = threadsCost + metalCost;
+
+                setText('lcThreadCost', fmt(threadCost));
+                setText('lcThreadQty', qty);
+                setText('lcThreadsCost', fmt(threadsCost));
+                setText('lcPricePerTon', fmt(pricePerTon));
+                setText('lcMetalWeight', fmt(weightKg));
+                setText('lcMetalCost', fmt(metalCost));
+            }
+
+            // ---- надбавка ----
+            const markupCost = baseCost * markup.percent / 100;
+            const markupStepCoupling = document.getElementById('lcMarkupStepCoupling');
+            const markupStepPipe     = document.getElementById('lcMarkupStepPipe');
+
+            if (markup.percent > 0) {
+                if (type === 'COUPLING' || type === 'ADAPTER') {
+                    markupStepCoupling.style.display = 'flex';
+                    markupStepPipe.style.display = 'none';
+                    setText('lcSGCodeCoupling', markup.code || '—');
+                    setText('lcMarkupPercentCoupling', markup.percent);
+                    setText('lcMarkupPercentCoupling2', markup.percent);
+                    setText('lcBaseCostForMarkupCoupling', fmt(baseCost));
+                    setText('lcMarkupCostCoupling', fmt(markupCost));
+                } else {
+                    markupStepCoupling.style.display = 'none';
+                    markupStepPipe.style.display = 'flex';
+                    setText('lcSGCodePipe', markup.code || '—');
+                    setText('lcMarkupPercentPipe', markup.percent);
+                    setText('lcMarkupPercentPipe2', markup.percent);
+                    setText('lcBaseCostForMarkupPipe', fmt(baseCost));
+                    setText('lcMarkupCostPipe', fmt(markupCost));
+                }
+            } else {
+                markupStepCoupling.style.display = 'none';
+                markupStepPipe.style.display = 'none';
+            }
+
+            // ---- доп. работы ----
+            const billingWeight = Math.max(weightKg, 100);
+            const worksStep = document.getElementById('lcWorksStep');
+            const worksList = document.getElementById('lcWorksList');
+            let worksTotal = 0;
+
+            if (works.length > 0) {
+                worksStep.style.display = 'flex';
+                setText('lcBillingWeight', fmt(billingWeight));
+                worksList.innerHTML = '';
+                works.forEach(w => {
+                    const cost = w.price * billingWeight / 1000;
+                    worksTotal += cost;
+                    const row = document.createElement('div');
+                    row.className = 'cost-work-row';
+                    row.innerHTML = `
+                    <span class="cw-name">${escapeHtml(w.name)}</span>
+                    <span class="cw-formula">
+                        <span class="cf-num">${fmt(w.price)} ₽/т</span>
+                        <span class="cf-op">×</span>
+                        <span class="cf-num">${fmt(billingWeight)} кг</span>
+                        <span class="cf-op">=</span>
+                        <span class="cf-result">${fmt(cost)} ₽</span>
+                    </span>
+                `;
+                    worksList.appendChild(row);
+                });
+            } else {
+                worksStep.style.display = 'none';
+                worksList.innerHTML = '';
+            }
+
+            // ---- итого ----
+            const totalCost = baseCost + markupCost + worksTotal;
+            setText('liveTotalCost', fmt(totalCost));
+            setText('lcBreakdownTotal', fmt(totalCost));
+        }
+
+        // ---- слушатели ----
+        document.addEventListener('pipe:recalc', () => setTimeout(recalc, 30));
+
+        document.addEventListener('input', (e) => {
+            const id = e.target?.id;
+            if (!id) return;
+            if ([
+                'globalQuantity',
+                'nippleQuantity',
+                'nipplePieceLength',
+                'nippleWallThickness',
+                'nipplePricePerTon',
+                'pipeWallThickness',
+                'pipeTotalLength',
+                'pipeTotalWeight',
+                'pipePricePerTon'
+            ].includes(id)) {
+                setTimeout(recalc, 50);
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            const t = e.target;
+            if (!t) return;
+            if (t.name === 'productType' || t.id === 'steelGroupSelect') {
+                setTimeout(recalc, 30);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#worksPicker .work-chip')
+                || e.target.closest('#worksPicker .selected-work-chip .remove-btn')) {
+                setTimeout(recalc, 30);
+            }
+        });
+
+        // первый расчёт
+        recalc();
+    }
+
     /**
      * Переключение 4 типов продукции в форме заказа.
-     * Полностью управляет видимостью и disabled-состоянием полей блоков.
+     * Управляет видимостью и disabled-состоянием полей блоков.
      */
     function initPipeNippleBlocks() {
         const radioCoupling = document.getElementById('typeCoupling');
@@ -511,15 +902,14 @@ window.OrdersForm = (function () {
         if (!form || form.dataset.pipeBlocksWired === 'true') return;
         form.dataset.pipeBlocksWired = 'true';
 
-        const couplingBlock = document.getElementById('couplingBlock');
-        const adapterBlock  = document.getElementById('adapterBlock');
-        const pipeBlock     = document.getElementById('pipeBlock');
-        const nippleBlock   = document.getElementById('nippleBlock');
-        const hiddenKind    = document.getElementById('pipeProductKindHidden');
+        const couplingBlock  = document.getElementById('couplingBlock');
+        const adapterBlock   = document.getElementById('adapterBlock');
+        const pipeBlock      = document.getElementById('pipeBlock');
+        const nippleBlock    = document.getElementById('nippleBlock');
+        const hiddenKind     = document.getElementById('pipeProductKindHidden');
         const globalQtyField = document.getElementById('globalQuantityField');
         const globalQtyInput = document.getElementById('globalQuantity');
 
-        /** Показать/скрыть блок + включить/отключить его поля. */
         function setBlockEnabled(block, enabled) {
             if (!block) return;
             block.style.display = enabled ? 'block' : 'none';
@@ -539,7 +929,6 @@ window.OrdersForm = (function () {
             setBlockEnabled(pipeBlock,     isPipe);
             setBlockEnabled(nippleBlock,   isNipple);
 
-            // global quantity — только для COUPLING / ADAPTER
             const needGlobalQty = isCoupling || isAdapter;
             if (globalQtyField) globalQtyField.style.display = needGlobalQty ? '' : 'none';
             if (globalQtyInput) globalQtyInput.disabled = !needGlobalQty;
@@ -555,13 +944,9 @@ window.OrdersForm = (function () {
             if (r) r.addEventListener('change', toggleBlocks);
         });
 
-        // Каскады и live-пересчёты — один раз
-        initExternalThreadCascade('pipeThreadTypeSelect', 'pipeThreadDiameterSelect', 'pipeExternalThreadId');
-        initExternalThreadCascade('nippleThreadTypeSelect', 'nippleThreadDiameterSelect', 'nippleExternalThreadId');
         initPipeLiveCalculation();
         initNippleLiveCalculation();
 
-        // Первичная раскладка
         toggleBlocks();
     }
 
@@ -1067,6 +1452,73 @@ window.OrdersForm = (function () {
         }
     }
 
+    // ================= КП: раскрытие расшифровки =================
+    function initOfferBreakdown() {
+        // ─── Верхняя кнопка "Расшифровка стоимости" ───
+        const topToggle = document.getElementById('offerBreakdownToggle');
+        const topPanel  = document.getElementById('offerCostBreakdown');
+
+        if (topToggle && topPanel && topToggle.dataset.wired !== 'true') {
+            topToggle.dataset.wired = 'true';
+            topToggle.addEventListener('click', () => {
+                const open = topPanel.classList.toggle('open');
+                topToggle.classList.toggle('open', open);
+                const txt = topToggle.querySelector('.btn-breakdown-text');
+                if (txt) txt.textContent = open ? 'Скрыть расшифровку' : 'Расшифровка стоимости';
+            });
+        }
+
+        // ─── Toggle-ы по позициям ───
+        // ВАЖНО: прямые обработчики на каждый элемент (без document.addEventListener),
+        // чтобы при Turbo-переходах обработчики не накапливались.
+        const toggles = document.querySelectorAll('.offer-detail-toggle');
+        console.log('[offer-breakdown] toggles:', toggles.length);
+
+        toggles.forEach((t) => {
+            if (t.dataset.wired === 'true') return;
+            t.dataset.wired = 'true';
+
+            t.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const body = document.getElementById(t.dataset.target);
+                if (!body) {
+                    console.warn('[offer-breakdown] body not found:', t.dataset.target);
+                    return;
+                }
+
+                const willOpen = !t.classList.contains('open');
+                t.classList.toggle('open', willOpen);
+
+                if (willOpen) {
+                    body.classList.add('open');
+                    const h = body.scrollHeight;
+                    if (h > 0) {
+                        body.style.maxHeight = h + 'px';
+                        const onEnd = (ev) => {
+                            if (ev.propertyName !== 'max-height') return;
+                            body.style.maxHeight = 'none';
+                            body.removeEventListener('transitionend', onEnd);
+                        };
+                        body.addEventListener('transitionend', onEnd);
+                        // fallback, если transitionend не сработал
+                        setTimeout(() => {
+                            if (body.classList.contains('open')) body.style.maxHeight = 'none';
+                        }, 500);
+                    } else {
+                        body.style.maxHeight = 'none';
+                    }
+                } else {
+                    body.style.maxHeight = body.scrollHeight + 'px';
+                    body.classList.remove('open');
+                    void body.offsetHeight;
+                    body.style.maxHeight = '0';
+                }
+            });
+        });
+    }
+
     function initCommercialOffer() {
         refreshOfferPanelFromDom();
 
@@ -1153,19 +1605,22 @@ window.OrdersForm = (function () {
         });
     }
 
-
-
     // ================= Общий вход =================
     function init() {
-        initCouplingSelects();
-        initAdapterSelects();
+        initCouplingPicker();
+        initAdapterPicker();
+        initThreadPicker('pipe');
+        initThreadPicker('nipple');
+
         initSteelGroupSelects();
         initWorksPicker();
         initStartProduction();
         initCommercialOffer();
+        initOfferBreakdown();   // ← ДОБАВИТЬ
         initOrderTransitions();
         initOrderDeletion();
         initPipeNippleBlocks();
+        initLiveCostCalculation();
     }
 
     return {init};

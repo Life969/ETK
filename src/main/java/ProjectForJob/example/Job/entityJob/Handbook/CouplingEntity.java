@@ -19,18 +19,18 @@ public class CouplingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; //UUID
 
     @NotBlank(message = "Тип муфты обязателен")
-    private String type;
+    private String type; //enum
 
     @NotBlank(message = "Условный диаметр обязателен")
     @Column(name = "conditional_diameter")
-    private String conditionalDiameter;
+    private String conditionalDiameter;// enum
 
     @Positive(message = "Длина должна быть положительной")
     @Column(name = "length_mm")
-    private Double lengthMm;
+    private Double lengthMm; //long
 
     @Positive(message = "Вес должен быть положительным")
     @Column(name = "weight_kg")

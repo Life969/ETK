@@ -67,42 +67,40 @@
 
             <!-- === БЛОК: Муфта === -->
             <div id="couplingBlock" class="hb-field-full" style="display:none;">
-                <div class="hb-grid">
-                    <div class="hb-field">
-                        <label>Тип муфты</label>
-                        <select id="couplingTypeSelect" class="form-select">
-                            <option value="">-- Выберите тип --</option>
-                        </select>
-                    </div>
-                    <div class="hb-field">
-                        <label>Условный диаметр</label>
-                        <select id="couplingDiameterSelect" class="form-select" disabled>
-                            <option value="">-- Сначала выберите тип --</option>
-                        </select>
-                    </div>
+                <div class="hb-field" style="margin-bottom:12px;">
+                    <label>Тип муфты</label>
+                    <select id="couplingTypeSelect" class="form-select">
+                        <option value="">-- Выберите тип --</option>
+                        <option th:each="t : ${couplingTypes}"
+                                th:value="${t}" th:text="${t}">НКТ</option>
+                    </select>
                 </div>
-                <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden"/>
+                <div class="hb-field">
+                    <label>Условный диаметр <span class="req">*</span></label>
+                    <div id="couplingDiameterPicker" class="order-diameter-picker">
+                        <div class="order-picker-empty">-- Сначала выберите тип --</div>
+                    </div>
+                    <input type="hidden" th:field="*{couplingId}" id="couplingIdHidden"/>
+                </div>
             </div>
 
             <!-- === БЛОК: Переводник === -->
             <div id="adapterBlock" class="hb-field-full" style="display:none;">
-                <div class="hb-grid">
-                    <div class="hb-field">
-                        <label>Тип первой стороны</label>
-                        <select id="adapterTypeSelect" class="form-select">
-                            <option value="">-- Выберите тип --</option>
-                            <option th:each="type : ${adapterFirstSideTypes}"
-                                    th:value="${type}" th:text="${type}"></option>
-                        </select>
-                    </div>
-                    <div class="hb-field">
-                        <label>Переводник</label>
-                        <select id="adapterSelect" class="form-select" disabled>
-                            <option value="">-- Сначала выберите тип --</option>
-                        </select>
-                    </div>
+                <div class="hb-field" style="margin-bottom:12px;">
+                    <label>Тип первой стороны</label>
+                    <select id="adapterTypeSelect" class="form-select">
+                        <option value="">-- Выберите тип --</option>
+                        <option th:each="type : ${adapterFirstSideTypes}"
+                                th:value="${type}" th:text="${type}"></option>
+                    </select>
                 </div>
-                <input type="hidden" th:field="*{adapterId}" id="adapterIdHidden"/>
+                <div class="hb-field">
+                    <label>Переводник <span class="req">*</span></label>
+                    <div id="adapterPicker" class="order-diameter-picker order-diameter-picker--wide">
+                        <div class="order-picker-empty">-- Сначала выберите тип --</div>
+                    </div>
+                    <input type="hidden" th:field="*{adapterId}" id="adapterIdHidden"/>
+                </div>
             </div>
 
             <!-- === БЛОК: Труба (PIPE) === -->
@@ -118,11 +116,11 @@
                         </select>
                     </div>
 
-                    <div class="hb-field">
+                    <div class="hb-field hb-field-full">
                         <label>Условный диаметр <span class="req">*</span></label>
-                        <select id="pipeThreadDiameterSelect" disabled>
-                            <option value="">-- Сначала выберите тип --</option>
-                        </select>
+                        <div id="pipeThreadDiameterPicker" class="order-diameter-picker">
+                            <div class="order-picker-empty">-- Сначала выберите тип --</div>
+                        </div>
                         <input type="hidden" name="externalThreadId" id="pipeExternalThreadId" value=""/>
                     </div>
 
@@ -203,11 +201,11 @@
                         </select>
                     </div>
 
-                    <div class="hb-field">
+                    <div class="hb-field hb-field-full">
                         <label>Условный диаметр <span class="req">*</span></label>
-                        <select id="nippleThreadDiameterSelect" disabled>
-                            <option value="">-- Сначала выберите тип --</option>
-                        </select>
+                        <div id="nippleThreadDiameterPicker" class="order-diameter-picker">
+                            <div class="order-picker-empty">-- Сначала выберите тип --</div>
+                        </div>
                         <input type="hidden" name="externalThreadId" id="nippleExternalThreadId" value=""/>
                     </div>
 
@@ -327,6 +325,152 @@
                         <input type="checkbox" th:each="work : ${additionalWorks}"
                                th:field="*{additionalWorkIds}" th:value="${work.id}"
                                class="work-hidden-checkbox" style="display:none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ LIVE РАСЧЁТ СТОИМОСТИ ============ -->
+        <div class="live-cost-panel" id="liveCostPanel" style="display:none;">
+            <div class="hb-total-row">
+                <span class="hb-total-label">Расчёт в реальном времени</span>
+                <span class="hb-total-right">
+            <span class="hb-total-value">
+                <span id="liveTotalCost">0</span>
+                <span class="hb-total-currency">₽</span>
+            </span>
+            <button type="button" class="btn-breakdown" id="liveBreakdownToggle">
+                <i class="bi bi-calculator"></i>
+                <span class="btn-breakdown-text">Скрыть</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </span>
+            </div>
+
+            <div class="cost-breakdown open" id="liveCostBreakdown">
+                <div class="cost-breakdown-inner">
+                    <div class="cost-breakdown-title">
+                        <i class="bi bi-calculator"></i>
+                        <span>Из чего складывается стоимость</span>
+                    </div>
+
+                    <!-- ===== МУФТА / ПЕРЕВОДНИК ===== -->
+                    <div id="lcCouplingSteps" style="display:none;">
+
+                        <div class="cost-step">
+                            <div class="cost-step-num">1</div>
+                            <div class="cost-step-body">
+                                <div class="cost-step-title">Стоимость изготовления</div>
+                                <div class="cost-step-formula">
+                                    <span class="cf-num"><span id="lcUnitCost">0</span> ₽</span>
+                                    <span class="cf-op">×</span>
+                                    <span class="cf-num"><span id="lcQty">0</span> шт.</span>
+                                    <span class="cf-op">=</span>
+                                    <span class="cf-result"><span id="lcBaseCostCoupling">0</span> ₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cost-step" id="lcMarkupStepCoupling" style="display:none;">
+                            <div class="cost-step-num">2</div>
+                            <div class="cost-step-body">
+                                <div class="cost-step-title">
+                                    Надбавка за группу прочности
+                                    <span class="product-type-badge product-type-badge--coupling">
+                                <span id="lcSGCodeCoupling">—</span>
+                                +<span id="lcMarkupPercentCoupling">0</span>%
+                            </span>
+                                </div>
+                                <div class="cost-step-formula">
+                                    <span class="cf-num"><span id="lcBaseCostForMarkupCoupling">0</span> ₽</span>
+                                    <span class="cf-op">×</span>
+                                    <span class="cf-num"><span id="lcMarkupPercentCoupling2">0</span> %</span>
+                                    <span class="cf-op">=</span>
+                                    <span class="cf-result"><span id="lcMarkupCostCoupling">0</span> ₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ===== ТРУБА / ПАТРУБОК ===== -->
+                    <div id="lcPipeSteps" style="display:none;">
+
+                        <div class="cost-step">
+                            <div class="cost-step-num">1</div>
+                            <div class="cost-step-body">
+                                <div class="cost-step-title">Нарезка резьбы (с двух сторон)</div>
+                                <div class="cost-step-formula">
+                                    <span class="cf-num"><span id="lcThreadCost">0</span> ₽</span>
+                                    <span class="cf-op">×</span>
+                                    <span class="cf-num">2</span>
+                                    <span class="cf-op">×</span>
+                                    <span class="cf-num"><span id="lcThreadQty">0</span> шт.</span>
+                                    <span class="cf-op">=</span>
+                                    <span class="cf-result"><span id="lcThreadsCost">0</span> ₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cost-step">
+                            <div class="cost-step-num">2</div>
+                            <div class="cost-step-body">
+                                <div class="cost-step-title">Металл</div>
+                                <div class="cost-step-formula">
+                                    <span class="cf-num"><span id="lcPricePerTon">0</span> ₽/т</span>
+                                    <span class="cf-op">×</span>
+                                    <span class="cf-num"><span id="lcMetalWeight">0</span> кг</span>
+                                    <span class="cf-op">÷ 1000</span>
+                                    <span class="cf-op">=</span>
+                                    <span class="cf-result"><span id="lcMetalCost">0</span> ₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cost-step" id="lcMarkupStepPipe" style="display:none;">
+                            <div class="cost-step-num">3</div>
+                            <div class="cost-step-body">
+                                <div class="cost-step-title">
+                                    Надбавка за группу прочности
+                                    <span class="product-type-badge product-type-badge--pipe">
+                                <span id="lcSGCodePipe">—</span>
+                                +<span id="lcMarkupPercentPipe">0</span>%
+                            </span>
+                                </div>
+                                <div class="cost-step-formula">
+                                    <span class="cf-num"><span id="lcBaseCostForMarkupPipe">0</span> ₽</span>
+                                    <span class="cf-op">×</span>
+                                    <span class="cf-num"><span id="lcMarkupPercentPipe2">0</span> %</span>
+                                    <span class="cf-op">=</span>
+                                    <span class="cf-result"><span id="lcMarkupCostPipe">0</span> ₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ===== ДОП. РАБОТЫ ===== -->
+                    <div class="cost-step" id="lcWorksStep" style="display:none;">
+                        <div class="cost-step-num"><i class="bi bi-wrench" style="font-size:11px;"></i></div>
+                        <div class="cost-step-body">
+                            <div class="cost-step-title">
+                                Дополнительные работы
+                                <span class="cost-hint">
+                            цена за тонну × расчётный вес
+                            (<span id="lcBillingWeight">0</span> кг, минимум 100 кг)
+                        </span>
+                            </div>
+                            <div class="cost-works-list" id="lcWorksList"></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== ИТОГО ===== -->
+                    <div class="cost-breakdown-total">
+                        <span class="cost-breakdown-total-label">Итого за заказ</span>
+                        <span class="cost-breakdown-total-value">
+                    <span id="lcBreakdownTotal">0</span>
+                    <span class="offer-currency">руб.</span>
+                </span>
                     </div>
                 </div>
             </div>
