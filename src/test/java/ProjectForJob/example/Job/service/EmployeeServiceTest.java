@@ -1,8 +1,8 @@
 package ProjectForJob.example.Job.service;
 
 import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
-import ProjectForJob.example.Job.repository.handbook.ListEmployeeRepository;
-import ProjectForJob.example.Job.service.handbook.EmployeesService;
+import ProjectForJob.example.Job.repository.handbook.EmployeeRepository;
+import ProjectForJob.example.Job.service.handbook.EmployeeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,27 +20,27 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Сервис для работы с сотрудниками (EmployeesService)")
-class EmployeesServiceTest {
+class EmployeeServiceTest {
 
     @Mock
-    private ListEmployeeRepository listEmployeeRepository;
+    private EmployeeRepository employeeRepository;
 
     @InjectMocks
-    private EmployeesService employeesService;
+    private EmployeeService employeeService;
 
     @Test
     @DisplayName("findAll: должен вернуть всех сотрудников из репозитория")
     void findAll_shouldReturnAllEmployeesFromRepository() {
         // given
         List<EmployeeEntity> expected = List.of(new EmployeeEntity(), new EmployeeEntity());
-        when(listEmployeeRepository.findAll()).thenReturn(expected);
+        when(employeeRepository.findAll()).thenReturn(expected);
 
         // when
-        List<EmployeeEntity> result = employeesService.findAll();
+        List<EmployeeEntity> result = employeeService.findAll();
 
         // then
         assertThat(result).isSameAs(expected);
-        verify(listEmployeeRepository, only()).findAll();
+        verify(employeeRepository, only()).findAll();
     }
 
     @Test
@@ -49,14 +49,14 @@ class EmployeesServiceTest {
         // given
         EmployeeEntity input = new EmployeeEntity();
         EmployeeEntity saved = new EmployeeEntity();
-        when(listEmployeeRepository.save(input)).thenReturn(saved);
+        when(employeeRepository.save(input)).thenReturn(saved);
 
         // when
-        EmployeeEntity result = employeesService.save(input);
+        EmployeeEntity result = employeeService.save(input);
 
         // then
         assertThat(result).isSameAs(saved);
-        verify(listEmployeeRepository, only()).save(input);
+        verify(employeeRepository, only()).save(input);
     }
 
     @Test
@@ -65,14 +65,14 @@ class EmployeesServiceTest {
         // given
         Long id = 1L;
         EmployeeEntity expected = new EmployeeEntity();
-        when(listEmployeeRepository.findById(id)).thenReturn(Optional.of(expected));
+        when(employeeRepository.findById(id)).thenReturn(Optional.of(expected));
 
         // when
-        EmployeeEntity result = employeesService.findById(id);
+        EmployeeEntity result = employeeService.findById(id);
 
         // then
         assertThat(result).isSameAs(expected);
-        verify(listEmployeeRepository, only()).findById(id);
+        verify(employeeRepository, only()).findById(id);
     }
 
     @Test
@@ -80,14 +80,14 @@ class EmployeesServiceTest {
     void findById_whenIdDoesNotExist_shouldThrowNoSuchElementException() {
     // given
     Long id = 999L;
-    when(listEmployeeRepository.findById(id)).thenReturn(Optional.empty());
+    when(employeeRepository.findById(id)).thenReturn(Optional.empty());
 
     // when / then
-    assertThatThrownBy(() -> employeesService.findById(id))
+    assertThatThrownBy(() -> employeeService.findById(id))
             .isInstanceOf(NoSuchElementException.class)
             .hasMessage("Сотрудник с id " + id + " не найдена");
 
-    verify(listEmployeeRepository, only()).findById(id);
+    verify(employeeRepository, only()).findById(id);
 }
 
     @Test
@@ -97,19 +97,19 @@ class EmployeesServiceTest {
         Long id = 5L;
 
         // when
-        employeesService.deleteById(id);
+        employeeService.deleteById(id);
 
         // then
-        verify(listEmployeeRepository, only()).deleteById(id);
+        verify(employeeRepository, only()).deleteById(id);
     }
 
     @Test
     @DisplayName("deleteAll: должен вызвать deleteAll у репозитория")
     void deleteAll_shouldCallRepositoryDeleteAll() {
         // when
-        employeesService.deleteAll();
+        employeeService.deleteAll();
 
         // then
-        verify(listEmployeeRepository, only()).deleteAll();
+        verify(employeeRepository, only()).deleteAll();
     }
 }

@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.controller.mvc;
+package ProjectForJob.example.Job.controller.mvc.journal;
 
 import ProjectForJob.example.Job.dto.ProductionRecordListDto;
 import ProjectForJob.example.Job.domain.entity.order.PipeProductKind;
@@ -7,7 +7,7 @@ import ProjectForJob.example.Job.domain.entity.handbook.CouplingEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.ExternalThreadEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.PipeAdapterEntity;
 import ProjectForJob.example.Job.service.handbook.CouplingService;
-import ProjectForJob.example.Job.service.handbook.EmployeesService;
+import ProjectForJob.example.Job.service.handbook.EmployeeService;
 import ProjectForJob.example.Job.service.handbook.ExternalThreadService;
 import ProjectForJob.example.Job.service.handbook.MachinesService;
 import ProjectForJob.example.Job.service.handbook.PipeAdapterService;
@@ -41,7 +41,7 @@ public class ProductionRecordMvcController {
 
     private final ProductionRecordService recordService;
     private final CouplingService couplingService;
-    private final EmployeesService employeeService;
+    private final EmployeeService employeeService;
     private final MachinesService machineService;
     private final PipeAdapterService adapterService;
     private final ExternalThreadService externalThreadService;

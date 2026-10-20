@@ -3,7 +3,7 @@ package ProjectForJob.example.Job.controller.rest;
 import ProjectForJob.example.Job.dto.EmployeeCreateDto;
 import ProjectForJob.example.Job.dto.EmployeeResponseDto;
 import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
-import ProjectForJob.example.Job.service.handbook.EmployeesService;
+import ProjectForJob.example.Job.service.handbook.EmployeeService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/employees")
 public class EmployeesController {
     private static final Logger log = LoggerFactory.getLogger(EmployeesController.class);
-    private final EmployeesService employeesService;
+    private final EmployeeService employeeService;
 
     public EmployeesController(
-            EmployeesService employeesService) {
-        this.employeesService = employeesService;
+            EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/{id}")
@@ -31,7 +31,7 @@ public class EmployeesController {
             @PathVariable("id") Long id){
         log.info("called method getEmployeeById id = " + id);
         try {
-            EmployeeEntity entity = employeesService.findById(id);
+            EmployeeEntity entity = employeeService.findById(id);
             return ResponseEntity.ok(convertToDto(entity));
 
         }catch (NoSuchElementException e){
@@ -43,7 +43,7 @@ public class EmployeesController {
     @GetMapping
     public ResponseEntity<List<EmployeeResponseDto>> getAllEmployees(){
         log.info("called method findAllEmployees");
-        List<EmployeeEntity> list = employeesService.findAll();
+        List<EmployeeEntity> list = employeeService.findAll();
         List<EmployeeResponseDto> dtos = list.stream().map(this::convertToDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
@@ -54,19 +54,19 @@ public class EmployeesController {
     public ResponseEntity<EmployeeResponseDto> createEmployee(@RequestBody
                                                                   @Valid EmployeeCreateDto createDto) {
         EmployeeEntity entity = convertToEntity(createDto);
-        EmployeeEntity saved = employeesService.save(entity);
+        EmployeeEntity saved = employeeService.save(entity);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(saved));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        employeesService.deleteById(id);
+        employeeService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping()
     public ResponseEntity<Void> deleteEmployee() {
-        employeesService.deleteAll();
+        employeeService.deleteAll();
         return ResponseEntity.noContent().build();
     }
 

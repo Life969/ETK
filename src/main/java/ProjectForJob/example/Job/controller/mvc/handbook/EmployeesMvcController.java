@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.controller.mvc.handbook;
 
 import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
-import ProjectForJob.example.Job.service.handbook.EmployeesService;
+import ProjectForJob.example.Job.service.handbook.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class EmployeesMvcController {
 
-    private final EmployeesService employeesService;
+    private final EmployeeService employeesService;
 
     private static final String FRAGMENT_LIST = "fragments/employees/list :: content";
     private static final String FRAGMENT_FORM = "fragments/employees/form :: content";

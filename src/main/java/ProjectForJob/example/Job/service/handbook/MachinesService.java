@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.service.handbook;
 
 import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
-import ProjectForJob.example.Job.repository.handbook.ListMachineRepository;
+import ProjectForJob.example.Job.repository.handbook.MachineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,25 +11,25 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class MachinesService {
-    private final ListMachineRepository listMachineRepository;
+    private final MachineRepository machineRepository;
 
     public List<MachineEntity> findAll() {
-        return listMachineRepository.findAll();
+        return machineRepository.findAll();
     }
 
     public MachineEntity save(MachineEntity machine){
-        return listMachineRepository.save(machine);
+        return machineRepository.save(machine);
     }
 
     public MachineEntity findById(Long id){
-        return listMachineRepository.findById(id).
+        return machineRepository.findById(id).
                 orElseThrow(() -> new NoSuchElementException("Станок id " + id + " не найден"));
     }
 
     public void deleteById(Long id){
-        listMachineRepository.deleteById(id);
+        machineRepository.deleteById(id);
     }
     public void deleteAll(){
-        listMachineRepository.deleteAll();
+        machineRepository.deleteAll();
     }
 }

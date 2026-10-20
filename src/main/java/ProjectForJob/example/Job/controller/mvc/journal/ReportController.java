@@ -1,9 +1,9 @@
-package ProjectForJob.example.Job.controller.mvc;
+package ProjectForJob.example.Job.controller.mvc.journal;
 
 import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
 import ProjectForJob.example.Job.domain.entity.journal.ProductionRecordEntity;
-import ProjectForJob.example.Job.service.handbook.EmployeesService;
+import ProjectForJob.example.Job.service.handbook.EmployeeService;
 import ProjectForJob.example.Job.service.handbook.MachinesService;
 import ProjectForJob.example.Job.service.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import java.util.List;
 public class ReportController {
 
     private final ProductionRecordService recordService;
-    private final EmployeesService employeeService;
+    private final EmployeeService employeeService;
     private final MachinesService machinesService;
 
     private static final String LAYOUT = "welcomeToHome/layout";

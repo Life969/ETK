@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.service;
 
 import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
-import ProjectForJob.example.Job.repository.handbook.ListMachineRepository;
+import ProjectForJob.example.Job.repository.handbook.MachineRepository;
 import ProjectForJob.example.Job.service.handbook.MachinesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class MachinesServiceTest {
 
     @Mock
-    private ListMachineRepository listMachineRepository;
+    private MachineRepository machineRepository;
 
     @InjectMocks
     private MachinesService machinesService;
@@ -34,14 +34,14 @@ class MachinesServiceTest {
     void findAll_shouldReturnAllMachinesFromRepository() {
         // given
         List<MachineEntity> expected = List.of(new MachineEntity(), new MachineEntity());
-        when(listMachineRepository.findAll()).thenReturn(expected);
+        when(machineRepository.findAll()).thenReturn(expected);
 
         // when
         List<MachineEntity> result = machinesService.findAll();
 
         // then
         assertThat(result).isSameAs(expected);
-        verify(listMachineRepository, only()).findAll();
+        verify(machineRepository, only()).findAll();
     }
 
     @Test
@@ -50,14 +50,14 @@ class MachinesServiceTest {
         // given
         MachineEntity input = new MachineEntity();
         MachineEntity saved = new MachineEntity();
-        when(listMachineRepository.save(input)).thenReturn(saved);
+        when(machineRepository.save(input)).thenReturn(saved);
 
         // when
         MachineEntity result = machinesService.save(input);
 
         // then
         assertThat(result).isSameAs(saved);
-        verify(listMachineRepository, only()).save(input);
+        verify(machineRepository, only()).save(input);
     }
 
     @Test
@@ -66,14 +66,14 @@ class MachinesServiceTest {
         // given
         Long id = 1L;
         MachineEntity expected = new MachineEntity();
-        when(listMachineRepository.findById(id)).thenReturn(Optional.of(expected));
+        when(machineRepository.findById(id)).thenReturn(Optional.of(expected));
 
         // when
         MachineEntity result = machinesService.findById(id);
 
         // then
         assertThat(result).isSameAs(expected);
-        verify(listMachineRepository, only()).findById(id);
+        verify(machineRepository, only()).findById(id);
     }
 
     @Test
@@ -81,7 +81,7 @@ class MachinesServiceTest {
     void findById_whenIdDoesNotExist_shouldReturnNull() {
         // given
         Long id = 999L;
-        when(listMachineRepository.findById(id)).thenReturn(Optional.empty());
+        when(machineRepository.findById(id)).thenReturn(Optional.empty());
 
         // when
 
@@ -90,7 +90,7 @@ class MachinesServiceTest {
         assertThatThrownBy(() -> machinesService.findById(id))
                 .isInstanceOf(NoSuchElementException.class)
                 .hasMessage("Станок id " + id + " не найден");;
-        verify(listMachineRepository, only()).findById(id);
+        verify(machineRepository, only()).findById(id);
     }
 
     @Test
@@ -103,7 +103,7 @@ class MachinesServiceTest {
         machinesService.deleteById(id);
 
         // then
-        verify(listMachineRepository, only()).deleteById(id);
+        verify(machineRepository, only()).deleteById(id);
     }
 
     @Test
@@ -113,6 +113,6 @@ class MachinesServiceTest {
         machinesService.deleteAll();
 
         // then
-        verify(listMachineRepository, only()).deleteAll();
+        verify(machineRepository, only()).deleteAll();
     }
 }
