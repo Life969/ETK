@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.services.Handbook;
+package ProjectForJob.example.Job.service.handbook;
 
-import ProjectForJob.example.Job.repository.entity.handbook.EmployeesEntity;
-import ProjectForJob.example.Job.repository.handbook.ListEmployeesRepository;
+import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
+import ProjectForJob.example.Job.repository.handbook.ListEmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,25 +11,25 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class EmployeesService {
-    private final ListEmployeesRepository listEmployeesRepository;
+    private final ListEmployeeRepository listEmployeeRepository;
 
-    public List<EmployeesEntity> findAll() {
-        return listEmployeesRepository.findAll();
+    public List<EmployeeEntity> findAll() {
+        return listEmployeeRepository.findAll();
     }
 
-    public EmployeesEntity save(EmployeesEntity employee){
-        return listEmployeesRepository.save(employee);
+    public EmployeeEntity save(EmployeeEntity employee){
+        return listEmployeeRepository.save(employee);
     }
 
-    public EmployeesEntity findById(Long id){
-        return listEmployeesRepository.findById(id).
+    public EmployeeEntity findById(Long id){
+        return listEmployeeRepository.findById(id).
                 orElseThrow(() -> new NoSuchElementException("Сотрудник с id " + id + " не найдена"));
     }
 
     public void deleteById(Long id){
-        listEmployeesRepository.deleteById(id);
+        listEmployeeRepository.deleteById(id);
     }
     public void deleteAll(){
-        listEmployeesRepository.deleteAll();
+        listEmployeeRepository.deleteAll();
     }
 }

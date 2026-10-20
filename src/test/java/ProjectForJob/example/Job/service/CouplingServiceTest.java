@@ -1,8 +1,8 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.service;
 
-import ProjectForJob.example.Job.repository.entity.handbook.CouplingEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.CouplingEntity;
 import ProjectForJob.example.Job.repository.handbook.CouplingRepository;
-import ProjectForJob.example.Job.services.Handbook.CouplingService;
+import ProjectForJob.example.Job.service.handbook.CouplingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.service.mapping;
+package ProjectForJob.example.Job.service.mapper;
 
 import ProjectForJob.example.Job.dto.HomeOrderDto;
 import ProjectForJob.example.Job.dto.OrderDto;

@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.repositories.Handbook;
+package ProjectForJob.example.Job.repository.handbook;
 
-import ProjectForJob.example.Job.domain.Handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.PipeAdapterEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

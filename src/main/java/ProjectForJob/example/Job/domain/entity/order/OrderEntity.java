@@ -1,7 +1,6 @@
-package ProjectForJob.example.Job.repository.entity.order;
+package ProjectForJob.example.Job.domain.entity.order;
 
-import ProjectForJob.example.Job.entity.handbook.*;
-import ProjectForJob.example.Job.repository.entity.handbook.*;
+import ProjectForJob.example.Job.domain.entity.handbook.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;

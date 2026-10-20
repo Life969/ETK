@@ -1,14 +1,14 @@
-package ProjectForJob.example.Job.controller.mvc.ForOrders;
+package ProjectForJob.example.Job.controller.mvc.order;
 
 import ProjectForJob.example.Job.dto.OrderDto;
-import ProjectForJob.example.Job.domain.ForOrders.OrderEntity;
-import ProjectForJob.example.Job.domain.ForOrders.OrderStatus;
-import ProjectForJob.example.Job.domain.Handbook.CouplingEntity;
-import ProjectForJob.example.Job.domain.Handbook.PipeAdapterEntity;
-import ProjectForJob.example.Job.services.CostBreakdownService;
-import ProjectForJob.example.Job.services.Handbook.CouplingService;
-import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
-import ProjectForJob.example.Job.services.OrderService;
+import ProjectForJob.example.Job.domain.entity.order.OrderEntity;
+import ProjectForJob.example.Job.domain.entity.order.OrderStatus;
+import ProjectForJob.example.Job.domain.entity.handbook.CouplingEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.service.CostBreakdownService;
+import ProjectForJob.example.Job.service.handbook.CouplingService;
+import ProjectForJob.example.Job.service.handbook.PipeAdapterService;
+import ProjectForJob.example.Job.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

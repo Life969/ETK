@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.config;
+package ProjectForJob.example.Job.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

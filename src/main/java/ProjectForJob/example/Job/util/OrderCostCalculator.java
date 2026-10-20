@@ -1,6 +1,6 @@
 package ProjectForJob.example.Job.util;
 
-import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.AdditionalWorkEntity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

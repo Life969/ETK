@@ -1,7 +1,7 @@
 package ProjectForJob.example.Job.utill;
 
 
-import ProjectForJob.example.Job.entityJob.Handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.AdditionalWorkEntity;
 import ProjectForJob.example.Job.util.OrderCostCalculator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

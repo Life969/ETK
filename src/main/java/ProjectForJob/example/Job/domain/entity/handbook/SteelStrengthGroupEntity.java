@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.repository.entity.handbook;
+package ProjectForJob.example.Job.domain.entity.handbook;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

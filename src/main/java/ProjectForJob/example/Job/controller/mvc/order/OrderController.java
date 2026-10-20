@@ -1,20 +1,20 @@
-package ProjectForJob.example.Job.controller.mvc.ForOrders;
+package ProjectForJob.example.Job.controller.mvc.order;
 
 import ProjectForJob.example.Job.dto.OrderCreateDto;
 import ProjectForJob.example.Job.dto.OrderDto;
 import ProjectForJob.example.Job.dto.OrderUpdateDto;
-import ProjectForJob.example.Job.domain.Handbook.CouplingEntity;
-import ProjectForJob.example.Job.domain.ForOrders.OrderStatus;
-import ProjectForJob.example.Job.domain.Handbook.ExternalThreadEntity;
-import ProjectForJob.example.Job.domain.Handbook.PipeAdapterEntity;
-import ProjectForJob.example.Job.services.Handbook.AdditionalWorkService;
-import ProjectForJob.example.Job.services.Handbook.CompanyService;
-import ProjectForJob.example.Job.services.Handbook.CouplingService;
-import ProjectForJob.example.Job.services.Handbook.ExternalThreadService;
-import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
-import ProjectForJob.example.Job.services.OrderService;
-import ProjectForJob.example.Job.services.Handbook.SteelStrengthGroupService;
-import ProjectForJob.example.Job.services.CostBreakdownService;
+import ProjectForJob.example.Job.domain.entity.handbook.CouplingEntity;
+import ProjectForJob.example.Job.domain.entity.order.OrderStatus;
+import ProjectForJob.example.Job.domain.entity.handbook.ExternalThreadEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.service.handbook.AdditionalWorkService;
+import ProjectForJob.example.Job.service.handbook.CompanyService;
+import ProjectForJob.example.Job.service.handbook.CouplingService;
+import ProjectForJob.example.Job.service.handbook.ExternalThreadService;
+import ProjectForJob.example.Job.service.handbook.PipeAdapterService;
+import ProjectForJob.example.Job.service.OrderService;
+import ProjectForJob.example.Job.service.handbook.SteelStrengthGroupService;
+import ProjectForJob.example.Job.service.CostBreakdownService;
 
 
 import jakarta.servlet.http.HttpServletRequest;

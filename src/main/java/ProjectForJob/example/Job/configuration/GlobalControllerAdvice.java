@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.config;
+package ProjectForJob.example.Job.configuration;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;

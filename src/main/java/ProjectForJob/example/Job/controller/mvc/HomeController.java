@@ -1,10 +1,10 @@
-package ProjectForJob.example.Job.MVCcontrollers;
+package ProjectForJob.example.Job.controller.mvc;
 
-import ProjectForJob.example.Job.DataTransferObject.HomeOrderDto;
-import ProjectForJob.example.Job.entityJob.ForOrders.OrderEntity;
-import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
-import ProjectForJob.example.Job.services.OrderService;
-import ProjectForJob.example.Job.services.ProductionRecordService;
+import ProjectForJob.example.Job.dto.HomeOrderDto;
+import ProjectForJob.example.Job.domain.entity.order.OrderEntity;
+import ProjectForJob.example.Job.domain.entity.journal.ProductionRecordEntity;
+import ProjectForJob.example.Job.service.OrderService;
+import ProjectForJob.example.Job.service.ProductionRecordService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

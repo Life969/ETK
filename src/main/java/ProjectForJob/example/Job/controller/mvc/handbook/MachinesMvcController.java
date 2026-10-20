@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.MVCcontrollers.Handbook;
+package ProjectForJob.example.Job.controller.mvc.handbook;
 
-import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
-import ProjectForJob.example.Job.services.Handbook.MachinesService;
+import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
+import ProjectForJob.example.Job.service.handbook.MachinesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class MachinesMvcController {
     @GetMapping
     public String listAllMachines(Model model) {
         log.info("GET /machines");
-        List<MachinesEntity> machines = machinesService.findAll();
+        List<MachineEntity> machines = machinesService.findAll();
         model.addAttribute("machines", machines);
         model.addAttribute("contentTemplate", FRAGMENT_LIST);
         return "welcomeToHome/layout";
@@ -35,13 +35,13 @@ public class MachinesMvcController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("machine", new MachinesEntity());
+        model.addAttribute("machine", new MachineEntity());
         model.addAttribute("contentTemplate", FRAGMENT_FORM);
         return "welcomeToHome/layout";
     }
 
     @PostMapping("/save")
-    public String saveMachine(@Valid @ModelAttribute("machine") MachinesEntity machine,
+    public String saveMachine(@Valid @ModelAttribute("machine") MachineEntity machine,
                               BindingResult bindingResult,
                               Model model,
                               RedirectAttributes redirectAttributes) {
@@ -57,7 +57,7 @@ public class MachinesMvcController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        MachinesEntity machine = machinesService.findById(id);
+        MachineEntity machine = machinesService.findById(id);
         model.addAttribute("machine", machine);
         model.addAttribute("contentTemplate", FRAGMENT_FORM);
         return "welcomeToHome/layout";

@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.service;
 
 
-import ProjectForJob.example.Job.dto.kafkaDto.OrderStartedEvent;
+import ProjectForJob.example.Job.dto.kafka.OrderStartedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

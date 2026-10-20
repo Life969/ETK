@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.config;
+package ProjectForJob.example.Job.configuration;
 
-import ProjectForJob.example.Job.interceptor.GlobalModelInterceptor;
+import ProjectForJob.example.Job.web.interceptor.GlobalModelInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

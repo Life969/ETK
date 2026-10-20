@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.repository.entity.order;
+package ProjectForJob.example.Job.domain.entity.order;
 
 public enum PipeProductKind {
     PIPE,    // труба — заказ метражом или тоннажом

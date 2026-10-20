@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.MVCcontrollers.Handbook;
+package ProjectForJob.example.Job.controller.mvc.handbook;
 
-import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
-import ProjectForJob.example.Job.services.Handbook.EmployeesService;
+import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
+import ProjectForJob.example.Job.service.handbook.EmployeesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class EmployeesMvcController {
     @GetMapping
     public String listAllEmployees(Model model) {
         log.info("GET /employees");
-        List<EmployeesEntity> employees = employeesService.findAll();
+        List<EmployeeEntity> employees = employeesService.findAll();
         model.addAttribute("employees", employees);
         model.addAttribute("contentTemplate", FRAGMENT_LIST);
         return "welcomeToHome/layout";
@@ -35,13 +35,13 @@ public class EmployeesMvcController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("employee", new EmployeesEntity());
+        model.addAttribute("employee", new EmployeeEntity());
         model.addAttribute("contentTemplate", FRAGMENT_FORM);
         return "welcomeToHome/layout";
     }
 
     @PostMapping("/save")
-    public String saveEmployee(@Valid @ModelAttribute("employee") EmployeesEntity employee,
+    public String saveEmployee(@Valid @ModelAttribute("employee") EmployeeEntity employee,
                                BindingResult bindingResult,
                                Model model,
                                RedirectAttributes redirectAttributes) {
@@ -57,7 +57,7 @@ public class EmployeesMvcController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        EmployeesEntity employee = employeesService.findById(id);
+        EmployeeEntity employee = employeesService.findById(id);
         model.addAttribute("employee", employee);
         model.addAttribute("contentTemplate", FRAGMENT_FORM);
         return "welcomeToHome/layout";

@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.DataTransferObject;
+package ProjectForJob.example.Job.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

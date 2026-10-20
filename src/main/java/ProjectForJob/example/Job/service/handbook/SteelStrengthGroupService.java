@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.services.Handbook;
+package ProjectForJob.example.Job.service.handbook;
 
-import ProjectForJob.example.Job.repository.entity.handbook.SteelGradeEntity;
-import ProjectForJob.example.Job.repository.entity.handbook.SteelStrengthGroupEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.SteelGradeEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.SteelStrengthGroupEntity;
 import ProjectForJob.example.Job.repository.handbook.SteelGradeRepository;
 import ProjectForJob.example.Job.repository.handbook.SteelStrengthGroupRepository;
 import lombok.RequiredArgsConstructor;

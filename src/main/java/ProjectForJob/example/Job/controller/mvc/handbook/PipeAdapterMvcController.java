@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.MVCcontrollers.Handbook;
+package ProjectForJob.example.Job.controller.mvc.handbook;
 
-import ProjectForJob.example.Job.entityJob.Handbook.PipeAdapterEntity;
-import ProjectForJob.example.Job.services.Handbook.PipeAdapterService;
+import ProjectForJob.example.Job.domain.entity.handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.service.handbook.PipeAdapterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

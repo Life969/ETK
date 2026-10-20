@@ -1,10 +1,11 @@
-package ProjectForJob.example.Job.domain.entity.order;
+package ProjectForJob.example.Job.domain.entity.journal;
 
 import ProjectForJob.example.Job.domain.entity.handbook.CouplingEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.ExternalThreadEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
 import ProjectForJob.example.Job.domain.entity.handbook.PipeAdapterEntity;
+import ProjectForJob.example.Job.domain.entity.order.PipeProductKind;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

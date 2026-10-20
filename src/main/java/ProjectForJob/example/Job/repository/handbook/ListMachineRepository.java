@@ -1,9 +1,9 @@
-package ProjectForJob.example.Job.repositories.Handbook;
+package ProjectForJob.example.Job.repository.handbook;
 
-import ProjectForJob.example.Job.domain.Handbook.MachinesEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ListMachineRepository extends JpaRepository<MachinesEntity, Long> {
+public interface ListMachineRepository extends JpaRepository<MachineEntity, Long> {
 }

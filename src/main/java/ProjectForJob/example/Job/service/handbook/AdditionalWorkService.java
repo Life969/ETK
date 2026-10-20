@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.services.Handbook;
+package ProjectForJob.example.Job.service.handbook;
 
-import ProjectForJob.example.Job.repository.entity.handbook.AdditionalWorkEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.AdditionalWorkEntity;
 import ProjectForJob.example.Job.repository.handbook.AdditionalWorkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

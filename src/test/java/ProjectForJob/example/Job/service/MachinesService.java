@@ -1,8 +1,8 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.service;
 
-import ProjectForJob.example.Job.repository.entity.handbook.MachinesEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
 import ProjectForJob.example.Job.repository.handbook.ListMachineRepository;
-import ProjectForJob.example.Job.services.Handbook.MachinesService;
+import ProjectForJob.example.Job.service.handbook.MachinesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +33,11 @@ class MachinesServiceTest {
     @DisplayName("findAll: должен вернуть всё оборудование из репозитория")
     void findAll_shouldReturnAllMachinesFromRepository() {
         // given
-        List<MachinesEntity> expected = List.of(new MachinesEntity(), new MachinesEntity());
+        List<MachineEntity> expected = List.of(new MachineEntity(), new MachineEntity());
         when(listMachineRepository.findAll()).thenReturn(expected);
 
         // when
-        List<MachinesEntity> result = machinesService.findAll();
+        List<MachineEntity> result = machinesService.findAll();
 
         // then
         assertThat(result).isSameAs(expected);
@@ -48,12 +48,12 @@ class MachinesServiceTest {
     @DisplayName("save: должен делегировать сохранение репозиторию и вернуть сохранённую сущность")
     void save_shouldDelegateAndReturnSavedEntity() {
         // given
-        MachinesEntity input = new MachinesEntity();
-        MachinesEntity saved = new MachinesEntity();
+        MachineEntity input = new MachineEntity();
+        MachineEntity saved = new MachineEntity();
         when(listMachineRepository.save(input)).thenReturn(saved);
 
         // when
-        MachinesEntity result = machinesService.save(input);
+        MachineEntity result = machinesService.save(input);
 
         // then
         assertThat(result).isSameAs(saved);
@@ -65,11 +65,11 @@ class MachinesServiceTest {
     void findById_whenIdExists_shouldReturnMachine() {
         // given
         Long id = 1L;
-        MachinesEntity expected = new MachinesEntity();
+        MachineEntity expected = new MachineEntity();
         when(listMachineRepository.findById(id)).thenReturn(Optional.of(expected));
 
         // when
-        MachinesEntity result = machinesService.findById(id);
+        MachineEntity result = machinesService.findById(id);
 
         // then
         assertThat(result).isSameAs(expected);

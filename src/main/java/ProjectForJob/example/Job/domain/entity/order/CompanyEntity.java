@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.repository.entity.order;
+package ProjectForJob.example.Job.domain.entity.order;
 
 
 import jakarta.persistence.*;

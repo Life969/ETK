@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.MVCcontrollers.Handbook;
+package ProjectForJob.example.Job.controller.mvc.handbook;
 
-import ProjectForJob.example.Job.entityJob.Handbook.ExternalThreadEntity;
-import ProjectForJob.example.Job.services.Handbook.ExternalThreadService;
+import ProjectForJob.example.Job.domain.entity.handbook.ExternalThreadEntity;
+import ProjectForJob.example.Job.service.handbook.ExternalThreadService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

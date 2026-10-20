@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.config;
+package ProjectForJob.example.Job.configuration;
 /* ProducerFactory лучше через Spring, либо тюнинг через yaml*/
 
-import ProjectForJob.example.Job.dto.kafkaDto.OrderStartedEvent;
+import ProjectForJob.example.Job.dto.kafka.OrderStartedEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;

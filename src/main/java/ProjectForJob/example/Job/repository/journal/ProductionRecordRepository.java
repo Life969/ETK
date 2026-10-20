@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.repository;
+package ProjectForJob.example.Job.repository.journal;
 
-import ProjectForJob.example.Job.repository.entity.order.ProductionRecordEntity;
+import ProjectForJob.example.Job.domain.entity.journal.ProductionRecordEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

@@ -1,8 +1,8 @@
-package ProjectForJob.example.Job.MVCcontrollers.Handbook;
+package ProjectForJob.example.Job.controller.mvc.handbook;
 
-import ProjectForJob.example.Job.entityJob.Handbook.SteelGradeEntity;
-import ProjectForJob.example.Job.entityJob.Handbook.SteelStrengthGroupEntity;
-import ProjectForJob.example.Job.services.Handbook.SteelStrengthGroupService;
+import ProjectForJob.example.Job.domain.entity.handbook.SteelGradeEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.SteelStrengthGroupEntity;
+import ProjectForJob.example.Job.service.handbook.SteelStrengthGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

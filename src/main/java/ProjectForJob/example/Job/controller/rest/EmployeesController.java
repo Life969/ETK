@@ -1,9 +1,9 @@
-package ProjectForJob.example.Job.RESTcontrollers;
+package ProjectForJob.example.Job.controller.rest;
 
-import ProjectForJob.example.Job.DataTransferObject.EmployeeCreateDto;
-import ProjectForJob.example.Job.DataTransferObject.EmployeeResponseDto;
-import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
-import ProjectForJob.example.Job.services.Handbook.EmployeesService;
+import ProjectForJob.example.Job.dto.EmployeeCreateDto;
+import ProjectForJob.example.Job.dto.EmployeeResponseDto;
+import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
+import ProjectForJob.example.Job.service.handbook.EmployeesService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class EmployeesController {
             @PathVariable("id") Long id){
         log.info("called method getEmployeeById id = " + id);
         try {
-            EmployeesEntity entity = employeesService.findById(id);
+            EmployeeEntity entity = employeesService.findById(id);
             return ResponseEntity.ok(convertToDto(entity));
 
         }catch (NoSuchElementException e){
@@ -43,7 +43,7 @@ public class EmployeesController {
     @GetMapping
     public ResponseEntity<List<EmployeeResponseDto>> getAllEmployees(){
         log.info("called method findAllEmployees");
-        List<EmployeesEntity> list = employeesService.findAll();
+        List<EmployeeEntity> list = employeesService.findAll();
         List<EmployeeResponseDto> dtos = list.stream().map(this::convertToDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
@@ -53,8 +53,8 @@ public class EmployeesController {
     @PostMapping
     public ResponseEntity<EmployeeResponseDto> createEmployee(@RequestBody
                                                                   @Valid EmployeeCreateDto createDto) {
-        EmployeesEntity entity = convertToEntity(createDto);
-        EmployeesEntity saved = employeesService.save(entity);
+        EmployeeEntity entity = convertToEntity(createDto);
+        EmployeeEntity saved = employeesService.save(entity);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(saved));
     }
 
@@ -74,15 +74,15 @@ public class EmployeesController {
 
 
     //Создание объектов DTO
-    private EmployeeResponseDto convertToDto(EmployeesEntity entity) {
+    private EmployeeResponseDto convertToDto(EmployeeEntity entity) {
         EmployeeResponseDto dto = new EmployeeResponseDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
         return dto;
     }
 
-    private EmployeesEntity convertToEntity(EmployeeCreateDto dto) {
-        EmployeesEntity entity = new EmployeesEntity();
+    private EmployeeEntity convertToEntity(EmployeeCreateDto dto) {
+        EmployeeEntity entity = new EmployeeEntity();
         entity.setName(dto.getName());
         return entity;
     }

@@ -1,11 +1,11 @@
-package ProjectForJob.example.Job.MVCcontrollers;
+package ProjectForJob.example.Job.controller.mvc;
 
-import ProjectForJob.example.Job.entityJob.Handbook.EmployeesEntity;
-import ProjectForJob.example.Job.entityJob.Handbook.MachinesEntity;
-import ProjectForJob.example.Job.entityJob.ForOrders.ProductionRecordEntity;
-import ProjectForJob.example.Job.services.Handbook.EmployeesService;
-import ProjectForJob.example.Job.services.Handbook.MachinesService;
-import ProjectForJob.example.Job.services.ProductionRecordService;
+import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.MachineEntity;
+import ProjectForJob.example.Job.domain.entity.journal.ProductionRecordEntity;
+import ProjectForJob.example.Job.service.handbook.EmployeesService;
+import ProjectForJob.example.Job.service.handbook.MachinesService;
+import ProjectForJob.example.Job.service.ProductionRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -53,13 +53,13 @@ public class ReportController {
         if (startDate == null) startDate = LocalDate.now().withDayOfMonth(1);
         if (endDate == null) endDate = LocalDate.now();
 
-        List<EmployeesEntity> employees = employeeService.findAll();
+        List<EmployeeEntity> employees = employeeService.findAll();
         model.addAttribute("employees", employees);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
         if (employeeId != null) {
-            EmployeesEntity selectedEmployee = employeeService.findById(employeeId);
+            EmployeeEntity selectedEmployee = employeeService.findById(employeeId);
             model.addAttribute("selectedEmployee", selectedEmployee);
 
             List<ProductionRecordEntity> records = recordService.findAllByFilters(
@@ -105,13 +105,13 @@ public class ReportController {
         if (startDate == null) startDate = LocalDate.now().withDayOfMonth(1);
         if (endDate == null) endDate = LocalDate.now();
 
-        List<MachinesEntity> machines = machinesService.findAll();
+        List<MachineEntity> machines = machinesService.findAll();
         model.addAttribute("machines", machines);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
         if (machineId != null) {
-            MachinesEntity selectedMachine = machinesService.findById(machineId);
+            MachineEntity selectedMachine = machinesService.findById(machineId);
             model.addAttribute("selectedMachine", selectedMachine);
 
             List<ProductionRecordEntity> records = recordService.findAllByFilters(

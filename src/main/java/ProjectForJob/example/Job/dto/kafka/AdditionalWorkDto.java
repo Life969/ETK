@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.dto.kafkaDto;
+package ProjectForJob.example.Job.dto.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

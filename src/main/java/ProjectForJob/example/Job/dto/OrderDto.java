@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.DataTransferObject;
+package ProjectForJob.example.Job.dto;
 
 
-import ProjectForJob.example.Job.entityJob.ForOrders.OrderStatus;
+import ProjectForJob.example.Job.domain.entity.order.OrderStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;

@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.repositories.Handbook;
+package ProjectForJob.example.Job.repository.handbook;
 
-import ProjectForJob.example.Job.domain.Handbook.SteelStrengthGroupEntity;
+import ProjectForJob.example.Job.domain.entity.handbook.SteelStrengthGroupEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

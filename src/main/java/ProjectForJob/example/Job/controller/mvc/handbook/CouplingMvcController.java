@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.MVCcontrollers.Handbook;
+package ProjectForJob.example.Job.controller.mvc.handbook;
 
-import ProjectForJob.example.Job.entityJob.Handbook.CouplingEntity;
-import ProjectForJob.example.Job.services.Handbook.CouplingService;
+import ProjectForJob.example.Job.domain.entity.handbook.CouplingEntity;
+import ProjectForJob.example.Job.service.handbook.CouplingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.http.ResponseEntity;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import java.io.File;
 import java.io.FileOutputStream;

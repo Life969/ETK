@@ -1,6 +1,6 @@
-package ProjectForJob.example.Job.repositories;
+package ProjectForJob.example.Job.repository.order;
 
-import ProjectForJob.example.Job.domain.ForOrders.CompanyEntity;
+import ProjectForJob.example.Job.domain.entity.order.CompanyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

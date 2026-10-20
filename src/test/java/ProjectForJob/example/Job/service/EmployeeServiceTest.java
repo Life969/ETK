@@ -1,8 +1,8 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.service;
 
-import ProjectForJob.example.Job.repository.entity.handbook.EmployeesEntity;
-import ProjectForJob.example.Job.repository.handbook.ListEmployeesRepository;
-import ProjectForJob.example.Job.services.Handbook.EmployeesService;
+import ProjectForJob.example.Job.domain.entity.handbook.EmployeeEntity;
+import ProjectForJob.example.Job.repository.handbook.ListEmployeeRepository;
+import ProjectForJob.example.Job.service.handbook.EmployeesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 class EmployeesServiceTest {
 
     @Mock
-    private ListEmployeesRepository listEmployeesRepository;
+    private ListEmployeeRepository listEmployeeRepository;
 
     @InjectMocks
     private EmployeesService employeesService;
@@ -32,31 +32,31 @@ class EmployeesServiceTest {
     @DisplayName("findAll: должен вернуть всех сотрудников из репозитория")
     void findAll_shouldReturnAllEmployeesFromRepository() {
         // given
-        List<EmployeesEntity> expected = List.of(new EmployeesEntity(), new EmployeesEntity());
-        when(listEmployeesRepository.findAll()).thenReturn(expected);
+        List<EmployeeEntity> expected = List.of(new EmployeeEntity(), new EmployeeEntity());
+        when(listEmployeeRepository.findAll()).thenReturn(expected);
 
         // when
-        List<EmployeesEntity> result = employeesService.findAll();
+        List<EmployeeEntity> result = employeesService.findAll();
 
         // then
         assertThat(result).isSameAs(expected);
-        verify(listEmployeesRepository, only()).findAll();
+        verify(listEmployeeRepository, only()).findAll();
     }
 
     @Test
     @DisplayName("save: должен делегировать сохранение репозиторию и вернуть сохранённую сущность")
     void save_shouldDelegateAndReturnSavedEntity() {
         // given
-        EmployeesEntity input = new EmployeesEntity();
-        EmployeesEntity saved = new EmployeesEntity();
-        when(listEmployeesRepository.save(input)).thenReturn(saved);
+        EmployeeEntity input = new EmployeeEntity();
+        EmployeeEntity saved = new EmployeeEntity();
+        when(listEmployeeRepository.save(input)).thenReturn(saved);
 
         // when
-        EmployeesEntity result = employeesService.save(input);
+        EmployeeEntity result = employeesService.save(input);
 
         // then
         assertThat(result).isSameAs(saved);
-        verify(listEmployeesRepository, only()).save(input);
+        verify(listEmployeeRepository, only()).save(input);
     }
 
     @Test
@@ -64,15 +64,15 @@ class EmployeesServiceTest {
     void findById_whenIdExists_shouldReturnEmployee() {
         // given
         Long id = 1L;
-        EmployeesEntity expected = new EmployeesEntity();
-        when(listEmployeesRepository.findById(id)).thenReturn(Optional.of(expected));
+        EmployeeEntity expected = new EmployeeEntity();
+        when(listEmployeeRepository.findById(id)).thenReturn(Optional.of(expected));
 
         // when
-        EmployeesEntity result = employeesService.findById(id);
+        EmployeeEntity result = employeesService.findById(id);
 
         // then
         assertThat(result).isSameAs(expected);
-        verify(listEmployeesRepository, only()).findById(id);
+        verify(listEmployeeRepository, only()).findById(id);
     }
 
     @Test
@@ -80,14 +80,14 @@ class EmployeesServiceTest {
     void findById_whenIdDoesNotExist_shouldThrowNoSuchElementException() {
     // given
     Long id = 999L;
-    when(listEmployeesRepository.findById(id)).thenReturn(Optional.empty());
+    when(listEmployeeRepository.findById(id)).thenReturn(Optional.empty());
 
     // when / then
     assertThatThrownBy(() -> employeesService.findById(id))
             .isInstanceOf(NoSuchElementException.class)
             .hasMessage("Сотрудник с id " + id + " не найдена");
 
-    verify(listEmployeesRepository, only()).findById(id);
+    verify(listEmployeeRepository, only()).findById(id);
 }
 
     @Test
@@ -100,7 +100,7 @@ class EmployeesServiceTest {
         employeesService.deleteById(id);
 
         // then
-        verify(listEmployeesRepository, only()).deleteById(id);
+        verify(listEmployeeRepository, only()).deleteById(id);
     }
 
     @Test
@@ -110,6 +110,6 @@ class EmployeesServiceTest {
         employeesService.deleteAll();
 
         // then
-        verify(listEmployeesRepository, only()).deleteAll();
+        verify(listEmployeeRepository, only()).deleteAll();
     }
 }

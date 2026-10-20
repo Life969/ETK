@@ -1,7 +1,7 @@
-package ProjectForJob.example.Job.services;
+package ProjectForJob.example.Job.service;
 
-import ProjectForJob.example.Job.repository.entity.order.PipeProductKind;
-import ProjectForJob.example.Job.repository.entity.order.ProductionRecordEntity;
+import ProjectForJob.example.Job.domain.entity.order.PipeProductKind;
+import ProjectForJob.example.Job.domain.entity.journal.ProductionRecordEntity;
 import ProjectForJob.example.Job.repository.journal.ProductionRecordRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;

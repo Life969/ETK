@@ -1,4 +1,4 @@
-package ProjectForJob.example.Job.interceptor;
+package ProjectForJob.example.Job.web.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
