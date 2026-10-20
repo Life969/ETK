@@ -33,3 +33,20 @@ build/
 .vscode/
 
 .env
+
+
+### Runtime-данные проекта ###
+# Пользовательские загрузки (монтируются как volume в docker-compose)
+uploads/
+
+### Логи ###
+*.log
+recent.log
+
+### Временные диагностические файлы ###
+structure-full.txt
+
+### Результаты нагрузочных тестов ###
+loadtest/results/
+
+
