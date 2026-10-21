@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <a class="hb-icon-btn hb-back"
+         data-turbo-frame="app"
+         th:href="@{/production-records}"
+         title="К журналу">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="handbook-title"
+          th:text="${record.id == null} ? 'Новая запись' : 'Редактирование'">
+        Новая запись
+      </h1>
+    </div>
+  </header>
+
+  <form th:action="@{/production-records/save}"
+        th:object="${record}"
+        method="post"
+        id="recordForm"
+        class="handbook-form"
+        data-turbo-frame="app"
+        th:attr="data-current-coupling-type=${currentCouplingType},
+                 data-current-adapter-first-side-type=${currentAdapterFirstSideType},
+                 data-current-external-thread-type=${currentExternalThreadType}">
+
+    <input type="hidden" th:field="*{id}"/>
+    <input type="hidden" name="productType" id="productTypeHidden"/>
+
+    <div class="hb-grid">
+
+      <!-- Дата изготовления -->
+      <div class="hb-field">
+        <label for="productionDate">Дата изготовления <span class="req">*</span></label>
+        <input type="date" id="productionDate" th:field="*{productionDate}" required/>
+      </div>
+
+      <!-- Тип изделия — 4 варианта -->
+      <div class="hb-field hb-field-full">
+        <label>Тип изделия <span class="req">*</span></label>
+        <div class="hb-radio-row">
+          <label class="hb-radio">
+            <input type="radio" name="productTypeRadio" id="typeCoupling" value="COUPLING"
+                   th:checked="${currentProductType == 'COUPLING'}"/>
+            <span>Муфта</span>
+          </label>
+          <label class="hb-radio">
+            <input type="radio" name="productTypeRadio" id="typeAdapter" value="ADAPTER"
+                   th:checked="${currentProductType == 'ADAPTER'}"/>
+            <span>Переводник</span>
+          </label>
+          <label class="hb-radio">
+            <input type="radio" name="productTypeRadio" id="typePipe" value="PIPE"
+                   th:checked="${currentProductType == 'PIPE'}"/>
+            <span>Труба</span>
+          </label>
+          <label class="hb-radio">
+            <input type="radio" name="productTypeRadio" id="typeNipple" value="NIPPLE"
+                   th:checked="${currentProductType == 'NIPPLE'}"/>
+            <span>Патрубок</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- === БЛОК: Муфта === -->
+      <div class="hb-field hb-field-full" id="couplingBlock" style="display: none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label for="recCouplingTypeSelect">Тип муфты <span class="req">*</span></label>
+            <select id="recCouplingTypeSelect">
+              <option value="">-- Выберите тип --</option>
+              <option th:each="t : ${couplingTypes}"
+                      th:value="${t}" th:text="${t}">НКТ</option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label for="recCouplingDiameterSelect">Условный диаметр <span class="req">*</span></label>
+            <select id="recCouplingDiameterSelect" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" name="coupling.id" id="recCouplingId"
+               th:value="${record.coupling != null ? record.coupling.id : ''}"/>
+      </div>
+
+      <!-- === БЛОК: Переводник === -->
+      <div class="hb-field hb-field-full" id="adapterBlock" style="display: none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label for="recAdapterFstSelect">Тип первой стороны <span class="req">*</span></label>
+            <select id="recAdapterFstSelect">
+              <option value="">-- Выберите тип --</option>
+              <option th:each="t : ${adapterFirstSideTypes}"
+                      th:value="${t}" th:text="${t}">НКТ</option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label for="recAdapterSelect">Переводник <span class="req">*</span></label>
+            <select id="recAdapterSelect" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" name="adapter.id" id="recAdapterId"
+               th:value="${record.adapter != null ? record.adapter.id : ''}"/>
+      </div>
+
+      <!-- === БЛОК: Труба / Патрубок (общий) === -->
+      <div class="hb-field hb-field-full" id="pipeBlock" style="display: none;">
+        <div class="hb-grid">
+          <div class="hb-field">
+            <label for="recThreadTypeSelect">Тип резьбы (наружная) <span class="req">*</span></label>
+            <select id="recThreadTypeSelect">
+              <option value="">-- Выберите тип --</option>
+              <option th:each="t : ${externalThreadTypes}"
+                      th:value="${t}" th:text="${t}">НКТ</option>
+            </select>
+          </div>
+          <div class="hb-field">
+            <label for="recThreadDiameterSelect">Условный диаметр <span class="req">*</span></label>
+            <select id="recThreadDiameterSelect" disabled>
+              <option value="">-- Сначала выберите тип --</option>
+            </select>
+          </div>
+        </div>
+        <input type="hidden" name="externalThread.id" id="recThreadId"
+               th:value="${record.externalThread != null ? record.externalThread.id : ''}"/>
+
+        <!-- Длина патрубка — только для NIPPLE -->
+        <div class="hb-field" id="nippleLengthField" style="display: none; margin-top: 14px;">
+          <label for="recPieceLengthMm">Длина патрубка, мм <span class="req">*</span></label>
+          <input type="number" id="recPieceLengthMm"
+                 th:field="*{pieceLengthMm}"
+                 min="1" step="0.1" placeholder="Например, 1000"/>
+        </div>
+      </div>
+
+      <!-- Количество -->
+      <div class="hb-field">
+        <label for="quantity">Количество <span class="req">*</span></label>
+        <input type="number" id="quantity" th:field="*{quantity}" min="1" required/>
+      </div>
+
+      <!-- Сотрудник -->
+      <div class="hb-field">
+        <label for="employee">Сотрудник <span class="req">*</span></label>
+        <select id="employee" th:field="*{employee.id}" required>
+          <option value="">Выберите сотрудника</option>
+          <option th:each="e : ${employees}" th:value="${e.id}" th:text="${e.name}"></option>
+        </select>
+      </div>
+
+      <!-- Станок -->
+      <div class="hb-field">
+        <label for="machine">Станок <span class="req">*</span></label>
+        <select id="machine" th:field="*{machine.id}" required>
+          <option value="">Выберите станок</option>
+          <option th:each="m : ${machines}" th:value="${m.id}" th:text="${m.name}"></option>
+        </select>
+      </div>
+
+      <!-- Комментарий -->
+      <div class="hb-field hb-field-full">
+        <label for="comment">Комментарий</label>
+        <textarea id="comment" th:field="*{comment}" rows="3"
+                  placeholder="Дополнительная информация..."></textarea>
+      </div>
+    </div>
+
+    <div th:if="${#fields.hasAnyErrors()}" class="handbook-alert handbook-alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>Проверьте правильность заполнения полей</span>
+    </div>
+
+    <div class="handbook-form-actions">
+      <button type="submit" class="btn-glass btn-glass-success">
+        <i class="bi bi-check-lg"></i> Сохранить
+      </button>
+      <a class="btn-glass btn-glass-ghost"
+         data-turbo-frame="app"
+         th:href="@{/production-records}">
+        <i class="bi bi-x-lg"></i> Отмена
+      </a>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>

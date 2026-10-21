@@ -1,92 +1,102 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <!-- Этот head не будет использоваться при вставке, но должен быть для валидности HTML -->
-</head>
 <body>
-<!-- Определяем фрагмент с именем "navbar" -->
-<div th:fragment="navbar" class="mb-4">
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1e2b38;">
+
+<div th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-cloud-lightning-fill"></i>
+
+            <!-- Логотип — осенний лист -->
+            <a class="navbar-brand" href="/home" data-turbo-frame="app" aria-label="Главная">
+                <img class="brand-leaf" src="/images/leaf-logo.png" alt="" aria-hidden="true">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- Определяем активность по текущему URI -->
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           th:classappend="${currentUri == '/' or currentUri == '/home'} ? 'active' : ''"
-                           href="/">Главная</a>
-                    </li>
-                    <li class="nav-item dropdown"
-                        th:classappend="${currentUri.startsWith('/couplings') or currentUri.startsWith('/employees') or currentUri.startsWith('/machines')} ? 'active' : ''">
-                        <a class="nav-link dropdown-toggle" href="#" id="referencesDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-database"></i> Справочники
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="referencesDropdown">
-                            <li><a class="dropdown-item" href="/couplings">Муфты</a></li>
-                            <li><a class="dropdown-item" href="/pipe-adapters">Переводники</a></li>
-                            <li><a class="dropdown-item" href="/employees">Сотрудники</a></li>
-                            <li><a class="dropdown-item" href="/machines">Станки</a></li>
-                            <li><a class="dropdown-item" href="/additionalWork">Доп.Работы</a></li>
-
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown"
-                        th:classappend="${currentUri != null and currentUri.startsWith('/orders')} ? 'active' : ''">
-                        <a class="nav-link dropdown-toggle" href="#" id="ordersDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-cart"></i> Заказы
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="ordersDropdown">
-                            <li><a class="dropdown-item" href="/orders/waiting">В ожидании</a></li>
-                            <li><a class="dropdown-item" href="/orders/production">В производстве</a></li>
-                            <li><a class="dropdown-item" href="/orders/completed">Выполненные</a></li>
-                        </ul>
-                    </li>
 
                     <li class="nav-item">
-                        <a class="nav-link"
-                           th:classappend="${currentUri.startsWith('/production-records')} ? 'active' : ''"
-                           href="/production-records">Журнал Производства</a>
+                        <a class="nav-link" data-nav="home"
+                           data-turbo-frame="app" href="/home">Главная</a>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button"
+                        <a class="nav-link dropdown-toggle" data-nav="handbooks"
+                           href="#" role="button" data-turbo="false"
                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-file-text"></i> Отчёты
+                            <img class="nav-leaf-icon" src="/images/handBook.png"
+                                 alt="" aria-hidden="true">
+                            Справочники
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
-                            <li><a class="dropdown-item" href="/reports/employee">По сотруднику</a></li>
-                            <li><a class="dropdown-item" href="/reports/machine">По станку</a></li>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/couplings">Муфты</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/pipe-adapters">Переводники</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/external-threads">Наружные резьбы</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/employees">Сотрудники</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/machines">Станки</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/additionalWork">Доп. работы</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/steel-groups">Группы прочности стали</a></li>
                         </ul>
                     </li>
 
-                    <!-- Блок аутентификации -->
-                    <ul class="navbar-nav ms-auto" sec:authorize="isAuthenticated()">
-                        <li class="nav-item">
-        <span class="navbar-text me-3">
-            <i class="bi bi-person-circle"></i> <span sec:authentication="name"></span>
-        </span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/logout}">
-                                <i class="bi bi-box-arrow-right"></i> Выйти
-                            </a>
-                        </li>
-                    </ul>
-                    <!-- Здесь можно добавить другие пункты меню -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-nav="orders"
+                           href="#" role="button" data-turbo="false"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-cart"></i> Заказы
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/orders/waiting">В ожидании</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/orders/production">В производстве</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/orders/completed">Выполненные</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" data-nav="journal"
+                           data-turbo-frame="app" href="/production-records">Журнал производства</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-nav="reports"
+                           href="#" role="button" data-turbo="false"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-text"></i> Отчёты
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/reports/employee">По сотруднику</a></li>
+                            <li><a class="dropdown-item" data-turbo-frame="app" href="/reports/machine">По станку</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto" sec:authorize="isAuthenticated()">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-turbo="false"
+                           data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="m-0" data-turbo="false">
+                                    <button type="submit" class="dropdown-item" data-turbo="false">
+                                        <i class="bi bi-box-arrow-right"></i> Выйти
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 </div>
+
 </body>
 </html>

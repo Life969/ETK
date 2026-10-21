@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+    <header class="handbook-header">
+        <div class="handbook-title-wrap">
+            <a th:href="@{/external-threads}"
+               data-turbo-frame="app"
+               class="hb-icon-btn hb-back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="handbook-title"
+                th:text="'Резьба ' + ${externalThread.name}">
+                Резьба
+            </h1>
+        </div>
+        <div class="hb-actions-row">
+            <a th:href="@{/external-threads/edit/{id}(id=${externalThread.id})}"
+               data-turbo-frame="app"
+               class="btn-glass btn-glass-primary">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <form th:action="@{/external-threads/delete/{id}(id=${externalThread.id})}"
+                  method="post"
+                  onsubmit="return confirm('Удалить резьбу?');"
+                  style="display:inline">
+                <button type="submit" class="btn-glass btn-glass-danger">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <div class="hb-detail">
+
+        <div class="hb-detail-image"
+             th:if="${externalThread.imagePath != null and !externalThread.imagePath.isEmpty()}">
+            <img th:src="@{${externalThread.imagePath}}" alt="Фото резьбы"/>
+        </div>
+
+        <div class="hb-detail-grid">
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Тип резьбы</span>
+                <span class="hb-detail-value" th:text="${externalThread.type}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Условный диаметр</span>
+                <span class="hb-detail-value" th:text="${externalThread.conditionalDiameter}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Цена изготовления (руб)</span>
+                <span class="hb-detail-value accent" th:text="${externalThread.manufacturingCost}">—</span>
+            </div>
+            <div class="hb-detail-row">
+                <span class="hb-detail-label">Цена для работника (руб)</span>
+                <span class="hb-detail-value accent" th:text="${externalThread.priceForEmployee}">—</span>
+            </div>
+            <div class="hb-detail-row"
+                 th:if="${externalThread.standart != null and !externalThread.standart.isEmpty()}">
+                <span class="hb-detail-label">ГОСТ / стандарт</span>
+                <span class="hb-detail-value" th:text="${externalThread.standart}">—</span>
+            </div>
+            <div class="hb-detail-row hb-detail-full"
+                 th:if="${externalThread.description != null and !externalThread.description.isEmpty()}">
+                <span class="hb-detail-label">Описание</span>
+                <span class="hb-detail-value" th:text="${externalThread.description}">—</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

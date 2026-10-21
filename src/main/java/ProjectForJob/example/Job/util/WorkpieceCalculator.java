@@ -1,5 +1,9 @@
 package ProjectForJob.example.Job.util;
 
+import ProjectForJob.example.Job.exception.util.CalculatorErrors;
+import ProjectForJob.example.Job.exception.util.CalculatorException;
+
+
 public final class WorkpieceCalculator {
     private static final double STEEL_DENSITY = 7850.0; // кг/м³
     private static final double PI = Math.PI;
@@ -15,9 +19,11 @@ public final class WorkpieceCalculator {
     public static double calculateWeight(double outerDiameterMm,
                                          double wallThicknessMm,
                                          double lengthMeters) {
-        if (outerDiameterMm <= 0 || wallThicknessMm <= 0 || lengthMeters <= 0) {
-            return 0.0;
-        }
+        if (outerDiameterMm <= 0)  throw CalculatorErrors.outerDiameter(outerDiameterMm);
+        if (wallThicknessMm <= 0)  throw CalculatorErrors.wallThickness(wallThicknessMm);
+        if (lengthMeters <= 0)     throw CalculatorErrors.length(lengthMeters);
+        if (outerDiameterMm <= wallThicknessMm)
+            throw CalculatorErrors.wallExceedsDiameter(outerDiameterMm, wallThicknessMm);
         // Формула: M = π * ρ * S * (D - S) * L / 1_000_000
         double weight = PI * STEEL_DENSITY * wallThicknessMm
                 * (outerDiameterMm - wallThicknessMm) * lengthMeters

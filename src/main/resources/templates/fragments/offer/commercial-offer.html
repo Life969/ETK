@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content offer-content">
+
+    <!-- ===================== HEADER ===================== -->
+    <div class="handbook-header">
+        <div class="handbook-title-wrap">
+            <h1 class="handbook-title">
+                <i class="bi bi-file-earmark-text"></i>
+                Коммерческое предложение
+            </h1>
+            <span class="handbook-count"
+                  th:text="${#lists.size(offerItems)} + ' поз.'">0 поз.</span>
+        </div>
+
+        <div class="hb-actions-row">
+            <a class="btn-glass btn-glass-ghost"
+               data-turbo-frame="app"
+               href="/orders/waiting">
+                <i class="bi bi-arrow-left"></i> К заказам
+            </a>
+
+            <button type="button"
+                    class="btn-glass btn-glass-ghost"
+                    id="pdfBtn"
+                    disabled
+                    title="Формирование PDF скоро">
+                <i class="bi bi-file-pdf"></i> PDF
+            </button>
+
+            <form th:action="@{/commercial-offer/clear}"
+                  method="post"
+                  data-turbo-frame="app"
+                  class="d-inline m-0">
+                <button type="submit" class="btn-glass btn-glass-danger">
+                    <i class="bi bi-trash"></i> Сбросить КП
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================== ОШИБКА ===================== -->
+    <div th:if="${error}" class="handbook-alert handbook-alert-danger">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${error}">Ошибка</span>
+    </div>
+
+    <!-- ===================== КАРТОЧКА КОМПАНИИ ===================== -->
+    <div class="offer-company-card">
+        <div class="offer-company-label">
+            <i class="bi bi-building"></i> Компания
+        </div>
+        <div class="offer-company-name" th:text="${companyName}">ООО «Ромашка»</div>
+        <div class="offer-company-meta">
+            <span>
+                <i class="bi bi-list-check"></i>
+                <span th:text="${#lists.size(offerItems)}">0</span> позиций
+            </span>
+            <span class="offer-company-sep">•</span>
+            <span>
+                <i class="bi bi-calendar3"></i>
+                <span th:text="${#temporals.format(#temporals.createNow(), 'dd.MM.yyyy')}">01.01.2025</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ===================== ТАБЛИЦА ===================== -->
+    <div class="offer-table-wrap offer-table-wrap--v2">
+        <table class="offer-table offer-table--v2">
+            <thead>
+            <tr>
+                <th class="col-num">№</th>
+                <th class="col-product">Наименование продукции</th>
+                <th class="col-qty">Кол-во</th>
+                <th class="col-unit">Цена за ед.</th>
+                <th class="col-total">Стоимость</th>
+                <th class="col-actions"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, iter : ${offerItems}"
+                th:with="order=${item['order']}">
+
+                <td class="offer-row-num" th:text="${iter.count}">1</td>
+
+                <td>
+                    <div class="offer-product-cell">
+
+                        <!-- Иконка продукта -->
+                        <span class="product-icon-tile product-icon-tile--lg"
+                              th:with="pt=${order.productType}"
+                              th:classappend="${pt == 'COUPLING' ? 'product-icon-tile--coupling'
+                                : (pt == 'ADAPTER' ? 'product-icon-tile--adapter'
+                                : (pt == 'NIPPLE' ? 'product-icon-tile--nipple'
+                                : 'product-icon-tile--pipe'))}">
+                            <img class="product-icon-img"
+                                 th:src="${order.productType == 'COUPLING'} ? @{/images/product-coupling.png}
+                                       : (${order.productType == 'ADAPTER'} ? @{/images/product-adapter.png}
+                                       : @{/images/product-pipe.png})"
+                                 alt="" aria-hidden="true">
+                        </span>
+
+                        <div class="offer-product-info">
+
+                            <!-- МУФТА — тултип -->
+                            <th:block th:if="${item['product'] != null and item['productType'] == 'COUPLING'}">
+                                <span class="product-name-wrapper">
+                                    <span class="product-tooltip"
+                                          th:attr="data-id=${item['product'].id},
+                                                   data-name=${item['product'].name},
+                                                   data-type=${item['product'].type},
+                                                   data-diameter=${item['product'].conditionalDiameter},
+                                                   data-length=${item['product'].lengthMm != null ? item['product'].lengthMm : ''},
+                                                   data-weight=${item['product'].weightKg != null ? item['product'].weightKg : ''},
+                                                   data-outer-diameter=${item['product'].outerDiameterMm != null ? item['product'].outerDiameterMm : ''},
+                                                   data-inner-diameter=${item['product'].innerDiameterMm != null ? item['product'].innerDiameterMm : ''},
+                                                   data-cost=${item['product'].manufacturingCost != null ? item['product'].manufacturingCost : ''},
+                                                   data-price=${item['product'].priceForEmployee != null ? item['product'].priceForEmployee : ''},
+                                                   data-description=${item['product'].description != null ? item['product'].description : ''},
+                                                   data-image=${item['product'].imagePath != null ? item['product'].imagePath : ''}"
+                                          th:text="${item['product'].name}">—</span>
+                                </span>
+                            </th:block>
+
+                            <!-- ПЕРЕВОДНИК — тултип -->
+                            <th:block th:if="${item['product'] != null and item['productType'] == 'ADAPTER'}">
+                                <span class="product-name-wrapper">
+                                    <span class="product-tooltip"
+                                          th:attr="data-id=${item['product'].id},
+                                                   data-name=${item['product'].fullName},
+                                                   data-first-type=${item['product'].firstSideType},
+                                                   data-first-diameter=${item['product'].firstSideDiameter},
+                                                   data-second-type=${item['product'].secondSideType},
+                                                   data-second-diameter=${item['product'].secondSideDiameter},
+                                                   data-length=${item['product'].lengthMm != null ? item['product'].lengthMm : ''},
+                                                   data-weight=${item['product'].weightKg != null ? item['product'].weightKg : ''},
+                                                   data-outer-diameter=${item['product'].outerDiameterMm != null ? item['product'].outerDiameterMm : ''},
+                                                   data-inner-diameter=${item['product'].innerDiameterMm != null ? item['product'].innerDiameterMm : ''},
+                                                   data-cost=${item['product'].manufacturingCost != null ? item['product'].manufacturingCost : ''},
+                                                   data-price=${item['product'].priceForEmployee != null ? item['product'].priceForEmployee : ''},
+                                                   data-description=${item['product'].description != null ? item['product'].description : ''},
+                                                   data-image=${item['product'].imagePath != null ? item['product'].imagePath : ''}"
+                                          th:text="${item['product'].fullName}">—</span>
+                                </span>
+                            </th:block>
+
+                            <!-- ТРУБА / ПАТРУБОК — тултип (исправлено: data-image теперь передаётся) -->
+                            <th:block th:if="${item['product'] == null and (order.productType == 'PIPE' or order.productType == 'NIPPLE')}">
+                                <span class="product-name-wrapper">
+                                    <span class="product-tooltip"
+                                          th:attr="data-pipe-kind=${order.productType},
+                                                   data-name=${order.externalThreadName},
+                                                   data-conditional-diameter=${order.externalThreadDiameter != null ? order.externalThreadDiameter : ''},
+                                                   data-piece-length=${order.pieceLengthMm != null ? order.pieceLengthMm : ''},
+                                                   data-wall-thickness=${order.wallThicknessMm != null ? order.wallThicknessMm : ''},
+                                                   data-total-length=${order.orderTotalLengthMeters != null ? order.orderTotalLengthMeters : ''},
+                                                   data-total-weight=${order.orderTotalWeightKg != null ? order.orderTotalWeightKg : ''},
+                                                   data-cost=${order.externalThreadManufacturingCost != null ? order.externalThreadManufacturingCost : ''},
+                                                   data-price=${order.externalThreadPriceForEmployee != null ? order.externalThreadPriceForEmployee : ''},
+                                                   data-image=${order.externalThreadImagePath != null ? order.externalThreadImagePath : ''}"
+                                          th:text="${order.productType == 'NIPPLE' and order.pieceLengthMm != null
+                                                ? order.externalThreadName + ' L-' + #numbers.formatInteger(order.pieceLengthMm, 0)
+                                                : order.externalThreadName}">—
+                                    </span>
+                                </span>
+                            </th:block>
+
+                            <!-- Fallback -->
+                            <span th:if="${item['product'] == null and order.productType != 'PIPE' and order.productType != 'NIPPLE'}"
+                                  class="offer-product-name"
+                                  th:text="${order.productName}">—</span>
+
+                            <!-- Маленький badge типа -->
+                            <div class="offer-product-meta">
+                                <span class="product-type-badge product-type-badge--xs"
+                                      th:with="pt=${order.productType}"
+                                      th:classappend="${pt == 'COUPLING' ? 'product-type-badge--coupling'
+                                        : (pt == 'ADAPTER' ? 'product-type-badge--adapter'
+                                        : (pt == 'NIPPLE' ? 'product-type-badge--nipple'
+                                        : 'product-type-badge--pipe'))}"
+                                      th:text="${pt == 'COUPLING' ? 'Муфта'
+                                        : (pt == 'ADAPTER' ? 'Переводник'
+                                        : (pt == 'PIPE' ? 'Труба'
+                                        : (pt == 'NIPPLE' ? 'Патрубок' : '—')))}">—</span>
+
+                                <span th:if="${order.strengthGroupCode != null}"
+                                      class="offer-product-detail">
+                                    <i class="bi bi-shield-fill"></i>
+                                    <span th:text="${order.strengthGroupCode}">Е</span>
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </td>
+
+                <td class="offer-qty-cell">
+                    <span class="offer-qty"
+                          th:text="${order.quantity} + ' шт.'">10 шт.</span>
+                </td>
+
+                <td class="offer-num offer-num--unit">
+                    <span th:if="${order.quantity != null and order.quantity > 0 and order.totalCost != null}"
+                          th:text="${#numbers.formatDecimal(order.totalCost / order.quantity, 0, 'COMMA', 2, 'POINT')}">0,00</span>
+                    <span th:unless="${order.quantity != null and order.quantity > 0 and order.totalCost != null}">—</span>
+                </td>
+
+                <td class="offer-num offer-num--total">
+                    <span th:if="${order.totalCost != null}"
+                          th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')}">0,00</span>
+                    <span th:unless="${order.totalCost != null}">—</span>
+                    <span class="offer-num__currency">₽</span>
+                </td>
+
+                <td class="offer-actions-cell">
+                    <form th:action="@{/commercial-offer/remove/{id}(id=${order.id})}"
+                          method="post"
+                          data-turbo-frame="app"
+                          class="m-0">
+                        <button type="submit" class="offer-remove-btn" title="Убрать из КП">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="offer-total-row">
+                <td colspan="4" class="text-end offer-total-label">
+                    <i class="bi bi-calculator"></i>
+                    Итого:
+                </td>
+                <td class="text-end offer-total-value">
+                    <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 2, 'POINT')}">0,00</span>
+                    <span class="offer-currency">руб.</span>
+                </td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- ===================== РАСШИФРОВКА СТОИМОСТИ ===================== -->
+    <div class="offer-breakdown-toggle-row">
+        <button type="button" class="btn-breakdown" id="offerBreakdownToggle">
+            <i class="bi bi-calculator"></i>
+            <span class="btn-breakdown-text">Расшифровка стоимости</span>
+            <i class="bi bi-chevron-down"></i>
+        </button>
+    </div>
+
+    <div class="cost-breakdown" id="offerCostBreakdown">
+        <div class="cost-breakdown-inner">
+
+            <div class="cost-breakdown-title">
+                <i class="bi bi-calculator"></i>
+                <span>Расшифровка по позициям</span>
+            </div>
+
+            <div class="offer-detail-list">
+                <div class="offer-detail-item"
+                     th:each="item, iter : ${offerItems}"
+                     th:with="order=${item['order']}, bd=${item['breakdown']}">
+
+                    <button type="button"
+                            class="offer-detail-toggle"
+                            th:attr="data-target='offer-detail-body-' + ${iter.index}">
+                        <span class="offer-detail-num" th:text="${iter.count}">1</span>
+                        <span class="offer-detail-name" th:text="${order.productName}">Муфта НКТ 73</span>
+                        <span class="offer-detail-qty" th:text="${order.quantity} + ' шт.'">10 шт.</span>
+                        <span class="offer-detail-total"
+                              th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                        <i class="bi bi-chevron-down offer-detail-chev"></i>
+                    </button>
+
+                    <div class="offer-detail-body"
+                         th:id="'offer-detail-body-' + ${iter.index}">
+                        <div class="offer-detail-body-inner">
+
+                            <!-- === МУФТА / ПЕРЕВОДНИК === -->
+                            <th:block th:if="${order.productType == 'COUPLING' or order.productType == 'ADAPTER'}">
+
+                                <div class="cost-step">
+                                    <div class="cost-step-num">1</div>
+                                    <div class="cost-step-body">
+                                        <div class="cost-step-title">Стоимость изготовления</div>
+                                        <div class="cost-step-formula">
+                                            <span class="cf-num"
+                                                  th:text="${#numbers.formatDecimal(bd.unitCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                            <span class="cf-op">×</span>
+                                            <span class="cf-num" th:text="${bd.quantity} + ' шт.'">0 шт.</span>
+                                            <span class="cf-op">=</span>
+                                            <span class="cf-result"
+                                                  th:text="${#numbers.formatDecimal(bd.baseCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="cost-step"
+                                     th:if="${bd.markupPercent != null and bd.markupPercent.doubleValue() > 0}">
+                                    <div class="cost-step-num">2</div>
+                                    <div class="cost-step-body">
+                                        <div class="cost-step-title">
+                                            Надбавка за группу прочности
+                                            <span class="product-type-badge product-type-badge--coupling"
+                                                  th:text="${bd.strengthGroupCode} + ' +' + ${bd.markupPercent} + '%'">Е +10%</span>
+                                        </div>
+                                        <div class="cost-step-formula">
+                                            <span class="cf-num"
+                                                  th:text="${#numbers.formatDecimal(bd.baseCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                            <span class="cf-op">×</span>
+                                            <span class="cf-num" th:text="${bd.markupPercent} + ' %'">0%</span>
+                                            <span class="cf-op">=</span>
+                                            <span class="cf-result"
+                                                  th:text="${#numbers.formatDecimal(bd.markupCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </th:block>
+
+                            <!-- === ТРУБА / ПАТРУБОК === -->
+                            <th:block th:if="${order.productType == 'PIPE' or order.productType == 'NIPPLE'}">
+
+                                <div class="cost-step">
+                                    <div class="cost-step-num">1</div>
+                                    <div class="cost-step-body">
+                                        <div class="cost-step-title">Нарезка резьбы (с двух сторон)</div>
+                                        <div class="cost-step-formula">
+                                            <span class="cf-num"
+                                                  th:text="${#numbers.formatDecimal(bd.threadCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                            <span class="cf-op">×</span>
+                                            <span class="cf-num">2</span>
+                                            <span class="cf-op">×</span>
+                                            <span class="cf-num" th:text="${bd.quantity} + ' шт.'">0 шт.</span>
+                                            <span class="cf-op">=</span>
+                                            <span class="cf-result"
+                                                  th:text="${#numbers.formatDecimal(bd.threadsCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="cost-step">
+                                    <div class="cost-step-num">2</div>
+                                    <div class="cost-step-body">
+                                        <div class="cost-step-title">Металл</div>
+                                        <div class="cost-step-formula">
+                                            <span class="cf-num"
+                                                  th:text="${#numbers.formatDecimal(bd.pricePerTon, 0, 'COMMA', 2, 'POINT')} + ' ₽/т'">0 ₽/т</span>
+                                            <span class="cf-op">×</span>
+                                            <span class="cf-num"
+                                                  th:text="${#numbers.formatDecimal(bd.totalWeightKg, 0, 'COMMA', 2, 'POINT')} + ' кг'">0 кг</span>
+                                            <span class="cf-op">÷ 1000</span>
+                                            <span class="cf-op">=</span>
+                                            <span class="cf-result"
+                                                  th:text="${#numbers.formatDecimal(bd.metalCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="cost-step"
+                                     th:if="${bd.markupPercent != null and bd.markupPercent.doubleValue() > 0}">
+                                    <div class="cost-step-num">3</div>
+                                    <div class="cost-step-body">
+                                        <div class="cost-step-title">
+                                            Надбавка за группу прочности
+                                            <span class="product-type-badge product-type-badge--pipe"
+                                                  th:text="${bd.strengthGroupCode} + ' +' + ${bd.markupPercent} + '%'">Е +10%</span>
+                                        </div>
+                                        <div class="cost-step-formula">
+                                            <span class="cf-num"
+                                                  th:text="${#numbers.formatDecimal(bd.baseCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                            <span class="cf-op">×</span>
+                                            <span class="cf-num" th:text="${bd.markupPercent} + ' %'">0%</span>
+                                            <span class="cf-op">=</span>
+                                            <span class="cf-result"
+                                                  th:text="${#numbers.formatDecimal(bd.markupCost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </th:block>
+
+                            <!-- === ДОП. РАБОТЫ === -->
+                            <div class="cost-step"
+                                 th:if="${bd.works != null and !bd.works.isEmpty()}">
+                                <div class="cost-step-num">
+                                    <i class="bi bi-wrench" style="font-size:11px;"></i>
+                                </div>
+                                <div class="cost-step-body">
+                                    <div class="cost-step-title">
+                                        Дополнительные работы
+                                        <span class="cost-hint">
+                                            цена за тонну × расчётный вес
+                                            (<span th:text="${#numbers.formatDecimal(bd.billingWeight, 0, 'COMMA', 2, 'POINT')}">0</span> кг,
+                                            минимум 100 кг)
+                                        </span>
+                                    </div>
+                                    <div class="cost-works-list">
+                                        <div class="cost-work-row" th:each="w : ${bd.works}">
+                                            <span class="cw-name" th:text="${w.name}">Работа</span>
+                                            <span class="cw-formula">
+                                                <span class="cf-num"
+                                                      th:text="${#numbers.formatDecimal(w.pricePerTon, 0, 'COMMA', 2, 'POINT')} + ' ₽/т'">0 ₽/т</span>
+                                                <span class="cf-op">×</span>
+                                                <span class="cf-num"
+                                                      th:text="${#numbers.formatDecimal(bd.billingWeight, 0, 'COMMA', 2, 'POINT')} + ' кг'">0 кг</span>
+                                                <span class="cf-op">=</span>
+                                                <span class="cf-result"
+                                                      th:text="${#numbers.formatDecimal(w.cost, 0, 'COMMA', 2, 'POINT')} + ' ₽'">0 ₽</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Итого по позиции -->
+                            <div class="offer-detail-total-row">
+                                <span>Итого по позиции</span>
+                                <span class="offer-detail-total-value">
+                                    <span th:text="${#numbers.formatDecimal(order.totalCost, 0, 'COMMA', 2, 'POINT')}">0</span>
+                                    <span class="offer-currency">₽</span>
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Итого за КП -->
+            <div class="cost-breakdown-total">
+                <span class="cost-breakdown-total-label">Итого за КП</span>
+                <span class="cost-breakdown-total-value">
+                    <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 2, 'POINT')}">0</span>
+                    <span class="offer-currency">руб.</span>
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

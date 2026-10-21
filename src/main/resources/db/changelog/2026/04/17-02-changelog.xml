@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <!-- ============================================================ -->
+    <!-- ФАЗА 2: привязка группы прочности и марки стали к заказу     -->
+    <!-- ============================================================ -->
+
+    <changeSet id="orders-strength-1" author="denis">
+        <addColumn tableName="orders">
+            <column name="strength_group_id" type="bigint"/>
+            <column name="steel_grade_id" type="bigint"/>
+            <column name="applied_markup_percent" type="numeric(6,2)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="orders-strength-2" author="denis">
+        <addForeignKeyConstraint
+                baseColumnNames="strength_group_id"
+                baseTableName="orders"
+                constraintName="fk_orders_strength_group"
+                onDelete="RESTRICT"
+                onUpdate="NO ACTION"
+                referencedColumnNames="id"
+                referencedTableName="steel_strength_groups"/>
+        <addForeignKeyConstraint
+                baseColumnNames="steel_grade_id"
+                baseTableName="orders"
+                constraintName="fk_orders_steel_grade"
+                onDelete="RESTRICT"
+                onUpdate="NO ACTION"
+                referencedColumnNames="id"
+                referencedTableName="steel_grades"/>
+    </changeSet>
+
+    <!--
+        Бэкфилл старых заказов:
+        - ставим дефолтную группу (is_default = true)
+        - applied_markup_percent = 0 (эти заказы считались по старой логике,
+          задним числом надбавку им не начисляем)
+        - steel_grade_id оставляем NULL
+
+        Если дефолтной группы нет — changeset провалится с ошибкой,
+        это сигнал, что сначала надо назначить дефолтную в UI.
+    -->
+    <changeSet id="orders-strength-3" author="denis">
+        <sql>
+            UPDATE orders
+            SET strength_group_id = (
+                SELECT id FROM steel_strength_groups WHERE is_default = true LIMIT 1
+                ),
+                applied_markup_percent = 0
+            WHERE strength_group_id IS NULL;
+        </sql>
+    </changeSet>
+
+    <!--
+        Индексы для будущих выборок по группе (аналитика, отчёты).
+        Сейчас не критичны, но дешёвые и не помешают.
+    -->
+    <changeSet id="orders-strength-4" author="denis">
+        <createIndex tableName="orders" indexName="idx_orders_strength_group">
+            <column name="strength_group_id"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_orders_steel_grade">
+            <column name="steel_grade_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
