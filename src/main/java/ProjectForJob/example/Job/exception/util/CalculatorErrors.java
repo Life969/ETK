@@ -2,7 +2,8 @@ package ProjectForJob.example.Job.exception.util;
 
 // CalculatorErrors.java — фабрика
 public final class CalculatorErrors {
-    private CalculatorErrors() {}
+    private CalculatorErrors() {
+    }
 
     public static CalculatorException outerDiameter(double value) {
         return new CalculatorException(
@@ -27,5 +28,11 @@ public final class CalculatorErrors {
                 CalculatorErrorCode.WALL_EXCEEDS_DIAMETER,
                 "Толщина стенки (%.2f мм) не может быть больше наружного диаметра (%.2f мм)"
                         .formatted(s, d));
+    }
+
+    public static CalculatorException quantityNotPositive(int value) {
+        return new CalculatorException(
+                CalculatorErrorCode.QUANTITY_NOT_POSITIVE,
+                "Количество должно быть > 0, получено: " + value);
     }
 }
