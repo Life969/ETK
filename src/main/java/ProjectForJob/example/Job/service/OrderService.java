@@ -25,6 +25,8 @@ import ProjectForJob.example.Job.repository.order.OrderRepository;
 import ProjectForJob.example.Job.service.mapper.OrderMapper;
 import ProjectForJob.example.Job.util.OrderCostCalculator;
 import ProjectForJob.example.Job.util.PipeOrderCostCalculator;
+import ProjectForJob.example.Job.exception.BusinessException;
+import ProjectForJob.example.Job.exception.service.order.OrderErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,21 +42,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 import static ProjectForJob.example.Job.util.WorkpieceCalculator.calculateWeight;
 
 /**
  * Центральный сервис заказов.
- *
+ * <p>
  * Поддерживает четыре вида продукции:
- *   1) COUPLING  — муфта          (quantity штук, workpiece через D_нар/D_внутр)
- *   2) ADAPTER   — переводник     (quantity штук, workpiece через D_нар/D_внутр)
- *   3) PIPE      — труба          (метраж ИЛИ тоннаж; quantity вычисляется через avgLength)
- *   4) NIPPLE    — патрубок       (quantity штук × pieceLengthMm)
- *
+ * 1) COUPLING  — муфта          (quantity штук, workpiece через D_нар/D_внутр)
+ * 2) ADAPTER   — переводник     (quantity штук, workpiece через D_нар/D_внутр)
+ * 3) PIPE      — труба          (метраж ИЛИ тоннаж; quantity вычисляется через avgLength)
+ * 4) NIPPLE    — патрубок       (quantity штук × pieceLengthMm)
+ * <p>
  * Цена:
- *   - COUPLING/ADAPTER → {@link OrderCostCalculator}       (unitCost × Q)
- *   - PIPE/NIPPLE      → {@link PipeOrderCostCalculator}   (threadsCost + metalCost)
- *
+ * - COUPLING/ADAPTER → {@link OrderCostCalculator}       (unitCost × Q)
+ * - PIPE/NIPPLE      → {@link PipeOrderCostCalculator}   (threadsCost + metalCost)
+ * <p>
  * Snapshot надбавки за группу прочности (appliedMarkupPercent) фиксируется
  * на момент создания/редактирования заказа и не пересчитывается при
  * изменении процента в справочнике.
@@ -74,10 +77,14 @@ public class OrderService {
     private final ExternalThreadRepository externalThreadRepository;
     private final OrderMapper orderMapper;
 
-    /** Дефолтная средняя длина одной трубы, м (если менеджер не указал). */
+    /**
+     * Дефолтная средняя длина одной трубы, м (если менеджер не указал).
+     */
     private static final double DEFAULT_AVERAGE_PIPE_LENGTH_M = 10.0;
 
-    /** Плотность стали, кг/м³ — для обратного пересчёта тоннаж → метраж. */
+    /**
+     * Плотность стали, кг/м³ — для обратного пересчёта тоннаж → метраж.
+     */
     private static final double STEEL_DENSITY = 7850.0;
 
     // ================================================================
@@ -145,7 +152,8 @@ public class OrderService {
                 orderId, dto.getProductType());
 
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + orderId));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.ORDER_NOT_FOUND, "Заказ не найден: id=" + orderId));
 
         order.setCompany(resolveCompany(dto.getCompanyName()));
         order.setDeadline(dto.getDeadline());
@@ -194,10 +202,10 @@ public class OrderService {
 
     /**
      * Полностью пересобирает продуктовую часть заказа:
-     *  - очищает все продуктовые поля (чтобы при смене типа не осталось мусора)
-     *  - в зависимости от productType заполняет нужные поля
-     *  - пересчитывает workpiece_* и (для PIPE) order_total_* / quantity
-     *
+     * - очищает все продуктовые поля (чтобы при смене типа не осталось мусора)
+     * - в зависимости от productType заполняет нужные поля
+     * - пересчитывает workpiece_* и (для PIPE) order_total_* / quantity
+     * <p>
      * ВАЖНО: quantity для PIPE не берётся из DTO — вычисляется через avgLength.
      * Для COUPLING/ADAPTER/NIPPLE quantity приходит из DTO.
      */
@@ -235,12 +243,12 @@ public class OrderService {
         order.setQuantity(0);
 
         if (productType == null) {
-            throw new IllegalArgumentException("Тип продукции не задан");
+            throw new BusinessException(OrderErrorCode.PRODUCT_TYPE_MISSING);
         }
 
         switch (productType) {
             case "COUPLING" -> applyCoupling(order, couplingId, quantity);
-            case "ADAPTER"  -> applyAdapter(order, adapterId, quantity);
+            case "ADAPTER" -> applyAdapter(order, adapterId, quantity);
             case "PIPE", "NIPPLE" -> applyPipeOrNipple(order,
                     productType,
                     externalThreadId,
@@ -252,22 +260,26 @@ public class OrderService {
                     orderTotalWeightKg,
                     pricePerTon,
                     pieceLengthMm);
-            default -> throw new IllegalArgumentException(
+            default -> throw new BusinessException(
+                    OrderErrorCode.PRODUCT_TYPE_INVALID,
                     "Неверный тип продукции: " + productType);
         }
     }
 
-    /** Муфта: quantity штук, заготовка считается по D_нар / D_внутр из справочника. */
+    /**
+     * Муфта: quantity штук, заготовка считается по D_нар / D_внутр из справочника.
+     */
     private void applyCoupling(OrderEntity order, Long couplingId, Integer quantity) {
         if (couplingId == null) {
-            throw new IllegalArgumentException("Муфта не выбрана");
+            throw new BusinessException(OrderErrorCode.COUPLING_NOT_SELECTED);
         }
         if (quantity == null || quantity <= 0) {
-            throw new IllegalArgumentException("Количество должно быть положительным");
+            throw new BusinessException(OrderErrorCode.QUANTITY_NOT_POSITIVE,
+                    "Количество должно быть положительным, получено: " + quantity);
         }
-
         CouplingEntity coupling = couplingRepository.findById(couplingId)
-                .orElseThrow(() -> new IllegalArgumentException("Муфта не найдена: id=" + couplingId));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.COUPLING_NOT_FOUND, "Муфта не найдена: id=" + couplingId));
 
         order.setCoupling(coupling);
         order.setQuantity(quantity);
@@ -279,18 +291,20 @@ public class OrderService {
                 quantity);
     }
 
-    /** Переводник: аналогично муфте. */
+    /**
+     * Переводник: аналогично муфте.
+     */
     private void applyAdapter(OrderEntity order, Long adapterId, Integer quantity) {
         if (adapterId == null) {
-            throw new IllegalArgumentException("Переводник не выбран");
+            throw new BusinessException(OrderErrorCode.ADAPTER_NOT_SELECTED);
         }
         if (quantity == null || quantity <= 0) {
-            throw new IllegalArgumentException("Количество должно быть положительным");
+            throw new BusinessException(OrderErrorCode.QUANTITY_NOT_POSITIVE,
+                    "Количество должно быть положительным, получено: " + quantity);
         }
-
         PipeAdapterEntity adapter = pipeAdapterRepository.findById(adapterId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Переводник не найден: id=" + adapterId));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.ADAPTER_NOT_FOUND, "Переводник не найден: id=" + adapterId));
 
         order.setAdapter(adapter);
         order.setQuantity(quantity);
@@ -304,14 +318,14 @@ public class OrderService {
 
     /**
      * Труба или патрубок.
-     *
+     * <p>
      * Общая логика:
-     *   1) Находим наружную резьбу (тип + условный диаметр, напр. "НКТ 73").
-     *   2) Парсим условный диаметр в число (73 → 73.0 мм).
-     *   3) Считаем общий метраж и общий вес.
-     *   4) Считаем quantity (для PIPE — ceil(totalLength / avgLength); для NIPPLE — из DTO).
-     *   5) Заполняем workpiece_* и order_total_* / price_per_ton.
-     *
+     * 1) Находим наружную резьбу (тип + условный диаметр, напр. "НКТ 73").
+     * 2) Парсим условный диаметр в число (73 → 73.0 мм).
+     * 3) Считаем общий метраж и общий вес.
+     * 4) Считаем quantity (для PIPE — ceil(totalLength / avgLength); для NIPPLE — из DTO).
+     * 5) Заполняем workpiece_* и order_total_* / price_per_ton.
+     * <p>
      * Для PIPE менеджер вводит ИЛИ метраж, ИЛИ тоннаж.
      * Второе значение вычисляется через WorkpieceCalculator.
      */
@@ -328,27 +342,28 @@ public class OrderService {
                                    Double pieceLengthMm) {
 
         if (externalThreadId == null) {
-            throw new IllegalArgumentException("Резьба не выбрана");
+            throw new BusinessException(OrderErrorCode.THREAD_NOT_SELECTED);
         }
-        if (wallThicknessMm == null || wallThicknessMm <= 0) {
-            throw new IllegalArgumentException("Толщина стенки должна быть положительной");
+            // <= 0 проверит сам WorkpieceCalculator (CALC-002), здесь — только null,
+            // чтобы не было NPE при unboxing Double → double.
+        if (wallThicknessMm == null) {
+            throw new BusinessException(OrderErrorCode.WALL_THICKNESS_REQUIRED);
         }
         if (pricePerTon == null || pricePerTon.signum() <= 0) {
-            throw new IllegalArgumentException("Укажите цену за тонну металла");
+            throw new BusinessException(OrderErrorCode.PRICE_PER_TON_REQUIRED);
         }
-
         ExternalThreadEntity thread = externalThreadRepository.findById(externalThreadId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Резьба не найдена: id=" + externalThreadId));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.THREAD_NOT_FOUND, "Резьба не найдена: id=" + externalThreadId));
 
         // "73" → 73.0. Если справочник кривой — не молчим, падаем явно.
         double outerDiameterMm;
         try {
             outerDiameterMm = Double.parseDouble(thread.getConditionalDiameter());
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
+            throw new BusinessException(OrderErrorCode.THREAD_DIAMETER_PARSE_ERROR,
                     "Не удалось разобрать условный диаметр резьбы: '"
-                            + thread.getConditionalDiameter() + "'");
+                            + thread.getConditionalDiameter() + "'", e);
         }
 
         double wall = wallThicknessMm;
@@ -371,8 +386,7 @@ public class OrderService {
                 weightKg = orderTotalWeightKg;
                 totalLengthM = lengthFromWeight(outerDiameterMm, wall, weightKg);
             } else {
-                throw new IllegalArgumentException(
-                        "Для трубы укажите общий метраж или тоннаж");
+                throw new BusinessException(OrderErrorCode.PIPE_LENGTH_OR_WEIGHT_REQUIRED);
             }
 
             // quantity труб — оценка через среднюю длину
@@ -386,12 +400,12 @@ public class OrderService {
         } else {
             // ---- ПАТРУБОК ----
             if (quantity == null || quantity <= 0) {
-                throw new IllegalArgumentException(
-                        "Количество патрубков должно быть положительным");
+                throw new BusinessException(OrderErrorCode.QUANTITY_NOT_POSITIVE,
+                        "Количество патрубков должно быть положительным, получено: " + quantity);
             }
             if (pieceLengthMm == null || pieceLengthMm <= 0) {
-                throw new IllegalArgumentException(
-                        "Длина патрубка должна быть положительной");
+                throw new BusinessException(OrderErrorCode.NIPPLE_LENGTH_REQUIRED,
+                        "Длина патрубка должна быть положительной, получено: " + pieceLengthMm);
             }
 
             finalQuantity = quantity;
@@ -422,10 +436,10 @@ public class OrderService {
 
     /**
      * Обратный пересчёт: вес (кг) → длина (м).
-     *
+     * <p>
      * Формула выведена из WorkpieceCalculator.calculateWeight:
-     *   M = π × ρ × S × (D − S) × L / 1_000_000
-     *   ⇒ L = M × 1_000_000 / (π × ρ × S × (D − S))
+     * M = π × ρ × S × (D − S) × L / 1_000_000
+     * ⇒ L = M × 1_000_000 / (π × ρ × S × (D − S))
      */
     private double lengthFromWeight(double outerDiameterMm,
                                     double wallThicknessMm,
@@ -434,7 +448,7 @@ public class OrderService {
                 * wallThicknessMm * (outerDiameterMm - wallThicknessMm)
                 / 1_000_000.0;
         if (denom <= 0) {
-            throw new IllegalArgumentException(
+            throw new BusinessException(OrderErrorCode.INVALID_PIPE_PARAMS,
                     "Некорректные параметры трубы: D=" + outerDiameterMm
                             + ", S=" + wallThicknessMm);
         }
@@ -447,15 +461,15 @@ public class OrderService {
 
     /**
      * Валидирует пару (группа, марка), подтягивает snapshot надбавки.
-     *
+     * <p>
      * Правила:
-     *   1) Оба null → группа = null, марка = null, appliedMarkup = 0.
-     *   2) Задана только группа → марка = null, appliedMarkup = группы.markupPercent.
-     *   3) Задана только марка → группа = марки.strengthGroup (автоподстановка),
-     *      appliedMarkup = группы.markupPercent.
-     *   4) Заданы оба → марка обязана принадлежать указанной группе,
-     *      иначе IllegalArgumentException.
-     *      appliedMarkup = группы.markupPercent.
+     * 1) Оба null → группа = null, марка = null, appliedMarkup = 0.
+     * 2) Задана только группа → марка = null, appliedMarkup = группы.markupPercent.
+     * 3) Задана только марка → группа = марки.strengthGroup (автоподстановка),
+     * appliedMarkup = группы.markupPercent.
+     * 4) Заданы оба → марка обязана принадлежать указанной группе,
+     * иначе IllegalArgumentException.
+     * appliedMarkup = группы.markupPercent.
      */
     private void applyStrengthAndGrade(OrderEntity order, Long groupId, Long gradeId) {
         // сбрасываем предыдущее состояние
@@ -472,23 +486,21 @@ public class OrderService {
         SteelGradeEntity grade = null;
 
         if (groupId == null) {
-            // случай 3: только марка
             grade = steelGradeRepository.findById(gradeId)
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Марка стали не найдена: id=" + gradeId));
+                    .orElseThrow(() -> new BusinessException(
+                            OrderErrorCode.GRADE_NOT_FOUND, "Марка стали не найдена: id=" + gradeId));
             group = grade.getStrengthGroup();
         } else {
             group = strengthGroupRepository.findById(groupId)
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Группа прочности не найдена: id=" + groupId));
+                    .orElseThrow(() -> new BusinessException(
+                            OrderErrorCode.GROUP_NOT_FOUND, "Группа прочности не найдена: id=" + groupId));
 
-            // случай 4: обе заданы — проверяем соответствие
             if (gradeId != null) {
                 grade = steelGradeRepository.findById(gradeId)
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "Марка стали не найдена: id=" + gradeId));
+                        .orElseThrow(() -> new BusinessException(
+                                OrderErrorCode.GRADE_NOT_FOUND, "Марка стали не найдена: id=" + gradeId));
                 if (!grade.getStrengthGroup().getId().equals(group.getId())) {
-                    throw new IllegalArgumentException(
+                    throw new BusinessException(OrderErrorCode.GRADE_NOT_IN_GROUP,
                             "Марка «" + grade.getName() + "» не принадлежит группе «"
                                     + group.getCode() + "»");
                 }
@@ -507,9 +519,9 @@ public class OrderService {
 
     /**
      * Развилка по типу продукции:
-     *  - муфта/переводник → OrderCostCalculator (unitCost × Q)
-     *  - труба/патрубок   → PipeOrderCostCalculator (threadsCost + metalCost)
-     *
+     * - муфта/переводник → OrderCostCalculator (unitCost × Q)
+     * - труба/патрубок   → PipeOrderCostCalculator (threadsCost + metalCost)
+     * <p>
      * Единственное место в сервисе, где вызываются калькуляторы.
      * Никаких формул "по месту" — всё в util-классах.
      */
@@ -561,7 +573,8 @@ public class OrderService {
     @Transactional
     public OrderDto updateStatus(Long orderId, OrderStatus newStatus) {
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + orderId));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.ORDER_NOT_FOUND, "Заказ не найден: id=" + orderId));
         order.setStatus(newStatus);
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -581,20 +594,23 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDto getOrderById(Long id) {
         OrderEntity order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + id));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.ORDER_NOT_FOUND, "Заказ не найден: id=" + id));
         return orderMapper.toDto(order);
     }
 
     @Transactional
     public void deleteOrder(Long orderId) {
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден: id=" + orderId));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.ORDER_NOT_FOUND, "Заказ не найден: id=" + orderId));
         orderRepository.delete(order);
     }
 
     public OrderEntity getOrderEntityById(Long id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Заказ не найден, id=" + id));
+                .orElseThrow(() -> new BusinessException(
+                        OrderErrorCode.ORDER_NOT_FOUND, "Заказ не найден, id=" + id));
     }
 
     public List<OrderEntity> getOrdersByIdsWithDetails(List<Long> ids) {
@@ -631,7 +647,8 @@ public class OrderService {
     public void startProduction(Long orderId, LocalDate deadline) {
         OrderEntity order = getOrderEntityById(orderId);
         if (order.getStatus() != OrderStatus.WAITING) {
-            throw new IllegalStateException("Заказ уже не в статусе ожидания");
+            throw new BusinessException(OrderErrorCode.ORDER_NOT_WAITING,
+                    "Заказ уже не в статусе ожидания, текущий: " + order.getStatus());
         }
         if (deadline != null) {
             order.setDeadline(deadline);
