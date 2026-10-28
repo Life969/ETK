@@ -15,7 +15,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @EntityGraph(attributePaths = {"company",
             "coupling",
             "adapter",
-            "additionalWorks",
             "externalThread",
             "strengthGroup",
             "steelGrade"})

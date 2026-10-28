@@ -268,6 +268,21 @@ public class ProductionRecordMvcController {
         return "redirect:/production-records";
     }
 
+    /**
+     * Локальный 404 для REST-эндпоинтов этого контроллера
+     * (api/couplings, api/adapters, api/external-threads): их сервисы
+     * бросают NoSuchElementException, а глобальный MvcErrorHandler
+     * ловит только BusinessException и делает redirect — для AJAX это плохо.
+     *
+     * TODO (шаг 3): вынести REST-эндпоинты в ProductionRecordRestController
+     *  и заменить этот хендлер на @RestControllerAdvice (RestErrorHandler).
+     *  После этого @ExceptionHandler(NoSuchElementException.class)
+     *  можно удалить полностью — он больше не нужен.
+     *
+     * Записи журнала (findById/deleteById) теперь бросают BusinessException
+     * из ProductionRecordService и сюда НЕ попадают — их обрабатывает
+     * MvcErrorHandler (redirect + flash).
+     */
     @ExceptionHandler(NoSuchElementException.class)
     public String handleNotFound(NoSuchElementException ex, Model model) {
         model.addAttribute("error", ex.getMessage());

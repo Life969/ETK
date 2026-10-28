@@ -91,35 +91,15 @@ public class OrderController {
         log.info("OrderController waiting orders");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<OrderDto> ordersPage = orderService.getOrdersByStatus(OrderStatus.WAITING, search, pageable);
+        Page<OrderDto> ordersPage = orderService.getOrdersByStatus(
+                OrderStatus.WAITING, search, pageable);
 
-        List<Map<String, Object>> waitingItems = new ArrayList<>();
-        for (OrderDto orderDto : ordersPage.getContent()) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("order", orderDto);
-            item.put("product", null);       // ← ключ всегда есть
-            item.put("productType", null);   // ← ключ всегда есть
 
-            String pt = orderDto.getProductType();
-            if ("COUPLING".equals(pt) && orderDto.getProductId() != null) {
-                CouplingEntity coupling = couplingService.findById(orderDto.getProductId());
-                item.put("product", coupling);
-                item.put("productType", "COUPLING");
-            } else if ("ADAPTER".equals(pt) && orderDto.getProductId() != null) {
-                PipeAdapterEntity adapter = pipeAdapterService.findById(orderDto.getProductId());
-                item.put("product", adapter);
-                item.put("productType", "ADAPTER");
-            } else if ("PIPE".equals(pt) || "NIPPLE".equals(pt)) {
-                item.put("productType", pt);
-                // product остаётся null — шаблон это понимает
-            }
-            waitingItems.add(item);
-        }
 
         model.addAttribute("ordersPage", ordersPage);
-        model.addAttribute("waitingItems", waitingItems);
         model.addAttribute("status", "WAITING");
 
+        @SuppressWarnings("unchecked")
         Set<Long> selectedOrderIds = (Set<Long>) session.getAttribute("commercialOffer");
         if (selectedOrderIds == null) selectedOrderIds = Collections.emptySet();
         model.addAttribute("selectedOrderIds", selectedOrderIds);

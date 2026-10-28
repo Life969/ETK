@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import ProjectForJob.example.Job.exception.BusinessException;
+import ProjectForJob.example.Job.exception.service.journal.ProductionRecordErrorCode;
+
 
 @Service
 public class ProductionRecordService {
@@ -30,14 +32,65 @@ public class ProductionRecordService {
 
     public ProductionRecordEntity findById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Запись с id " + id + " не найдена"));
+                .orElseThrow(() -> new BusinessException(
+                        ProductionRecordErrorCode.RECORD_NOT_FOUND,
+                        "Запись производства не найдена: id=" + id));
     }
 
     public ProductionRecordEntity save(ProductionRecordEntity record) {
+        validateProduct(record);
         return repository.save(record);
     }
 
+    /**
+     * Проверяет инвариант «ровно один продукт + корректные для него поля».
+     *
+     * <p>UI-контроллер дублирует эти проверки в BindingResult — чтобы вернуть
+     * форму с подсветкой полей без redirect. Сервис страхует от прямых
+     * вызовов (REST, скрипты, тесты): без этой проверки в БД уйдёт запись
+     * с productType=null и нулевой ценой для сотрудника — тихая порча данных.
+     *
+     * <p>quantity/employee/machine сознательно НЕ проверяются: они защищены
+     * аннотациями JPA/Bean Validation в контроллере через @Valid, и других
+     * путей вызова save() в проекте сейчас нет.
+     */
+    private void validateProduct(ProductionRecordEntity record) {
+        int products = 0;
+        if (record.getCoupling() != null)        products++;
+        if (record.getAdapter() != null)         products++;
+        if (record.getExternalThread() != null)  products++;
+
+        if (products == 0) {
+            throw new BusinessException(ProductionRecordErrorCode.PRODUCT_TYPE_MISSING,
+                    "Не выбран продукт: муфта, переводник или резьба");
+        }
+        if (products > 1) {
+            throw new BusinessException(ProductionRecordErrorCode.PRODUCT_TYPE_INVALID,
+                    "Задано более одного продукта одновременно");
+        }
+
+        if (record.getCoupling() != null || record.getAdapter() != null) {
+            return; // для COUPLING/ADAPTER достаточно самого продукта
+        }
+
+        // остался только externalThread
+        if (record.getPipeProductKind() == null) {
+            throw new BusinessException(ProductionRecordErrorCode.PRODUCT_TYPE_MISSING,
+                    "Для резьбы укажите вид продукции (PIPE/NIPPLE)");
+        }
+        if (record.getPipeProductKind() == PipeProductKind.NIPPLE
+                && (record.getPieceLengthMm() == null || record.getPieceLengthMm() <= 0)) {
+            throw new BusinessException(ProductionRecordErrorCode.PIECE_LENGTH_REQUIRED,
+                    "Длина патрубка должна быть положительной, получено: " + record.getPieceLengthMm());
+        }
+    }
+
     public void deleteById(Long id) {
+        if (!repository.existsById(id)) {
+            throw new BusinessException(
+                    ProductionRecordErrorCode.RECORD_NOT_FOUND,
+                    "Запись производства не найдена: id=" + id);
+        }
         repository.deleteById(id);
     }
 

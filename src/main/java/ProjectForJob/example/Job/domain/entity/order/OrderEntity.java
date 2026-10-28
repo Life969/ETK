@@ -4,6 +4,7 @@ import ProjectForJob.example.Job.domain.entity.handbook.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
@@ -57,6 +58,7 @@ public class OrderEntity {
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "additional_work_id")
     )
+    @BatchSize(size = 50)
     private List<AdditionalWorkEntity> additionalWorks = new ArrayList<>();
 
     // Статус заказа
