@@ -1,52 +1,90 @@
 services:
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.0
+    container_name: keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "9090:8080"   # снаружи порт 9090, внутри контейнера 8080
+    command: start-dev
+    # необязательно: перезапускать при падении
+    restart: unless-stopped
+
+
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: my_postgres
     environment:
-      POSTGRES_DB: jobdb
-      POSTGRES_USER: jobuser
-      POSTGRES_PASSWORD: 'zpletk'
+      POSTGRES_DB: postgres      # замени на имя твоей БД
+      POSTGRES_USER: postgres         # замени на твоего пользователя
+      POSTGRES_PASSWORD: zpletk     # замени на твой пароль
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U jobuser -d jobdb" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - backend
+
+  # Новая БД для Production Service
+  postgres_production:
+    image: postgres:15
+    container_name: postgres_production
+    environment:
+      POSTGRES_DB: production_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: zpletk
+    ports:
+      - "5433:5432"   #  порт 5433, чтобы не конфликтовать
+    volumes:
+      - pg_production_data:/var/lib/postgresql/data
+
+    # Zookeeper (необходим для Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+    # Kafka брокер
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CONTROLLER_LISTENER_NAMES: ""   # обязательно для версий 3.x+
+    restart: unless-stopped
+
 
 
   app:
     build: .
-    container_name: spring_app
+    container_name: my_spring_app
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - backend
-    env_file:
-      - .env
-    volumes:
-      - ./uploads:/app/uploads
-    command: >
-      sh -c "java -Djava.security.egd=file:/dev/./urandom 
-      -Dspring.datasource.hikari.connection-timeout=60000 
-      -jar app.jar"
-
-
-
-
-
-networks:
-  backend:
-    name: job_backend_network
-    driver: bridge
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: zpletk
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate   # или update, но лучше validate
+      SERVER_ADDRESS: 0.0.0.0                  # чтобы слушать все интерфейсы
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  pg_production_data:
