@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="scene" class="scene">
+
+  <img th:src="@{/images/wc2.jpg}" alt="Фабрика" class="background-img">
+
+  <div class="clouds-container">
+    <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div><div class="cloud cloud-4"></div>
+    <div class="cloud cloud-5"></div><div class="cloud cloud-6"></div>
+    <div class="cloud cloud-7"></div><div class="cloud cloud-8"></div>
+  </div>
+
+  <div class="smoke-container">
+    <div class="smoke puff-1"></div><div class="smoke puff-2"></div>
+    <div class="smoke puff-3"></div><div class="smoke puff-4"></div>
+  </div>
+
+  <div class="ice-bear-actor">
+    <video class="bear-video bear-sweep-video active"
+           autoplay loop muted playsinline preload="auto">
+      <source th:src="@{/video/bear-sweep.webm}" type="video/webm">
+    </video>
+  </div>
+
+  <!-- SVG-шаблон листа -->
+  <svg class="leaf-defs" width="0" height="0" style="position:absolute">
+    <symbol id="leaf-icon" viewBox="0 0 40 60">
+      <path d="M20 4 C30 12 34 28 30 40 C26 52 22 56 20 56 C18 56 14 52 10 40 C6 28 10 12 20 4 Z"
+            fill="currentColor" stroke="#3a2a1a" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M20 8 L20 54" stroke="#3a2a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <path d="M20 18 L14 24 M20 28 L12 32 M20 38 L14 44"
+            stroke="#3a2a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <path d="M20 56 L20 60" stroke="#3a2a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
+  <div class="leaves-container">
+    <div class="leaf leaf-1"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-2"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-3"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-4"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-5"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-6"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-7"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-8"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-9"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-10"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-11"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+    <div class="leaf leaf-12"><svg viewBox="0 0 40 60"><use href="#leaf-icon"/></svg></div>
+  </div>
+
+  <div class="water barrel-water"></div>
+  <div class="water bucket-water"></div>
+
+  <div class="lamp-glow lamp-glow-1"></div>
+  <div class="lamp-glow lamp-glow-2"></div>
+
+  <button class="light-switch" id="lightSwitch" type="button" aria-label="Свет">
+    <span class="switch-frame"></span>
+    <span class="switch-track">
+            <span class="switch-knob"><span class="knob-dot"></span></span>
+        </span>
+  </button>
+
+  <div class="welcome-overlay"></div>
+</div>
+
+</body>
+</html>

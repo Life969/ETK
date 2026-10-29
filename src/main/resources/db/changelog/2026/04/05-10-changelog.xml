@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="2026-10-05-01-create-pipe-products-data" author="dev">
+        <comment>Справочник труб и патрубков (наружная резьба)</comment>
+
+        <createTable tableName="pipe_products_data">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="kind" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="conditional_diameter" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="outer_diameter_mm" type="DOUBLE PRECISION"/>
+            <column name="length_mm" type="DOUBLE PRECISION"/>
+            <column name="manufacturing_cost" type="NUMERIC(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_for_employee" type="NUMERIC(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="standart" type="VARCHAR(100)"/>
+            <column name="description" type="TEXT"/>
+            <column name="image_path" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex tableName="pipe_products_data" indexName="idx_pipe_products_kind">
+            <column name="kind"/>
+        </createIndex>
+
+        <createIndex tableName="pipe_products_data" indexName="idx_pipe_products_kind_type">
+            <column name="kind"/>
+            <column name="type"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

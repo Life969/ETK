@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <!-- ============================================================ -->
+    <!-- СПРАВОЧНИК ГРУПП ПРОЧНОСТИ СТАЛИ                             -->
+    <!-- Фаза 1: только таблицы и seed. Заказы не трогаем.            -->
+    <!-- ============================================================ -->
+
+    <!-- Таблица групп прочности -->
+    <changeSet id="steel-strength-groups-1" author="denis">
+        <createTable tableName="steel_strength_groups">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"
+                             primaryKeyName="steel_strength_groups_pkey"/>
+            </column>
+            <column name="code" type="varchar(10)">
+                <constraints nullable="false" unique="true"
+                             uniqueConstraintName="uk_steel_strength_groups_code"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(500)"/>
+            <column name="markup_percent" type="numeric(6,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_default" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Таблица марок стали -->
+    <changeSet id="steel-strength-groups-2" author="denis">
+        <createTable tableName="steel_grades">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"
+                             primaryKeyName="steel_grades_pkey"/>
+            </column>
+            <column name="strength_group_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(500)"/>
+            <column name="active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- FK + уникальность марки в рамках группы -->
+    <changeSet id="steel-strength-groups-3" author="denis">
+        <addForeignKeyConstraint
+                baseColumnNames="strength_group_id"
+                baseTableName="steel_grades"
+                constraintName="fk_steel_grades_group"
+                onDelete="RESTRICT"
+                onUpdate="NO ACTION"
+                referencedColumnNames="id"
+                referencedTableName="steel_strength_groups"/>
+        <addUniqueConstraint
+                tableName="steel_grades"
+                columnNames="strength_group_id,name"
+                constraintName="uk_steel_grades_group_name"/>
+    </changeSet>
+
+    <!--
+        Seed: группы прочности по ГОСТ 633-80.
+        markupPercent пока проставлены "на глаз" — админ поправит через UI.
+        Дефолтная группа — "Д" (is_default=true). Надбавка 0.
+    -->
+    <changeSet id="steel-strength-groups-4" author="denis">
+        <insert tableName="steel_strength_groups">
+            <column name="code" value="Д"/>
+            <column name="name" value="Группа прочности Д"/>
+            <column name="description" value="σт до 380 МПа. Дефолтная для старых заказов."/>
+            <column name="markup_percent" valueNumeric="0"/>
+            <column name="is_default" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_strength_groups">
+            <column name="code" value="К"/>
+            <column name="name" value="Группа прочности К"/>
+            <column name="description" value="σт 380–490 МПа"/>
+            <column name="markup_percent" valueNumeric="5"/>
+            <column name="is_default" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_strength_groups">
+            <column name="code" value="Е"/>
+            <column name="name" value="Группа прочности Е"/>
+            <column name="description" value="σт 490–560 МПа"/>
+            <column name="markup_percent" valueNumeric="10"/>
+            <column name="is_default" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_strength_groups">
+            <column name="code" value="Л"/>
+            <column name="name" value="Группа прочности Л"/>
+            <column name="description" value="σт 560–650 МПа"/>
+            <column name="markup_percent" valueNumeric="15"/>
+            <column name="is_default" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_strength_groups">
+            <column name="code" value="М"/>
+            <column name="name" value="Группа прочности М"/>
+            <column name="description" value="σт 650–750 МПа"/>
+            <column name="markup_percent" valueNumeric="20"/>
+            <column name="is_default" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_strength_groups">
+            <column name="code" value="Р"/>
+            <column name="name" value="Группа прочности Р"/>
+            <column name="description" value="σт выше 750 МПа"/>
+            <column name="markup_percent" valueNumeric="30"/>
+            <column name="is_default" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Пара марок для теста каскада группа→марка в UI -->
+    <changeSet id="steel-strength-groups-5" author="denis">
+        <insert tableName="steel_grades">
+            <column name="strength_group_id"
+                    valueComputed="(SELECT id FROM steel_strength_groups WHERE code = 'Д')"/>
+            <column name="name" value="Ст20"/>
+            <column name="description" value="Углеродистая качественная"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_grades">
+            <column name="strength_group_id"
+                    valueComputed="(SELECT id FROM steel_strength_groups WHERE code = 'Е')"/>
+            <column name="name" value="30ХГСА"/>
+            <column name="description" value="Хромансиль"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="steel_grades">
+            <column name="strength_group_id"
+                    valueComputed="(SELECT id FROM steel_strength_groups WHERE code = 'Л')"/>
+            <column name="name" value="40ХН2МА"/>
+            <column name="description" value="Высокопрочная"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

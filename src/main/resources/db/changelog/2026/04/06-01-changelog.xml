@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ============================================================
+         Откат черновой таблицы из 05-10-changelog.
+         precondition: если таблицы нет (снесли БД через down -v),
+         changeset пометится как MARK_RAN и не упадёт.
+         ============================================================ -->
+    <changeSet id="2026-10-06-01-drop-pipe-products-data" author="dev">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="pipe_products_data"/>
+        </preConditions>
+        <comment>Откат черновой таблицы труб/патрубков (заменяется справочником наружных резьб)</comment>
+        <dropTable tableName="pipe_products_data"/>
+    </changeSet>
+
+    <!-- ============================================================
+         Справочник наружных резьб.
+         Используется и для труб, и для патрубков — различие
+         определяется в заказе (PIPE / NIPPLE), а не в справочнике.
+         ============================================================ -->
+    <changeSet id="2026-10-06-02-create-external-threads-data" author="dev">
+        <comment>Справочник наружных резьб (НКТ, ОТТМ, ОТТГ и т.д.) для труб и патрубков</comment>
+
+        <createTable tableName="external_threads_data">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="conditional_diameter" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="manufacturing_cost" type="NUMERIC(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_for_employee" type="NUMERIC(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="standart" type="VARCHAR(100)"/>
+            <column name="description" type="TEXT"/>
+            <column name="image_path" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex tableName="external_threads_data" indexName="idx_ext_threads_type">
+            <column name="type"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

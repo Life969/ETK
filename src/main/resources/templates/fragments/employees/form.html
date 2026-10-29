@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content" class="handbook-content">
+
+  <header class="handbook-header">
+    <div class="handbook-title-wrap">
+      <a th:href="@{/employees}" data-turbo-frame="app" class="hb-icon-btn hb-back" title="Назад">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h1 class="handbook-title"
+          th:text="${employee.id == null} ? 'Новый сотрудник' : 'Редактирование сотрудника'">
+        Новый сотрудник
+      </h1>
+    </div>
+  </header>
+
+  <form th:action="@{/employees/save}" th:object="${employee}" method="post"
+        class="handbook-form">
+
+    <input type="hidden" th:field="*{id}"/>
+
+    <div class="hb-grid">
+      <div class="hb-field hb-field-full">
+        <label for="name">Имя сотрудника <span class="req">*</span></label>
+        <input type="text" id="name" th:field="*{name}" required/>
+        <span class="hb-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+      </div>
+    </div>
+
+    <div class="handbook-form-actions">
+      <button type="submit" class="btn-glass btn-glass-primary">
+        <i class="bi bi-check-lg"></i> Сохранить
+      </button>
+      <a th:href="@{/employees}" data-turbo-frame="app" class="btn-glass btn-glass-ghost">
+        Отмена
+      </a>
+    </div>
+
+  </form>
+
+</div>
+
+</body>
+</html>
